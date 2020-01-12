@@ -36,12 +36,7 @@ public class FlywheelSubsystem extends SubsystemBase {
    m_flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
    m_flywheelMotor.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_1Ms);
    m_flywheelMotor.configVelocityMeasurementWindow(64);
-
-   m_flywheelMotor.config_kP(0, 0);
-   m_flywheelMotor.config_kI(0, 0);
-   m_flywheelMotor.config_IntegralZone(0, 0);
-   m_flywheelMotor.config_kD(0, 0);
-   m_flywheelMotor.config_kF(0, 0);
+   configFeedbackGains();
 
    setDefaultCommand(new RunCommand(this::stopFlywheel, this));
   }
@@ -66,6 +61,19 @@ public class FlywheelSubsystem extends SubsystemBase {
   public void stopFlywheel(){
     setPower(0);
   }  
+
+  public void configFeedbackGains(){
+    double kP = SmartDashboard.getNumber("Flywheel kP", 0);
+    double kF = SmartDashboard.getNumber("Flywheel kF", 0);
+
+    m_flywheelMotor.config_kP(0, kP);
+    m_flywheelMotor.config_kI(0, SmartDashboard.getNumber("Flywheel kI", 0));
+    m_flywheelMotor.config_IntegralZone(0, (int)SmartDashboard.getNumber("Flywheel IntegralZone", 0));
+    m_flywheelMotor.config_kD(0, SmartDashboard.getNumber("Flywheel kD", 0));
+    m_flywheelMotor.config_kF(0, kF);
+
+    System.out.println("Flywheel configed yay: kP: " + kP + " kF: " + kF);
+  }
 
   private double rpmToFX(double rpm){
     return rpm*Conversions.kFlywheelEncoderTicksPerRotation/600;
