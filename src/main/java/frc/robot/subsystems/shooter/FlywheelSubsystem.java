@@ -44,6 +44,7 @@ public class FlywheelSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Flywheel RPM", getFlywheelVelocityRPM());
+    SmartDashboard.putNumber("Flywheel native units", m_flywheelMotor.getSelectedSensorVelocity());
   }
 
   public void setPower(double power){
