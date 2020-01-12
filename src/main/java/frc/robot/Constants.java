@@ -16,4 +16,11 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static final class RobotMap{
+        public static final int kFlywheelTalonFX = 0;
+    }
+
+    public static final class Conversions{
+        public static final int kFlywheelEncoderTicksPerRotation = 2048;
+    }
 }
