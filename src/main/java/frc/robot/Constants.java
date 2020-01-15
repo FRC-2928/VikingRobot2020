@@ -16,4 +16,24 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static final class RobotMap{
+        //Drivetrain
+
+        //Shooter
+
+        //Climber
+
+        //Control Panel
+        public static final int kControlPanelSparkMax = 69; //Placeholder
+
+        //Solenoids
+    }
+
+    public static final class PIDConstants{
+
+    }
+
+    public static final class ConversionConstants{
+
+    }
 }
