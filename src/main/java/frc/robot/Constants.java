@@ -20,6 +20,7 @@ public final class Constants {
         //Drivetrain
 
         //Shooter
+        public static final int kTurretTalonSRX = 420;
 
         //Climber
 
@@ -34,6 +35,9 @@ public final class Constants {
     }
 
     public static final class ConversionConstants{
+
+        public static final double kTurretTicksPerRotation = 1717; //Placeholder
+        public static final double kTurretDegreesPerRotation = 330; //Placeholder
 
     }
 }
