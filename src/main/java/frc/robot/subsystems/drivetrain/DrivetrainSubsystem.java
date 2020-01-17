@@ -78,9 +78,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
       //Either using the integrated Falcon sensor or an external one, will change if needed
       fx.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-
-      differentialdrive = new DifferentialDrive(m_leftMaster, m_rightMaster);
     }
+
+    differentialdrive = new DifferentialDrive(m_leftMaster, m_rightMaster);
   }
 
   public void drive(double move, double rotate, boolean squaredInputs){
