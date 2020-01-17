@@ -18,6 +18,10 @@ package frc.robot;
 public final class Constants {
     public static final class RobotMap{
         //Drivetrain
+        public static final int kDrivetrainLeftFrontTalonFX = 14;
+        public static final int kDrivetrainLeftBackTalonFX = 15;
+        public static final int kDrivetrainRightFrontTalonFX = 1;
+        public static final int kDrivetrainRightBackTalonFX = 0;
 
         //Shooter
 
@@ -27,6 +31,9 @@ public final class Constants {
         public static final int kControlPanelSparkMax = 69; //Placeholder
 
         //Solenoids
+
+        //Sensors
+        public static final int kPigeonIMU = 3;
     }
 
     public static final class PIDConstants{
