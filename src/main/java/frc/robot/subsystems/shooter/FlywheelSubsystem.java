@@ -19,6 +19,9 @@ public class FlywheelSubsystem extends SubsystemBase {
   private TalonFX m_flywheelMotor;
   private double velocity;
 
+
+  private final double kFlywheelKF = 0.0467;
+
   public FlywheelSubsystem() {
    m_flywheelMotor = new TalonFX(RobotMap.kFlywheelTalonFX);
 
@@ -39,6 +42,10 @@ public class FlywheelSubsystem extends SubsystemBase {
    configFeedbackGains();
 
    setDefaultCommand(new RunCommand(this::stopFlywheel, this));
+
+   SmartDashboard.putNumber("Flywheel kP", 0);
+   SmartDashboard.putNumber("Flywheel kF", kFlywheelKF);
+   SmartDashboard.putNumber("Target RPM", 0);
   }
 
   @Override
@@ -66,7 +73,7 @@ public class FlywheelSubsystem extends SubsystemBase {
 
   public void configFeedbackGains(){
     double kP = SmartDashboard.getNumber("Flywheel kP", 0);
-    double kF = SmartDashboard.getNumber("Flywheel kF", ConversionConstants.kFlywheelKF);
+    double kF = SmartDashboard.getNumber("Flywheel kF", kFlywheelKF);
 
     m_flywheelMotor.config_kP(0, kP);
     m_flywheelMotor.config_kI(0, SmartDashboard.getNumber("Flywheel kI", 0));

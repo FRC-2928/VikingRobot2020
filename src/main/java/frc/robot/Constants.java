@@ -22,6 +22,5 @@ public final class Constants {
 
     public static final class ConversionConstants{
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
-        public static final double kFlywheelKF = 0.0467;
     }
 }

@@ -36,10 +36,6 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-
-    SmartDashboard.putNumber("Flywheel kP", 0);
-    SmartDashboard.putNumber("Flywheel kF", 0);
-    SmartDashboard.putNumber("Target RPM", 0);
   }
 
   /**
