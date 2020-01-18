@@ -10,7 +10,7 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Solenoid;
-
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants.  This class should not be used for any other purpose.  All constants should be
@@ -38,11 +38,11 @@ public final class Constants {
     public static final class RobotMap{
         public static final int kFlywheelTalonFX = 0;
 
-        public static final int kIntakeSoleniodOne = 69; //place holder
-        public static final int kIntakeSoleniodTwo = 69;
-        public static final int kIntakeSoleniodThree = 69;
-        public static final int kIntakeSoleniodFour = 69;
-        public static final int kIntakeTalonFX = 6; //placeholder
+        public static final int kIntakeSoleniodRightOne = 69; //place holder
+        public static final int kIntakeSoleniodRightTwo = 69;
+        public static final int kIntakeSoleniodLeftOne = 69;
+        public static final int kIntakeSoleniodLeftTwo = 69;
+        public static final int kIntakeWPI_TalonSRX = 6; //placeholder
 
        
     }
