@@ -20,7 +20,8 @@ public final class Constants {
         public static final int kFlywheelTalonFX = 0;
     }
 
-    public static final class Conversions{
-        public static final int kFlywheelEncoderTicksPerRotation = 2048;
+    public static final class ConversionConstants{
+        public static final double kFlywheelEncoderTicksPerRotation = 2048;
+        public static final double kFlywheelKF = 0.0467;
     }
 }

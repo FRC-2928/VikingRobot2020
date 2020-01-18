@@ -10,7 +10,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.Conversions;
+import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.RobotMap;
 /**
    * Test FlywheelSubsystem to handle shooting and velocity controls
@@ -45,6 +45,7 @@ public class FlywheelSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Flywheel RPM", getFlywheelVelocityRPM());
     SmartDashboard.putNumber("Flywheel native units", m_flywheelMotor.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Flywheel current draw", m_flywheelMotor.getSupplyCurrent());
   }
 
   public void setPower(double power){
@@ -65,7 +66,7 @@ public class FlywheelSubsystem extends SubsystemBase {
 
   public void configFeedbackGains(){
     double kP = SmartDashboard.getNumber("Flywheel kP", 0);
-    double kF = SmartDashboard.getNumber("Flywheel kF", 0);
+    double kF = SmartDashboard.getNumber("Flywheel kF", ConversionConstants.kFlywheelKF);
 
     m_flywheelMotor.config_kP(0, kP);
     m_flywheelMotor.config_kI(0, SmartDashboard.getNumber("Flywheel kI", 0));
@@ -77,10 +78,10 @@ public class FlywheelSubsystem extends SubsystemBase {
   }
 
   private double rpmToFX(double rpm){
-    return rpm*Conversions.kFlywheelEncoderTicksPerRotation/600;
+    return rpm*ConversionConstants.kFlywheelEncoderTicksPerRotation/600;
   }
 
   private double fxToRPM(double fx){
-    return fx/Conversions.kFlywheelEncoderTicksPerRotation * 600;
+    return fx/ConversionConstants.kFlywheelEncoderTicksPerRotation * 600;
   }
 }
