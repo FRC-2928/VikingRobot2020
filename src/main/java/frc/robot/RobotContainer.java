@@ -56,17 +56,18 @@ public class RobotContainer {
 
     new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
 
-    //extend intake
+      //extend intake
 
-    new InstantCommand(m_intake::extendIntake, m_intake ),
+      new InstantCommand(m_intake::extendIntake, m_intake ),
 
-    //wait until intake deploys
+      //wait until intake deploys
 
-    new WaitCommand(1),
+      new WaitCommand(1),
 
-    // run motors
+      // run motors
 
-    new RunCommand(m_intake::startMotor, m_intake)));
+      new RunCommand(m_intake::startMotor, m_intake)
+    ));
 
 
     new JoystickButton(m_driverController, Button.kA.value).whenReleased(new SequentialCommandGroup(
