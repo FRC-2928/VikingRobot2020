@@ -44,11 +44,15 @@ public final class Constants {
         public static final int kIntakeSoleniodLeftTwo = 69;
         public static final int kIntakeWPI_TalonSRX = 6; //placeholder
 
-       
+        
     }
 
     public static final class Conversions{
         public static final int kFlywheelEncoderTicksPerRotation = 2048;
+    }
+
+    public static final class OIConstants {
+        public static final int kDriverControllerPort =1;
     }
 }
 

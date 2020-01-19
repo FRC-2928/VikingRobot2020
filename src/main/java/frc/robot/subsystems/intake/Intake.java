@@ -39,6 +39,8 @@ public class Intake extends SubsystemBase {
   private Solenoid kIntakeSolenoidLeftRetract;
 
   private WPI_TalonSRX m_intakeMotor;
+
+  private boolean isExtended;
   
 
    public Intake() {
@@ -58,41 +60,41 @@ public class Intake extends SubsystemBase {
     m_intakeMotor.configNeutralDeadband(0.01);
     m_intakeMotor.setNeutralMode(NeutralMode.Coast);
  
-    m_intakeMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 80, 0.04));
+    m_intakeMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 35, 0.04));
  
     // m_intakeMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
   }
 
-  public void ExtendIntake () {
+  public void extendIntake () {
     kIntakeSolenoidRightExtend.set(true);
     kIntakeSolenoidLeftExtend.set(true);
     kIntakeSolenoidLeftRetract.set(false);
     kIntakeSolenoidRightRetract.set(false);
 
-    startMotor();
+    isExtended = true;
 
   }
 
-  public void RetractIntake () {
-
-    stopMotor();
+  public void retractIntake () {
 
     kIntakeSolenoidRightExtend.set(false);
     kIntakeSolenoidLeftExtend.set(false);
     kIntakeSolenoidLeftRetract.set(true);
     kIntakeSolenoidRightRetract.set(true);
+
+    isExtended = false;
   }
 
-  public void SetPower (double power) {
+  public void setPower (double power) {
     m_intakeMotor.set(ControlMode.PercentOutput, power);
   }
 
   public void startMotor () {
-    SetPower(0.5);
+    setPower(0.5);
   }
 
   public void stopMotor () {
-    SetPower(0);
+    setPower(0);
   }
 
   @Override

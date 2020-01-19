@@ -9,9 +9,16 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -25,7 +32,9 @@ public class RobotContainer {
 
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
+  private final Intake m_intake = new Intake();
 
+  XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -33,6 +42,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
+    m_intake.setDefaultCommand( new InstantCommand(m_intake::stopMotor, m_intake));
   }
 
   /**
@@ -42,6 +53,28 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+
+    new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
+
+    //extend intake
+
+    new InstantCommand(m_intake::extendIntake, m_intake ),
+
+    //wait until intake deploys
+
+    new WaitCommand(1),
+
+    // run motors
+
+    new RunCommand(m_intake::startMotor, m_intake)));
+
+
+    new JoystickButton(m_driverController, Button.kA.value).whenReleased(new SequentialCommandGroup(
+      //stop motors
+      new InstantCommand(m_intake::stopMotor, m_intake),
+    //retract intake
+      new InstantCommand(m_intake::retractIntake, m_intake )));
+
   }
 
 
