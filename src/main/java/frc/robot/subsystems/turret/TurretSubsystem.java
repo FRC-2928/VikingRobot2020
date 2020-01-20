@@ -15,10 +15,15 @@ import frc.robot.Constants.RobotMap;
 */
 public class TurretSubsystem extends SubsystemBase {
   private WPI_TalonSRX m_turretMotor;
+  private TurretState m_turretState;
 
   //Feedback gains
   private double kP = 0;
   private double kF = 0;
+
+  public enum TurretState{
+    IDLE, SEARCHING, FOUND, LOCKED;
+  }
 
   public TurretSubsystem() {
     m_turretMotor = new WPI_TalonSRX(RobotMap.kTurretTalonSRX);
@@ -34,7 +39,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     m_turretMotor.setNeutralMode(NeutralMode.Brake);
 
-    m_turretMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 60, 20));
+    m_turretMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 45, 20));
 
     m_turretMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
@@ -54,6 +59,10 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setPosition(double degrees){
     m_turretMotor.set(ControlMode.Position, degreesToSRX(degrees));
+  }
+
+  public void stopMotor(){
+    setPower(0);
   }
 
   public double getTurretPosition(){
@@ -86,8 +95,35 @@ public class TurretSubsystem extends SubsystemBase {
     System.out.println("Turret gains configed: kP " + kP + "kF " + kF);
   }
 
+  //May be easier to move to command for logic
   public void searchForTarget(){
-    
+
+  }
+
+  public void setTurretState(TurretState state){
+    m_turretState = state;
+
+    switch(state){
+      case IDLE:
+      stopMotor();
+      break;
+
+      case SEARCHING:
+      break;
+
+      case FOUND:
+      break;
+
+      case LOCKED:
+      break;
+
+      default:
+      break;
+    }
+  }
+
+  public TurretState getTurretState(){
+    return m_turretState;
   }
 
   //Used to convert native encoder units to turret degrees
