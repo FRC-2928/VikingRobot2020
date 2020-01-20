@@ -33,21 +33,27 @@ public class Intake extends SubsystemBase {
    * Creates a new intake.
    */
 
-  private Solenoid kIntakeSolenoidRightExtend;
-  private Solenoid kIntakeSolenoidRightRetract;
-  private Solenoid kIntakeSolenoidLeftExtend;
-  private Solenoid kIntakeSolenoidLeftRetract;
+  private Solenoid kIntakeSolenoidRightBase;
+  private Solenoid kIntakeSolenoidRightArm;
+  private Solenoid kIntakeSolenoidLeftBase;
+  private Solenoid kIntakeSolenoidLeftArm;
 
   private WPI_TalonSRX m_intakeMotor;
 
-  private boolean isExtended;
-  
+ 
+ 
+
+  public enum IntakeState {
+    GROUND_PICKUP,STATION_PICKUP,STOWED;
+  }
+
+  private IntakeState currentState;
 
    public Intake() {
-    kIntakeSolenoidRightExtend = new Solenoid(RobotMap.kIntakeSoleniodRightOne);
-    kIntakeSolenoidRightRetract = new Solenoid(RobotMap.kIntakeSoleniodRightTwo);
-    kIntakeSolenoidLeftExtend= new Solenoid(RobotMap.kIntakeSoleniodLeftOne);
-    kIntakeSolenoidLeftRetract= new Solenoid(RobotMap.kIntakeSoleniodLeftTwo);
+    kIntakeSolenoidRightBase = new Solenoid(RobotMap.kIntakeSoleniodRightOne);
+    kIntakeSolenoidRightArm = new Solenoid(RobotMap.kIntakeSoleniodRightTwo);
+    kIntakeSolenoidLeftBase= new Solenoid(RobotMap.kIntakeSoleniodLeftOne);
+    kIntakeSolenoidLeftArm= new Solenoid(RobotMap.kIntakeSoleniodLeftTwo);
   
     m_intakeMotor = new WPI_TalonSRX(RobotMap.kIntakeWPI_TalonSRX);
 
@@ -65,25 +71,50 @@ public class Intake extends SubsystemBase {
     // m_intakeMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
   }
 
-  public void extendIntake () {
-    kIntakeSolenoidRightExtend.set(true);
-    kIntakeSolenoidLeftExtend.set(true);
-    kIntakeSolenoidLeftRetract.set(false);
-    kIntakeSolenoidRightRetract.set(false);
 
-    isExtended = true;
 
+  public void groundPickup () {
+    moveIntake(IntakeState.GROUND_PICKUP);
   }
 
-  public void retractIntake () {
-
-    kIntakeSolenoidRightExtend.set(false);
-    kIntakeSolenoidLeftExtend.set(false);
-    kIntakeSolenoidLeftRetract.set(true);
-    kIntakeSolenoidRightRetract.set(true);
-
-    isExtended = false;
+  public void StationPickup () {
+    moveIntake(IntakeState.STATION_PICKUP);
   }
+
+  public void Stowed () {
+    moveIntake(IntakeState.STOWED);
+  }
+
+  public void moveIntake(IntakeState state) {
+
+    switch (state) {
+      case GROUND_PICKUP: 
+        kIntakeSolenoidLeftArm.set(false);
+        kIntakeSolenoidRightArm.set(false);
+        kIntakeSolenoidLeftBase.set(true);
+        kIntakeSolenoidRightBase.set(true);
+      break;
+
+      case STATION_PICKUP: 
+        kIntakeSolenoidLeftArm.set(true);
+        kIntakeSolenoidRightArm.set(true);
+        kIntakeSolenoidLeftBase.set(true);
+        kIntakeSolenoidRightBase.set(true);
+      break;
+
+      case STOWED:
+      kIntakeSolenoidLeftArm.set(true);
+      kIntakeSolenoidRightArm.set(true);
+      kIntakeSolenoidLeftBase.set(false);
+      kIntakeSolenoidRightBase.set(false);
+      break;
+
+      default:
+      break;
+      }
+
+      currentState = state;
+    }
 
   public void setPower (double power) {
     m_intakeMotor.set(ControlMode.PercentOutput, power);

@@ -53,32 +53,51 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    //buttons for the intake
+    configureIntakeButtons();
+    
+  }
 
+  private void configureIntakeButtons() {
+
+    // Pickup balls from the ground
     new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
 
       //extend intake
-
-      new InstantCommand(m_intake::extendIntake, m_intake ),
+      new InstantCommand(m_intake::groundPickup, m_intake ),
 
       //wait until intake deploys
-
       new WaitCommand(1),
 
       // run motors
-
       new RunCommand(m_intake::startMotor, m_intake)
     ));
 
 
-    new JoystickButton(m_driverController, Button.kA.value).whenReleased(new SequentialCommandGroup(
+    // Stow the intake
+    new JoystickButton(m_driverController, Button.kB.value).whenReleased(new SequentialCommandGroup(
       //stop motors
       new InstantCommand(m_intake::stopMotor, m_intake),
-    //retract intake
-      new InstantCommand(m_intake::retractIntake, m_intake )));
+      //retract intake
+      new InstantCommand(m_intake::Stowed, m_intake )
+    ));
+
+
+
+    // Pickup balls from the Player Station
+    new JoystickButton(m_driverController, Button.kX.value).whenPressed(new SequentialCommandGroup(
+
+      //extend intake
+      new InstantCommand(m_intake::StationPickup, m_intake ),
+
+      //wait until intake deploys
+      new WaitCommand(1),
+
+      // run motors
+      new RunCommand(m_intake::startMotor, m_intake)
+    ));
 
   }
-
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
