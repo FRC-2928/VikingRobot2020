@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotMap;
 
@@ -17,13 +18,29 @@ public class FeederSubsystem extends SubsystemBase {
   private WPI_VictorSPX m_hopperMotor;
   private WPI_VictorSPX m_towerMotor;
 
+  //IR sensors to detect ball positions
+  private DigitalOutput m_bottomSensor;
+  private DigitalOutput m_middleSensor;
+  private DigitalOutput m_topSensor;
+
+  private FeederState m_feederState;
+  private IndexState m_indexState;
+
   public enum FeederState{
     STOPPED, WAITING, INDEXING, FEEDING, FULL;
+  }
+
+  public enum IndexState{
+    NONE, ONE_BALL, TWO_BALLS, THREE_BALLS;
   }
 
   public FeederSubsystem() {
    m_hopperMotor = new WPI_VictorSPX(RobotMap.kHopperVictorSPX);
    m_towerMotor = new WPI_VictorSPX(RobotMap.kTowerVictorSPX);
+
+   m_bottomSensor = new DigitalOutput(RobotMap.kIRSensorBottom);
+   m_middleSensor = new DigitalOutput(RobotMap.kIRSensorMiddle);
+   m_topSensor = new DigitalOutput(RobotMap.kIRSensorTop);
 
    for(WPI_VictorSPX feederMotors: new WPI_VictorSPX[]{m_hopperMotor, m_towerMotor}){
    feederMotors.configFactoryDefault();
@@ -43,7 +60,17 @@ public class FeederSubsystem extends SubsystemBase {
       case STOPPED:
       break;
 
+      case WAITING:
+      break;
 
+      case INDEXING:
+      break;
+
+      case FEEDING:
+      break;
+
+      case FULL:
+      break;
     }
   }
 
@@ -53,10 +80,26 @@ public class FeederSubsystem extends SubsystemBase {
 
   public void setTowerPower(double power){
     m_towerMotor.set(ControlMode.PercentOutput, power);
+  } 
+
+  public void index(){    
+    
   }
 
-  public void index(){
+  // public IndexState getIndexState(){
     
+  // }
+
+  public boolean getBottomSensor(){
+    return m_bottomSensor.get();
+  }
+
+  public boolean getMiddleSensor(){
+    return m_middleSensor.get();
+  }
+
+  public boolean getTopSensor(){
+    return m_topSensor.get();
   }
 
   @Override
