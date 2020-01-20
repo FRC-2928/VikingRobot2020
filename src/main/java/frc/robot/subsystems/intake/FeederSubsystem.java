@@ -1,10 +1,12 @@
 package frc.robot.subsystems.intake;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotMap;
+
 /**
  * Feedersubsystem is responsible for feeding balls into the shooter
  * We'll use sensors to keep track of ball positions to hold some in the tower
@@ -14,6 +16,11 @@ import frc.robot.Constants.RobotMap;
 public class FeederSubsystem extends SubsystemBase {
   private WPI_VictorSPX m_hopperMotor;
   private WPI_VictorSPX m_towerMotor;
+
+  public enum FeederState{
+    STOPPED, WAITING, INDEXING, FEEDING, FULL;
+  }
+
   public FeederSubsystem() {
    m_hopperMotor = new WPI_VictorSPX(RobotMap.kHopperVictorSPX);
    m_towerMotor = new WPI_VictorSPX(RobotMap.kTowerVictorSPX);
@@ -29,7 +36,27 @@ public class FeederSubsystem extends SubsystemBase {
 
    feederMotors.setNeutralMode(NeutralMode.Coast);
    }
+  }
 
+  public void setFeederState(FeederState state){
+    switch(state){
+      case STOPPED:
+      break;
+
+
+    }
+  }
+
+  public void setHopperPower(double power){
+    m_hopperMotor.set(ControlMode.PercentOutput, power);
+  }
+
+  public void setTowerPower(double power){
+    m_towerMotor.set(ControlMode.PercentOutput, power);
+  }
+
+  public void index(){
+    
   }
 
   @Override
