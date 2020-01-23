@@ -13,6 +13,7 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotMap;
@@ -23,12 +24,11 @@ import frc.robot.Constants.RobotMap;
 public class DrivetrainSubsystem extends SubsystemBase {
   private WPI_TalonFX m_leftMaster, m_rightMaster;
   private WPI_TalonFX m_leftSlave, m_rightSlave;
-
-  private SpeedControllerGroup motors;
+  private PigeonIMU m_pigeon;
 
   private DifferentialDrive differentialdrive;
 
-  private PigeonIMU m_pigeon;
+  private DifferentialDriveOdometry m_odometry;
 
   private RamseteCommand ramsete; //Not yet sure where I wanna have this
 
