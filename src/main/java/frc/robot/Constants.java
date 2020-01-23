@@ -31,6 +31,7 @@ public final class Constants {
         public static final int kControlPanelSparkMax = 69; //Placeholder
 
         //Solenoids
+        public static final int kDrivetrainShiftSolenoid = 0; //Placeholder
 
         //Sensors
         public static final int kPigeonIMU = 3;
