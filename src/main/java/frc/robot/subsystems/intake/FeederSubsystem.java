@@ -57,7 +57,7 @@ public class FeederSubsystem extends SubsystemBase {
 
   public void setFeederState(FeederState state){
     switch(state){
-      case STOPPED:
+      default:
       break;
 
       case WAITING:
@@ -82,13 +82,84 @@ public class FeederSubsystem extends SubsystemBase {
     m_towerMotor.set(ControlMode.PercentOutput, power);
   } 
 
-  public void index(){    
-    
+  //Called in a loop at periodic
+  //Handles the indexing of balls in the tower
+  public void index(){
+
+    checkIndexState();
+
+    if(getBottomSensor()){
+      switch(m_indexState){
+        case NONE:
+        if(!getMiddleSensor()){
+          setTowerPower(0.4);
+          setHopperPower(0);
+        }
+        else{
+          m_indexState = IndexState.ONE_BALL;
+          setHopperPower(0.5);
+        }
+        break;
+
+        case ONE_BALL:
+        if(!getTopSensor()){
+          setTowerPower(0.4);
+          setHopperPower(0);
+        }
+        else{
+          m_indexState = IndexState.TWO_BALLS;
+          setHopperPower(0.5);
+        }
+        break;
+
+        case TWO_BALLS:
+        setHopperPower(0);
+        m_indexState = IndexState.THREE_BALLS;
+        break;
+      }
+    }
   }
 
-  // public IndexState getIndexState(){
+ /** Is checking to make sure current state is true
+   * To do: Put flag in index if balls in motion
+   * Also add in timer for checking sensors  
+   */
+  public void checkIndexState(){
+    switch(m_indexState){
+
+      case THREE_BALLS:
+      if(!getBottomSensor() && !getMiddleSensor() && !getTopSensor()){
+
+      }
+    }
+  }
+
+  /** 
+   * Method should only be called when something goes wrong.
+   * This shouldn't be called periodically as balls in transit will mess everything up.
+  */
+  public void evaluateIndexState(){
+    if(!getBottomSensor() && !getMiddleSensor() && !getTopSensor()){
+      m_indexState = IndexState.NONE;
+    }
     
-  // }
+    if(getBottomSensor() && !getMiddleSensor() && !getTopSensor()){
+      m_indexState = IndexState.NONE;
+    }
+
+    if(!getBottomSensor() && getMiddleSensor() && !getTopSensor()){
+      m_indexState = IndexState.ONE_BALL;
+    }
+
+    if(!getBottomSensor() && getMiddleSensor() && getTopSensor()){
+      m_indexState = IndexState.TWO_BALLS;
+    }
+
+    if(getBottomSensor() && getMiddleSensor() && getTopSensor()){
+      m_indexState = IndexState.THREE_BALLS;
+    }
+
+  }
 
   public boolean getBottomSensor(){
     return m_bottomSensor.get();
