@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import frc.robot.Constants.RobotMap;
+import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -36,6 +38,7 @@ public class RobotContainer {
   private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
   private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
   private final Intake m_intake = new Intake();
+  private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
 
   XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
 
@@ -67,6 +70,9 @@ public class RobotContainer {
 
     openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.75),flywheelsubsystem));
 
+    // Spin the control panel three times
+    new JoystickButton(m_driverController, Button.kY.value)
+        .whenPressed(() -> m_controlPanel.rotateSegments(RobotMap.threeTurns));
   }
 
   public void onInitialize(){
@@ -77,16 +83,12 @@ public class RobotContainer {
   }
 
   private void configureIntakeButtons() {
-
     // Pickup balls from the ground
     new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
-
       //extend intake
       new InstantCommand(m_intake::groundPickup, m_intake ),
-
       //wait until intake deploys
       new WaitCommand(1),
-
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));
@@ -104,13 +106,10 @@ public class RobotContainer {
 
     // Pickup balls from the Player Station
     new JoystickButton(m_driverController, Button.kX.value).whenPressed(new SequentialCommandGroup(
-
       //extend intake
       new InstantCommand(m_intake::StationPickup, m_intake ),
-
       //wait until intake deploys
       new WaitCommand(1),
-
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));

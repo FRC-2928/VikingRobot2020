@@ -51,7 +51,7 @@ public final class Constants {
 
         public static final double kColorArcLength = kControlPanelCircumference / 8;
 
-        public static final double kManipulatorCircumference = 0.1 * Math.PI;
+        public static final double kManipulatorCircumference = 0.0508 * Math.PI;
 
         public static double threeTurns = 26.0; // Rotate 26 segments 
         //Drivetrain
@@ -76,7 +76,6 @@ public final class Constants {
     }
 
     public static final class ConversionConstants{
-      
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final int kFlywheelTalonFX = 0;
         
