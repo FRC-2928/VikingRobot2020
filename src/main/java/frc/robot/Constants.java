@@ -20,7 +20,7 @@ public final class Constants {
         //Drivetrain
 
         //Shooter
-
+        public static final int kFlywheelTalonFX = 0;
         //Climber
 
         //Control Panel
@@ -34,6 +34,7 @@ public final class Constants {
     }
 
     public static final class ConversionConstants{
-
+      
+        public static final double kFlywheelEncoderTicksPerRotation = 2048;
     }
 }
