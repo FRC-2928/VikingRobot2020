@@ -39,7 +39,7 @@ public class ShooterHoodSubsystem extends SubsystemBase {
 
     m_hoodMotor.setNeutralMode(NeutralMode.Brake);
 
-    //Invert the sensors
+    //Invert the sensors so up is positive
     m_hoodMotor.setSensorPhase(true);
 
     //Hood literally draws 12 amps at max but better safe than sorry
