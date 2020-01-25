@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
@@ -27,6 +28,9 @@ public class ShooterHoodSubsystem extends SubsystemBase {
     m_hoodMotor.configNeutralDeadband(0.01);
     m_hoodMotor.setNeutralMode(NeutralMode.Brake);
 
+    m_hoodMotor.setSensorPhase(true);
+    m_hoodMotor.setInverted(InvertType.InvertMotorOutput);
+
     m_hoodMotor.configPeakCurrentLimit(45);
     m_hoodMotor.enableCurrentLimit(true);
     m_hoodMotor.configContinuousCurrentLimit(30);
@@ -34,19 +38,22 @@ public class ShooterHoodSubsystem extends SubsystemBase {
     m_hoodMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
     SmartDashboard.putNumber("Hood encoder values", getHoodRotation());
+    m_hoodMotor.setSelectedSensorPosition(0);
 
+  }
+  
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("Hood Rotation", getHoodRotation());
+    SmartDashboard.putNumber("Hood native units", m_hoodMotor.getSelectedSensorPosition());
   }
 
   public double getHoodRotation(){
-    return m_hoodMotor.getSelectedSensorPosition() / ConversionConstants.kHoodDegreesPerRotation;
+    return m_hoodMotor.getSelectedSensorPosition() / ConversionConstants.kHoodEncoderTicksPerRotation / ConversionConstants.kHoodGearRatio;
   }
 
   public void setPower(double power){
     m_hoodMotor.set(ControlMode.PercentOutput, power);
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
 }

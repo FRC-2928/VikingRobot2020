@@ -14,7 +14,7 @@ public final class Constants {
 
         //Shooter
         public static final int kFlywheelTalonFX = 4;
-        public static final int kHoodTalonSRX = 4;
+        public static final int kHoodTalonSRX = 5;
 
         //Climber
 
@@ -33,7 +33,7 @@ public final class Constants {
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final double kFlywheelGearRatio = 24.0/14.0;
 
-        public static final double kHoodEncoderTicksPerRotation = 1024;
-        public static final double kHoodDegreesPerRotation = 69; //Placeholder
+        public static final double kHoodEncoderTicksPerRotation = 4096;
+        public static final double kHoodGearRatio = 60.0/24.0; 
     }
 }
