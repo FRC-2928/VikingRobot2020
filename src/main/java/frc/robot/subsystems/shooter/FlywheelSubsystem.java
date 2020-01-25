@@ -2,6 +2,7 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
@@ -33,6 +34,9 @@ public class FlywheelSubsystem extends SubsystemBase {
    m_flywheelMotor.configNominalOutputReverse(0);
    m_flywheelMotor.configNeutralDeadband(0.01);
    m_flywheelMotor.setNeutralMode(NeutralMode.Coast);
+
+   m_flywheelMotor.setInverted(InvertType.InvertMotorOutput);
+   m_flywheelMotor.setSensorPhase(true);
 
    m_flywheelMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 45, 80, 0.04));
 
@@ -85,10 +89,10 @@ public class FlywheelSubsystem extends SubsystemBase {
   }
 
   private double rpmToFX(double rpm){
-    return rpm*ConversionConstants.kFlywheelEncoderTicksPerRotation/600;
+    return rpm*ConversionConstants.kFlywheelEncoderTicksPerRotation * ConversionConstants.kFlywheelGearRatio / 600;
   }
 
   private double fxToRPM(double fx){
-    return fx/ConversionConstants.kFlywheelEncoderTicksPerRotation * 600;
+    return fx/ConversionConstants.kFlywheelEncoderTicksPerRotation * 600 / ConversionConstants.kFlywheelGearRatio;
   }
 }
