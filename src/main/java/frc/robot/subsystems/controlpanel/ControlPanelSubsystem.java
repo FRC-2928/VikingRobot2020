@@ -1,9 +1,12 @@
 package frc.robot.subsystems.controlpanel;
 
 import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,12 +26,62 @@ public class ControlPanelSubsystem extends SubsystemBase {
 
   private final CANSparkMax m_motor;
   private final CANEncoder m_encoder;
+  private CANPIDController m_pidController;
 
   public ControlPanelSubsystem() {
     m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
     m_colorMatcher = new ColorMatcher();
     m_motor = new CANSparkMax(RobotMap.kControlPanelSparkMax, MotorType.kBrushless);
     m_encoder = m_motor.getEncoder();
+
+     // Configure motor
+
+ 
+     m_pidController = m_motor.getPIDController();
+ 
+ 
+ 
+     m_motor.restoreFactoryDefaults();
+ 
+     m_motor.setIdleMode(IdleMode.kBrake);
+ 
+ 
+ 
+     // set PID coefficients
+ 
+     m_pidController.setP(RobotMap.kPanelP);
+ 
+     m_pidController.setI(RobotMap.kPanelI);
+ 
+     m_pidController.setD(RobotMap.kPanelD);
+ 
+     m_pidController.setIZone(RobotMap.kPanelIzone);
+ 
+     m_pidController.setFF(RobotMap.kPanelFF);
+ 
+     m_pidController.setOutputRange(RobotMap.kMinOutput, RobotMap.kMaxOutput);
+  }
+
+  // Closed position loop using number of rotations as the setpoint
+
+  public void runPositionLoop(double rotations) {
+
+    m_pidController.setReference(rotations, ControlType.kPosition);
+
+  }
+
+
+
+  // Rotate the control panel the number of specified segments
+
+  public void rotateSegments(double segments) {
+
+    // Calculate the number of manipulator wheel rotations
+
+    double rotations = (segments * RobotMap.kColorArcLength) / RobotMap.kManipulatorCircumference;
+
+    runPositionLoop(rotations);
+
   }
 
   @Override

@@ -36,6 +36,24 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
  */
 public final class Constants {
     public static final class RobotMap{
+         // PID constants
+
+     public static double kPanelP = 0.1;
+     public static double kPanelI = 1e-4;
+     public static double kPanelD = 1;
+     public static double kPanelIzone = 0;
+     public static double kPanelFF = 0;
+     public static double kMaxOutput = 1;
+     public static double kMinOutput = -1;
+
+            // Control Panel
+        public static final double kControlPanelCircumference = 0.81 * Math.PI;
+
+        public static final double kColorArcLength = kControlPanelCircumference / 8;
+
+        public static final double kManipulatorCircumference = 0.1 * Math.PI;
+
+        public static double threeTurns = 26.0; // Rotate 26 segments 
         //Drivetrain
 
         //Shooter
