@@ -17,10 +17,24 @@ package frc.robot;
  */
 public final class Constants {
     public static final class RobotMap{
+        //Drivetrain
+
+        //Shooter
         public static final int kFlywheelTalonFX = 0;
+        //Climber
+
+        //Control Panel
+        public static final int kControlPanelSparkMax = 69; //Placeholder
+
+        //Solenoids
+    }
+
+    public static final class PIDConstants{
+
     }
 
     public static final class ConversionConstants{
+      
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
     }
 }
