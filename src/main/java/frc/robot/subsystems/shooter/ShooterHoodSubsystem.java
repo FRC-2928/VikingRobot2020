@@ -10,39 +10,55 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
+import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 /**
    * Creates a new ShooterHoodSubsystem.
    */
 public class ShooterHoodSubsystem extends SubsystemBase {
   private WPI_TalonSRX m_hoodMotor;
+
+  private final double kP = PIDConstants.kHoodkP;
+  private final double kD = PIDConstants.kHoodkD;
   
   public ShooterHoodSubsystem() {
     m_hoodMotor = new WPI_TalonSRX(RobotMap.kHoodTalonSRX);
 
     m_hoodMotor.configFactoryDefault();
 
+    //6 volts is 100% enough
     m_hoodMotor.configVoltageCompSaturation(6);
     m_hoodMotor.enableVoltageCompensation(true);
+    
+    //Minimum output is 0.1 so the PD loop can do small adjustments
     m_hoodMotor.configNominalOutputForward(0.1);
     m_hoodMotor.configNominalOutputReverse(0.1);
-    m_hoodMotor.configNeutralDeadband(0.01);
+
+    //No need to have a deadband since we have a nominal output
+    m_hoodMotor.configNeutralDeadband(0);
+
     m_hoodMotor.setNeutralMode(NeutralMode.Brake);
 
+    //Invert the sensors
     m_hoodMotor.setSensorPhase(true);
 
-    m_hoodMotor.configPeakCurrentLimit(45);
+    //Hood literally draws 12 amps at max but better safe than sorry
+    m_hoodMotor.configPeakCurrentLimit(40);
     m_hoodMotor.enableCurrentLimit(true);
+    m_hoodMotor.configPeakCurrentDuration(60);
     m_hoodMotor.configContinuousCurrentLimit(30);
     
     m_hoodMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
     
+    m_hoodMotor.configAllowableClosedloopError(0, 5);
+
     resetHoodEncoder();
 
     // setDefaultCommand(new RunCommand(this::stopHood, this));
 
-    SmartDashboard.putNumber("Hood kP", 2.5);
-    SmartDashboard.putNumber("Hood kD", 15);
+    //Placing the hood gains on ShuffleBoard
+    SmartDashboard.putNumber("Hood kP", kP);
+    SmartDashboard.putNumber("Hood kD", kD);
     SmartDashboard.putNumber("Hood kF", 0);
     SmartDashboard.putNumber("Hood Target Degrees", 0);
   }
@@ -51,7 +67,8 @@ public class ShooterHoodSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Hood native units", m_hoodMotor.getSelectedSensorPosition());
     SmartDashboard.putNumber("Hood Position", getHoodDegrees());
-    SmartDashboard.putNumber("Hood voltage draw", m_hoodMotor.getMotorOutputVoltage());
+    SmartDashboard.putNumber("Hood Voltage Draw", m_hoodMotor.getMotorOutputVoltage());
+    SmartDashboard.putNumber("Hood Amp Draw", m_hoodMotor.getSupplyCurrent());
   }
 
   public double getHoodRotation(){
@@ -62,18 +79,17 @@ public class ShooterHoodSubsystem extends SubsystemBase {
     return getHoodRotation() * 360;
   }
 
+  //For tuning gains, will take out once we've finalized everything
   public void configPIDGains(){
-    double kP = SmartDashboard.getNumber("Hood kP", 0);
-    double kD = SmartDashboard.getNumber("Hood kD", 0);
-    double kF = SmartDashboard.getNumber("Hood kF", 0);
+    double newkP = SmartDashboard.getNumber("Hood kP", kP);
+    double newkD = SmartDashboard.getNumber("Hood kD", kD);
+    double newkF = SmartDashboard.getNumber("Hood kF", 0);
 
-    m_hoodMotor.configAllowableClosedloopError(0, 5);
-
-    m_hoodMotor.config_kP(0, kP);
+    m_hoodMotor.config_kP(0, newkP);
     m_hoodMotor.config_kI(0, SmartDashboard.getNumber("Hood kI", 0));
     m_hoodMotor.config_IntegralZone(0, (int)SmartDashboard.getNumber("Hood IntegralZone", 0));
-    m_hoodMotor.config_kD(0, kD);
-    m_hoodMotor.config_kF(0, kF);
+    m_hoodMotor.config_kD(0, newkD);
+    m_hoodMotor.config_kF(0, newkF);
 
     System.out.println("Hood configed");
   }

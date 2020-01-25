@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
+import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 /**
    * Test FlywheelSubsystem to handle shooting and velocity controls
@@ -20,8 +21,8 @@ public class FlywheelSubsystem extends SubsystemBase {
   private TalonFX m_flywheelMotor;
   private double velocity;
 
-
-  private final double kFlywheelKF = 0.0467;
+  private final double kP = PIDConstants.kFlywheelkP;
+  private final double kF = PIDConstants.kFlywheelkF;
 
   public FlywheelSubsystem() {
    m_flywheelMotor = new TalonFX(RobotMap.kFlywheelTalonFX);
@@ -47,8 +48,8 @@ public class FlywheelSubsystem extends SubsystemBase {
 
    setDefaultCommand(new RunCommand(this::stopFlywheel, this));
 
-   SmartDashboard.putNumber("Flywheel kP", 0);
-   SmartDashboard.putNumber("Flywheel kF", kFlywheelKF);
+   SmartDashboard.putNumber("Flywheel kP", kP);
+   SmartDashboard.putNumber("Flywheel kF", kF);
    SmartDashboard.putNumber("Target RPM", 0);
   }
 
@@ -76,15 +77,16 @@ public class FlywheelSubsystem extends SubsystemBase {
     setPower(0);
   }  
 
+  //Temp testing, will take out smartdashboard once fully tuned
   public void configFeedbackGains(){
-    double kP = SmartDashboard.getNumber("Flywheel kP", 0);
-    double kF = SmartDashboard.getNumber("Flywheel kF", kFlywheelKF);
+    double newkP = SmartDashboard.getNumber("Flywheel kP", kP);
+    double newkD = SmartDashboard.getNumber("Flywheel kF", kF);
 
-    m_flywheelMotor.config_kP(0, kP);
+    m_flywheelMotor.config_kP(0, newkP);
     m_flywheelMotor.config_kI(0, SmartDashboard.getNumber("Flywheel kI", 0));
     m_flywheelMotor.config_IntegralZone(0, (int)SmartDashboard.getNumber("Flywheel IntegralZone", 0));
     m_flywheelMotor.config_kD(0, SmartDashboard.getNumber("Flywheel kD", 0));
-    m_flywheelMotor.config_kF(0, kF);
+    m_flywheelMotor.config_kF(0, newkD);
 
     System.out.println("Flywheel configed yay: kP: " + kP + " kF: " + kF);
   }
