@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -33,6 +34,9 @@ public class RobotContainer {
   private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
   private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
 
+  private final JoystickButton positionControlHood = new JoystickButton(driveController, 1);
+  private final JoystickButton stopHood = new JoystickButton(driveController, 0);
+
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
@@ -51,8 +55,7 @@ public class RobotContainer {
 
     shooterhoodsubsystem.setDefaultCommand(
       new RunCommand(() -> {
-          double speed = driveController.getY(Hand.kRight);
-          SmartDashboard.putNumber("Joystick axis", speed);
+          double speed = -driveController.getY(Hand.kRight);
           shooterhoodsubsystem.setPower(speed);
       }, 
       shooterhoodsubsystem)
@@ -66,14 +69,17 @@ public class RobotContainer {
       flywheelsubsystem)
     );
 
-    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.9),flywheelsubsystem));
+    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(1.0),flywheelsubsystem));
 
+    positionControlHood.whileHeld(new RunCommand(() -> shooterhoodsubsystem.setHoodDegrees(), shooterhoodsubsystem));
 
+    // positionControlHood.whenPressed(new InstantCommand(shooterhoodsubsystem::stopHood, shooterhoodsubsystem));
 
   }
 
   public void onInitialize(){
     flywheelsubsystem.configFeedbackGains();
+    shooterhoodsubsystem.configPIDGains();
   }
 
 
