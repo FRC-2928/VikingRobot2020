@@ -53,13 +53,13 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    shooterhoodsubsystem.setDefaultCommand(
-      new RunCommand(() -> {
-          double speed = -driveController.getY(Hand.kRight);
-          shooterhoodsubsystem.setPower(speed);
-      }, 
-      shooterhoodsubsystem)
-    );
+    // shooterhoodsubsystem.setDefaultCommand(
+    //   new RunCommand(() -> {
+    //       double speed = -driveController.getY(Hand.kRight);
+    //       shooterhoodsubsystem.setPower(speed);
+    //   }, 
+    //   shooterhoodsubsystem)
+    // );
 
     velocityControlFlywheel.whileHeld(
       new RunCommand(() -> {
@@ -69,7 +69,7 @@ public class RobotContainer {
       flywheelsubsystem)
     );
 
-    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(1.0),flywheelsubsystem));
+    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.85),flywheelsubsystem));
 
     positionControlHood.whileHeld(new RunCommand(() -> shooterhoodsubsystem.setHoodDegrees(), shooterhoodsubsystem));
 
