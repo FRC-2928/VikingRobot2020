@@ -59,6 +59,7 @@ public class FlywheelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Flywheel native units", m_flywheelMotor.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Flywheel current draw", m_flywheelMotor.getSupplyCurrent());
     SmartDashboard.putNumber("Flywheel Voltage", m_flywheelMotor.getMotorOutputVoltage());
+    SmartDashboard.putNumber("Flywheel FPS", getFlywheelVelocityFPS());
   }
 
   public void setPower(double power){
@@ -67,6 +68,10 @@ public class FlywheelSubsystem extends SubsystemBase {
 
   public double getFlywheelVelocityRPM(){
     return fxToRPM(m_flywheelMotor.getSelectedSensorVelocity());
+  }
+
+  public double getFlywheelVelocityFPS(){
+    return getFlywheelVelocityRPM() * 2 * Math.PI * 2 / 60;
   }
 
   public void setFlywheelRPM(double rpm){

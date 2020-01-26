@@ -35,7 +35,6 @@ public class RobotContainer {
   private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
 
   private final JoystickButton positionControlHood = new JoystickButton(driveController, 1);
-  private final JoystickButton stopHood = new JoystickButton(driveController, 0);
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -72,9 +71,6 @@ public class RobotContainer {
     openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.85),flywheelsubsystem));
 
     positionControlHood.whileHeld(new RunCommand(() -> shooterhoodsubsystem.setHoodDegrees(), shooterhoodsubsystem));
-
-    // positionControlHood.whenPressed(new InstantCommand(shooterhoodsubsystem::stopHood, shooterhoodsubsystem));
-
   }
 
   public void onInitialize(){

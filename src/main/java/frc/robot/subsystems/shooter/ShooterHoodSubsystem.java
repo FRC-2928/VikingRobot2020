@@ -54,7 +54,7 @@ public class ShooterHoodSubsystem extends SubsystemBase {
 
     resetHoodEncoder();
 
-    // setDefaultCommand(new RunCommand(this::stopHood, this));
+    setDefaultCommand(new RunCommand(this::stopHood, this));
 
     //Placing the hood gains on ShuffleBoard
     SmartDashboard.putNumber("Hood kP", kP);
@@ -65,10 +65,8 @@ public class ShooterHoodSubsystem extends SubsystemBase {
   
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Hood native units", m_hoodMotor.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Hood Native Units", m_hoodMotor.getSelectedSensorPosition());
     SmartDashboard.putNumber("Hood Position", getHoodDegrees());
-    SmartDashboard.putNumber("Hood Voltage Draw", m_hoodMotor.getMotorOutputVoltage());
-    SmartDashboard.putNumber("Hood Amp Draw", m_hoodMotor.getSupplyCurrent());
   }
 
   public double getHoodRotation(){
