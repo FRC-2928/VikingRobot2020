@@ -11,12 +11,14 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.RobotMap;
+import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -57,6 +59,8 @@ public class RobotContainer {
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   *
+   * 
    */
   private void configureButtonBindings() {
 
@@ -68,11 +72,36 @@ public class RobotContainer {
       flywheelsubsystem)
     );
 
+    ConfigureControlButtons(); 
+
     openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.75),flywheelsubsystem));
 
-    // Spin the control panel three times
+  
+  }
+
+  public void ConfigureControlButtons () {
+      // Spin the control panel three times
+      new JoystickButton(m_driverController, Button.kY.value)
+      .whenPressed(() -> m_controlPanel.rotateSegments(RobotMap.threeTurns));
+
+        // Spin the control panel to target color
     new JoystickButton(m_driverController, Button.kY.value)
-        .whenPressed(() -> m_controlPanel.rotateSegments(RobotMap.threeTurns));
+    .whenPressed(new ConditionalCommand(
+
+       // TRUE - the detected color is unknown
+       new RotateToColor(m_controlPanel)
+         // so rotate half a segment before rotating to color
+         .beforeStarting(m_controlPanel::rotateHalfSegment),
+
+       // FALSE - the color is known so rotate to target color
+       new RotateToColor(m_controlPanel),
+
+       // CONDITION - is the color unknown?
+       m_controlPanel.unknownColor()
+     )
+
+ );
+    
   }
 
   public void onInitialize(){

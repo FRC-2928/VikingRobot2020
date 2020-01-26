@@ -1,5 +1,7 @@
 package frc.robot.subsystems.controlpanel;
 
+import java.util.function.BooleanSupplier;
+
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
@@ -26,15 +28,14 @@ public class ControlPanelSubsystem extends SubsystemBase {
   private ControlPanelColor m_matchedColor;
 
   private final CANSparkMax m_motor;
-  private final CANEncoder m_encoder;
   private CANPIDController m_pidController;
-  private int m_targetColor; 
+ 
 
   public ControlPanelSubsystem() {
     m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
     m_colorMatcher = new ColorMatcher();
     m_motor = new CANSparkMax(RobotMap.kControlPanelSparkMax, MotorType.kBrushless);
-    m_encoder = m_motor.getEncoder();
+   
 
      // Configure motor
 
@@ -44,7 +45,6 @@ public class ControlPanelSubsystem extends SubsystemBase {
  
      m_motor.restoreFactoryDefaults();
      m_motor.setIdleMode(IdleMode.kBrake);
- 
  
  
      // set PID coefficients
@@ -57,21 +57,6 @@ public class ControlPanelSubsystem extends SubsystemBase {
      m_pidController.setOutputRange(RobotMap.kMinOutput, RobotMap.kMaxOutput);
   }
 
-  // Closed position loop using number of rotations as the setpoint
-  public void runPositionLoop(double rotations) {
-    m_pidController.setReference(rotations, ControlType.kPosition);
-  }
-
-  // Rotate the control panel the number of specified segments
-  public void rotateSegments(double segments) {
-
-    // Calculate the number of manipulator wheel rotations
-    double rotations = (segments * RobotMap.kColorArcLength) / RobotMap.kManipulatorCircumference;
-
-    runPositionLoop(rotations);
-
-  }
-
   @Override
   public void periodic() {
     Color detectedColor = m_colorSensor.getColor();
@@ -81,27 +66,48 @@ public class ControlPanelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Green", detectedColor.green);
     SmartDashboard.putNumber("Blue", detectedColor.blue);
 
-    m_targetColor = getTargetColor();
+    
+  }
+
+ 
+
+  // Rotate the control panel the number of specified segments
+  public void rotateSegments(double segments) {
+    // Calculate the number of manipulator wheel rotations
+    double rotations = (segments * RobotMap.kColorArcLength) / RobotMap.kManipulatorCircumference;
+
+    runPositionLoop(rotations);
+
+  }
+
+    // Convenience method for running inline command
+    public void rotateHalfSegment() {
+      rotateSegments(0.5);
+    }
+
+  // Gets the detected and target color and rotates to target color
+  public void rotateToColor() {
+
+    // Get the matched and target color. Add 2 segments to move it to position
+    double segments = (getMatchedColor().ordinal() - getTargetColor().ordinal()) + 2;
+    // Faster to spin in reverse if segments equals 3
+    if (segments == 3) {segments = -1;}
+
+    // Rotate the control panel to the computed number of segment
+    SmartDashboard.putNumber("Segment rotation ", segments);
+    rotateSegments(segments);
   }
 
   public ControlPanelColor getMatchedColor() {
     return m_matchedColor;
   }
   
+   // Get the target color from the game field
 
+   public ControlPanelColor getTargetColor() {
 
-  public void rotateToColor() {
-    // Got a color
-    double segments = (getMatchedColor().ordinal() - m_targetColor) + 2;
-    if (segments == 3) {segments = -1;}
-
-    // Rotate the control panel to the target color
-    rotateSegments(segments);
-  }
-
-  public int getTargetColor() {
     String gameData;
-    int targetColor = -1;
+    ControlPanelColor targetColor = ControlPanelColor.UNKNOWN;
     gameData = DriverStation.getInstance().getGameSpecificMessage();
     if(gameData.length() > 0)
     {
@@ -109,29 +115,46 @@ public class ControlPanelSubsystem extends SubsystemBase {
       {
         case 'B' :
           //Blue case code
-          targetColor = ControlPanelColor.BLUE.ordinal();
+          targetColor = ControlPanelColor.BLUE;
           break;
         case 'G' :
-          //Green case code
-          targetColor = ControlPanelColor.GREEN.ordinal();
+          //Green case cod
+          targetColor = ControlPanelColor.GREEN;
           break;
         case 'R' :
           //Red case code
-          targetColor = ControlPanelColor.RED.ordinal();
+          targetColor = ControlPanelColor.RED;
           break;
         case 'Y' :
           //Yellow case code
-          targetColor = ControlPanelColor.YELLOW.ordinal();
+          targetColor = ControlPanelColor.YELLOW;
           break;
         default :
           //This is corrupt data
-          targetColor = -1;
           break;
       }
     } else {
       //Code for no data received yet
-      targetColor = -1;
+      targetColor = ControlPanelColor.UNKNOWN;
     }
+    SmartDashboard.putString("Target Color ", targetColor.name());
     return targetColor;
+  }
+
+  // Returns whether a color is known
+
+  public BooleanSupplier unknownColor() {
+
+    BooleanSupplier sup = () -> false;
+    if (m_matchedColor == ControlPanelColor.UNKNOWN) {
+      sup = () -> true;
+    }
+    return sup;
+  }
+
+
+   // Closed position loop using number of rotations as the setpoint
+   public void runPositionLoop(double rotations) {
+    m_pidController.setReference(rotations, ControlType.kPosition);
   }
 }
