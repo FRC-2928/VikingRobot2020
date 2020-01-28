@@ -4,7 +4,10 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.wpilibj.AnalogOutput;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.RobotMap;
 
@@ -19,9 +22,9 @@ public class FeederSubsystem extends SubsystemBase {
   private WPI_VictorSPX m_towerMotor;
 
   //IR sensors to detect ball positions
-  private DigitalOutput m_bottomSensor;
-  private DigitalOutput m_middleSensor;
-  private DigitalOutput m_topSensor;
+  private DigitalInput m_bottomSensor;
+  private DigitalInput m_middleSensor;
+  private DigitalInput m_topSensor;
 
   private FeederState m_feederState;
   private IndexState m_indexState;
@@ -38,9 +41,9 @@ public class FeederSubsystem extends SubsystemBase {
    m_hopperMotor = new WPI_VictorSPX(RobotMap.kHopperVictorSPX);
    m_towerMotor = new WPI_VictorSPX(RobotMap.kTowerVictorSPX);
 
-   m_bottomSensor = new DigitalOutput(RobotMap.kIRSensorBottom);
-   m_middleSensor = new DigitalOutput(RobotMap.kIRSensorMiddle);
-   m_topSensor = new DigitalOutput(RobotMap.kIRSensorTop);
+   m_bottomSensor = new DigitalInput(RobotMap.kIRSensorBottom);
+   m_middleSensor = new DigitalInput(RobotMap.kIRSensorMiddle);
+   m_topSensor = new DigitalInput(RobotMap.kIRSensorTop);
 
    for(WPI_VictorSPX feederMotors: new WPI_VictorSPX[]{m_hopperMotor, m_towerMotor}){
    feederMotors.configFactoryDefault();
@@ -175,6 +178,5 @@ public class FeederSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
   }
 }
