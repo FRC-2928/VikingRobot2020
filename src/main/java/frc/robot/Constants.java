@@ -36,10 +36,16 @@ public final class Constants {
 
     public static final class ConversionConstants{
       
+        //Flywheel
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final double kFlywheelGearRatio = 24.0/14.0;
 
+        //Hood
         public static final double kHoodEncoderTicksPerRotation = 4096;
         public static final double kHoodGearRatio = 60.0/24.0; 
+
+        //Trajectory
+        public static final double kRelativeTargetHeight = 10; //Placeholder
+        
     }
 }
