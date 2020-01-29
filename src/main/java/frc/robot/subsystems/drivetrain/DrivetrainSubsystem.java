@@ -13,9 +13,13 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.RobotMap;
   /**
    * DrivetrainSubsystem handles all subsystem level logic for the drivetrain.
@@ -26,11 +30,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private WPI_TalonFX m_leftSlave, m_rightSlave;
   private PigeonIMU m_pigeon;
 
+  private double m_yaw, m_pitch, m_roll;
+
   private DifferentialDrive differentialdrive;
 
+  //Drivetrain kinematics, feed it width between wheels
+  private DifferentialDriveKinematics m_kinematics;
+
+  //Drivetrain odometry to keep track of our position on the field
   private DifferentialDriveOdometry m_odometry;
 
-  private RamseteCommand ramsete; //Not yet sure where I wanna have this
+  private Pose2d m_pose;
 
 
   public DrivetrainSubsystem() {
@@ -80,7 +90,20 @@ public class DrivetrainSubsystem extends SubsystemBase {
       fx.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     }
 
+    resetEncoders();
+
     differentialdrive = new DifferentialDrive(m_leftMaster, m_rightMaster);
+    m_kinematics = new DifferentialDriveKinematics(DrivetrainConstants.kTrackWidthMeters);
+    m_odometry = new DifferentialDriveOdometry(new Rotation2d(getYaw()));
+
+  }  
+  
+  @Override
+  public void periodic() {
+    m_yaw = getYaw();
+
+    m_pose = m_odometry.update(new Rotation2d(m_yaw), getLeftEncoders(), getRightEncoders());
+    
   }
 
   public void drive(double move, double rotate, boolean squaredInputs){
@@ -91,8 +114,24 @@ public class DrivetrainSubsystem extends SubsystemBase {
     drive(move, rotate, true);
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
+  public double getLeftEncoders(){
+    return m_leftMaster.getSelectedSensorPosition();
   }
+
+  public double getRightEncoders(){
+    return m_rightMaster.getSelectedSensorPosition();
+  }
+
+  public double getYaw(){
+    double ypr[] = {0, 0, 0};
+    m_pigeon.getYawPitchRoll(ypr);
+    return ypr[0];
+  }
+
+  public void resetEncoders(){
+    m_leftMaster.setSelectedSensorPosition(0);
+    m_rightMaster.setSelectedSensorPosition(0);
+  }
+
+
 }

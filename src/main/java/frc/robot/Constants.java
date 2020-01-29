@@ -44,4 +44,8 @@ public final class Constants {
     public static final class ConversionConstants{
 
     }
+
+    public static final class DrivetrainConstants{
+        public static final double kTrackWidthMeters = 69; //Placeholder
+    }
 }
