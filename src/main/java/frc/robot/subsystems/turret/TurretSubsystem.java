@@ -21,8 +21,16 @@ public class TurretSubsystem extends SubsystemBase {
   private double kP = 0;
   private double kF = 0;
 
+  //Turrent working limits
+  private final double minWorkingLimit = -180;
+  private final double maxWorkingLimit = 180;
+
   public enum TurretState{
     IDLE, SEARCHING, FOUND, LOCKED;
+  }
+
+  public enum TurretRangeState{
+    OVER, UNDER, NORMAL;
   }
 
   public TurretSubsystem() {
@@ -50,7 +58,16 @@ public class TurretSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // should this be getTurretDegrees????
     SmartDashboard.putNumber("Turret position degrees", getTurretPosition());
+
+    // Report reaching limits
+    TurretRangeState turretRangeState = getTurretRange();
+    if (turretRangeState == TurretRangeState.OVER) {
+      SmartDashboard.putString("Turret position at Maximum Limit"," ");
+    } else if (turretRangeState == TurretRangeState.UNDER) {
+      SmartDashboard.putString("Turret position at Minimum Limit"," ");
+    }
   }
 
   public void setPower(double power){
@@ -65,8 +82,31 @@ public class TurretSubsystem extends SubsystemBase {
     setPower(0);
   }
 
+
   public double getTurretPosition(){
     return m_turretMotor.getSelectedSensorPosition() * ConversionConstants.kTurretTicksPerRotation;
+  }
+
+  public TurretRangeState getTurretRange(){
+     double degrees = getTurretDegrees();
+     if (degrees > maxWorkingLimit) {
+       return TurretRangeState.OVER;
+     }
+     else if (degrees < minWorkingLimit) {
+      return TurretRangeState.UNDER;
+     }
+     else return TurretRangeState.NORMAL;
+  }
+
+  public void correctTurretRange(){
+    TurretRangeState turretRangeState = getTurretRange();
+    if (turretRangeState == TurretRangeState.OVER) {
+      SmartDashboard.putString("Correcting Turret position from Maximum Limit"," ");
+      setPosition( getTurretDegrees() - 360);
+    } else if (turretRangeState == TurretRangeState.UNDER) {
+      SmartDashboard.putString("Correcting Turret position from Minimum Limit"," ");
+      setPosition( getTurretDegrees() + 360);
+    }
   }
 
   public double getTurretDegrees(){
