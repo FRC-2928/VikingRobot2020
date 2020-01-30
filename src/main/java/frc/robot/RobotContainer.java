@@ -43,7 +43,7 @@ public class RobotContainer {
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
 
   XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
-
+  XboxController m_operatorController = new XboxController(Constants.OIConstants.kOperatorControllerPort);
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
@@ -81,11 +81,12 @@ public class RobotContainer {
 
   public void ConfigureControlButtons () {
       // Spin the control panel three times
-      new JoystickButton(m_driverController, Button.kY.value)
+      new JoystickButton(m_operatorController, Button.kY.value)
       .whenPressed(() -> m_controlPanel.rotateSegments(RobotMap.threeTurns));
 
         // Spin the control panel to target color
-    new JoystickButton(m_driverController, Button.kY.value)
+        //may switch to have one button control all.
+    new JoystickButton(m_operatorController, Button.kX.value)
     .whenPressed(new ConditionalCommand(
 
        // TRUE - the detected color is unknown
