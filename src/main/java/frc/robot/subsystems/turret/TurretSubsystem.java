@@ -22,8 +22,8 @@ public class TurretSubsystem extends SubsystemBase {
   private double kF = 0;
 
   //Turrent working limits
-  private final double minWorkingLimit = -180;
-  private final double maxWorkingLimit = 180;
+  private final double minWorkingLimit = -225;
+  private final double maxWorkingLimit = 225;
 
   public enum TurretState{
     IDLE, SEARCHING, FOUND, LOCKED;
