@@ -2,6 +2,9 @@ package frc.robot.subsystems.controlpanel;
 
 import java.util.function.BooleanSupplier;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
@@ -27,35 +30,50 @@ public class ControlPanelSubsystem extends SubsystemBase {
   private final ColorMatcher m_colorMatcher;
   private ControlPanelColor m_matchedColor;
 
-  private final CANSparkMax m_motor;
+  private final WPI_TalonSRX m_motor;
   private CANPIDController m_pidController;
  
 
   public ControlPanelSubsystem() {
     m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
     m_colorMatcher = new ColorMatcher();
-    m_motor = new CANSparkMax(RobotMap.kControlPanelSparkMax, MotorType.kBrushless);
+    m_motor = new WPI_TalonSRX(RobotMap.kControlPanelTalonWPI);
+
+    m_motor.configFactoryDefault();
+
+    m_motor.configVoltageCompSaturation(12);
+    m_motor.enableVoltageCompensation(true);
+    m_motor.configNominalOutputForward(0);
+    m_motor.configNominalOutputReverse(0);
+    m_motor.configNeutralDeadband(0.01);
+    m_motor.setNeutralMode(NeutralMode.Coast);
+ 
+    m_motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 35, 0.04));
    
 
-     // Configure motor
 
- 
-     m_pidController = m_motor.getPIDController();
- 
- 
-     m_motor.restoreFactoryDefaults();
-     m_motor.setIdleMode(IdleMode.kBrake);
- 
+  } 
+  public void configTurretFeedbackGains() {
+
+    // kP = SmartDashboard.getNumber("Turret kP", kP);
+    // kF = SmartDashboard.getNumber("Turret kF", kF);
+
+    m_motor.config_kP(0, RobotMap.kPanelP);
+    m_motor.config_kI(0, RobotMap.kPanelI);
+    m_motor.config_kD(0, RobotMap.kPanelD);
+    m_motor.config_IntegralZone(0, RobotMap.kPanelIzone);
+    m_motor.config_kF(0, RobotMap.kPanelFF);
+   // m_motor.setOutputRange(RobotMap.kMinOutput, RobotMap.kMaxOutput);
+  }
  
      // set PID coefficients
  
-     m_pidController.setP(RobotMap.kPanelP);
-     m_pidController.setI(RobotMap.kPanelI);
-     m_pidController.setD(RobotMap.kPanelD);
-     m_pidController.setIZone(RobotMap.kPanelIzone);
-     m_pidController.setFF(RobotMap.kPanelFF);
-     m_pidController.setOutputRange(RobotMap.kMinOutput, RobotMap.kMaxOutput);
-  }
+    //  m_pidController.setP(RobotMap.kPanelP);
+    //  m_pidController.setI(RobotMap.kPanelI);
+    //  m_pidController.setD(RobotMap.kPanelD);
+    //  m_pidController.setIZone(RobotMap.kPanelIzone);
+    //  m_pidController.setFF(RobotMap.kPanelFF);
+    //  m_pidController.setOutputRange(RobotMap.kMinOutput, RobotMap.kMaxOutput);
 
   @Override
   public void periodic() {
