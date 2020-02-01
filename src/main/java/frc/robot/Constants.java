@@ -40,17 +40,22 @@ public final class Constants {
 
         //Shooter
         public static final int kFlywheelTalonFX = 0;
+
         //Climber
+        public static final int kClimberTalonFX = 5; //Placeholder
 
         //Control Panel
         public static final int kControlPanelSparkMax = 69; //Placeholder
+
+        //Intake
+        public static final int kIntakeWPI_TalonSRX = 6; //placeholder
 
         //Solenoids
         public static final int kIntakeSoleniodRightOne = 69; //place holder
         public static final int kIntakeSoleniodRightTwo = 69;
         public static final int kIntakeSoleniodLeftOne = 69;
         public static final int kIntakeSoleniodLeftTwo = 69;
-        public static final int kIntakeWPI_TalonSRX = 6; //placeholder
+        public static final int kClimberSolenoidBrake = 420;
     }
 
     public static final class PIDConstants{
