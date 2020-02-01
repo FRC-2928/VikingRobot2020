@@ -31,15 +31,17 @@ public class FeederSubsystem extends SubsystemBase {
   private double m_indexPower = m_indexPowerInitial;
   private double m_indexSetpoint = m_indexSetpointInitial;
 
-  public enum FeederState{
-    STOPPED, WAITING, INDEXING, FEEDING, FULL;
+  public enum HopperState{
+    STOPPED, REVERSED, FEEDING, FULL;
   }
+
+  private HopperState previousHopperState;
 
   public enum IndexState{
-    WAITING_TO_INDEX, READY_TO_INDEX, FULL;
+    WAITING_TO_INDEX, READY_TO_INDEX, FULL,INDEXING;
   }
 
-  private FeederState m_feederState = FeederState.WAITING;
+  private HopperState m_hopperState = HopperState.STOPPED;
   private IndexState m_indexState = IndexState.WAITING_TO_INDEX;
 
   // ---- Constructor -----
@@ -95,13 +97,22 @@ public class FeederSubsystem extends SubsystemBase {
 
   // Stop the hopper
   public void startHopper() {
+    m_hopperMotor.setInverted(false);
     setHopperPower(0.4);
+    m_hopperState = HopperState.FEEDING;
   }
   // Stop the hopper
   public void stopHopper() {
     setHopperPower(0);
+    m_hopperState = HopperState.STOPPED;
   }
 
+  public void reverseHopper() {
+    m_hopperMotor.setInverted(true);
+    setHopperPower(0.4);
+    m_hopperState = HopperState.REVERSED;
+  }
+  
   /**
    * Moves the ball up the tower.  There are two options for doing this
    * so we can test which one works best.
@@ -109,11 +120,14 @@ public class FeederSubsystem extends SubsystemBase {
   */
   public void startIndex() {
 
+    // This state will get cleared in checkIndexState()
+    m_indexState = IndexState.INDEXING;
+
     // Move until index sensor is tripped. This happens in checkIndexState()
     setIndexPower(m_indexPower);
-
+    
     // Run a PID loop within the Talon controller.
-    m_towerMotor.set(ControlMode.Position, m_indexSetpoint);
+    //m_towerMotor.set(ControlMode.Position, m_indexSetpoint);
 
   }
 
@@ -128,13 +142,16 @@ public class FeederSubsystem extends SubsystemBase {
     // Check if we should take any action on the index
     checkIndexState();
 
-    if (m_indexState == IndexState.FULL) {stopIndex();}
+    if (m_indexState == IndexState.INDEXING) {return;}
+
+    if (m_indexState == IndexState.FULL) {
+      stopIndex();
+    }
     // TBD: if here are a buch of balls in the hopper we may have to stop the hopper?
 
     if (m_indexState == IndexState.READY_TO_INDEX) {
       stopHopper(); // Prevent more balls from coming in
       startIndex(); // Move the ball up the tower
-      m_feederState = FeederState.INDEXING;
     } else {
       stopIndex(); // Done moving ball up the tower    
     }
@@ -196,6 +213,20 @@ public class FeederSubsystem extends SubsystemBase {
 
   public void configIndexSetpoint() {
     m_indexSetpoint = SmartDashboard.getNumber("Index Setpoint", m_indexSetpointInitial);
+  }
+
+  public void toggleHopperState () {
+    previousHopperState = m_hopperState;
+    if ( m_hopperState == HopperState.REVERSED || m_hopperState == HopperState.FEEDING) {
+      stopHopper();
+    }
+
+    if (m_hopperState == HopperState.STOPPED) {
+      if (previousHopperState == HopperState.REVERSED) {
+        reverseHopper();
+      }
+      else {startHopper();}
+    }
   }
 
 }
