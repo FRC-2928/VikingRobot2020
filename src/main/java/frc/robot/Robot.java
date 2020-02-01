@@ -100,7 +100,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putBoolean("Sensor", m_feederSubsystem.getBottomSensor());
+   // SmartDashboard.putBoolean("Sensor", m_feederSubsystem.getBottomSensor());
   }
 
   @Override

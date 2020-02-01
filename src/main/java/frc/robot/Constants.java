@@ -37,6 +37,23 @@ public final class Constants {
         //Solenoids
     }
 
+ public static final class OIConstants {
+     public static final int kDriverControllerPort = 1;
+    }
+    
+  public static final class FeederConstants {
+
+    public static final int kHopperVictorSPX = 420; //Placeholder
+    public static final int kTowerVictorSPX = 987; //Placerholder
+    public static final int kIRSensorBottom = 0;
+    public static final int kIRSensorMiddle = 1;
+    public static final int kIRSensorTop = 2;
+
+
+    public static final double indexPower = 0.4;
+    public static final double indexSetpoint = 100;
+  }
+
     public static final class PIDConstants{
 
     }

@@ -9,10 +9,16 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
+import frc.robot.Constants.OIConstants;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.intake.FeederSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.subsystems.intake.FeederSubsystem;
+
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -26,7 +32,11 @@ public class RobotContainer {
 
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
 
+  private final FeederSubsystem m_feeder = new FeederSubsystem();
  
+  XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+
+
 
 
   /**
@@ -35,6 +45,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
   }
 
   /**
@@ -44,8 +55,11 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+    
+    new JoystickButton(m_driverController, Button.kX.value)
+      .whenPressed(new InstantCommand(m_feeder::stopHopper, m_feeder)
+    ); 
   }
-
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
