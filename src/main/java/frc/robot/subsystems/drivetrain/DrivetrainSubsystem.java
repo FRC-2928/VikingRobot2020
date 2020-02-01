@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -84,7 +85,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
        * 40 amp breaker can support above 40 amps for a little bit
        * Falcons have insane acceleration so allowing it to reach 80 for 0.03 seconds should be fine
        */
-      fx.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 45, 80, 30));
+      fx.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 45, 80, 30));
 
       //Either using the integrated Falcon sensor or an external one, will change if needed
       fx.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
