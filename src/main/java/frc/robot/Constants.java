@@ -28,7 +28,7 @@ public final class Constants {
 
         //Shooter
         public static final double kFlywheelkP = 0.075;
-        public static final double kFlywheelkF = 0.0467;
+        public static final double kFlywheelkF = (1023.0 * 0.75) / 16000.0;
         public static final double kHoodkP = 2.5;
         public static final double kHoodkD = 15;
 
@@ -38,7 +38,7 @@ public final class Constants {
       
         //Flywheel
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
-        public static final double kFlywheelGearRatio = 24.0/14.0;
+        public static final double kFlywheelGearRatio = 1;
 
         //Hood
         public static final double kHoodEncoderTicksPerRotation = 4096;

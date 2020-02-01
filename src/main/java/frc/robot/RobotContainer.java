@@ -68,7 +68,7 @@ public class RobotContainer {
       flywheelsubsystem)
     );
 
-    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.85),flywheelsubsystem));
+    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.75),flywheelsubsystem));
 
     positionControlHood.whileHeld(new RunCommand(() -> shooterhoodsubsystem.setHoodDegrees(), shooterhoodsubsystem));
   }

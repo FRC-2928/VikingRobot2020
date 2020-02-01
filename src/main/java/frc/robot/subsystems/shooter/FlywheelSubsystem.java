@@ -39,7 +39,7 @@ public class FlywheelSubsystem extends SubsystemBase {
    m_flywheelMotor.setInverted(InvertType.InvertMotorOutput);
    m_flywheelMotor.setSensorPhase(true);
 
-   m_flywheelMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 45, 80, 0.04));
+   m_flywheelMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 40, 80, 0.04));
 
    m_flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
    m_flywheelMotor.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_1Ms);
