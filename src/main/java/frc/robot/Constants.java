@@ -48,7 +48,7 @@ public final class Constants {
         public static final int kFlywheelTalonFX = 0;
 
         //Turret
-        public static final int kTurretTalonSRX = 420;
+        public static final int kTurretSparkMax = 420;
 
         //Climber
 
@@ -76,7 +76,7 @@ public final class Constants {
     }
 
     public static final class ConversionConstants{
-        public static final double kTurretTicksPerRotation = 1717; //Placeholder
+        public static final double kTurretGearRatio = 236.11; //Placeholder
         public static final double kTurretDegreesPerRotation = 330; //Placeholder
 
         public static final double kFlywheelEncoderTicksPerRotation = 2048;

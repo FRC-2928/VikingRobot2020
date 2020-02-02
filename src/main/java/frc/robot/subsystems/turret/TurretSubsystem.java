@@ -1,10 +1,11 @@
 package frc.robot.subsystems.turret;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,7 +15,10 @@ import frc.robot.Constants.RobotMap;
 * TurretSubsystem is responsible for subsystem level logic with the turret.
 */
 public class TurretSubsystem extends SubsystemBase {
-  private WPI_TalonSRX m_turretMotor;
+  private CANSparkMax m_turretMotor;
+  private CANEncoder m_turretEncoder;
+  private CANPIDController m_turretPID;
+
   private TurretState m_turretState;
 
   //Feedback gains
@@ -34,22 +38,17 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public TurretSubsystem() {
-    m_turretMotor = new WPI_TalonSRX(RobotMap.kTurretTalonSRX);
+    m_turretMotor = new CANSparkMax(RobotMap.kTurretSparkMax, MotorType.kBrushless);
 
-    m_turretMotor.configFactoryDefault();
+    m_turretMotor.restoreFactoryDefaults();
 
-    //These are set by default, but its good to set them anyways
-    m_turretMotor.configVoltageCompSaturation(12);
-    m_turretMotor.enableVoltageCompensation(true);
-    m_turretMotor.configNominalOutputForward(0);
-    m_turretMotor.configNominalOutputReverse(0);
-    m_turretMotor.configNeutralDeadband(0.01);
+    m_turretMotor.enableVoltageCompensation(12);
+    m_turretMotor.setIdleMode(IdleMode.kBrake);
+    m_turretMotor.setSmartCurrentLimit(30, 45, 250);
 
-    m_turretMotor.setNeutralMode(NeutralMode.Brake);
+    m_turretEncoder = m_turretMotor.getEncoder();
 
-    m_turretMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 35, 45, 20));
-
-    m_turretMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+    m_turretPID = m_turretMotor.getPIDController();
 
     //Used to config PIDF gains
     SmartDashboard.putNumber("Turret kP", kP);
@@ -71,20 +70,23 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setPower(double power){
-    m_turretMotor.set(ControlMode.PercentOutput, power);
+    m_turretMotor.set(power);
   }
 
   public void setPosition(double degrees){
-    m_turretMotor.set(ControlMode.Position, degreesToSRX(degrees));
+    m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition);
   }
 
   public void stopMotor(){
     setPower(0);
   }
 
+  public double getTurretNativeEncoder(){
+    return m_turretEncoder.getPosition();
+  }
 
   public double getTurretPosition(){
-    return m_turretMotor.getSelectedSensorPosition() * ConversionConstants.kTurretTicksPerRotation;
+    return getTurretNativeEncoder() / ConversionConstants.kTurretGearRatio;
   }
 
   public TurretRangeState getTurretRange(){
@@ -110,7 +112,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public double getTurretDegrees(){
-    return srxToDegrees(m_turretMotor.getSelectedSensorPosition());
+    return maxToDegrees(getTurretNativeEncoder());
   }
 
   /** 
@@ -126,11 +128,11 @@ public class TurretSubsystem extends SubsystemBase {
     kP = SmartDashboard.getNumber("Turret kP", kP);
     kF = SmartDashboard.getNumber("Turret kF", kF);
 
-    m_turretMotor.config_kP(0, kP);
-    m_turretMotor.config_kI(0, 0);
-    m_turretMotor.config_IntegralZone(0, 0);
-    m_turretMotor.config_kD(0, 0);
-    m_turretMotor.config_kF(0, kF);
+    m_turretPID.setP(kP, 0);
+    m_turretPID.setI(0, 0);
+    m_turretPID.setIZone(0, 0);
+    m_turretPID.setD(0, 0);
+    m_turretPID.setFF(kF, 0);
 
     System.out.println("Turret gains configed: kP " + kP + "kF " + kF);
   }
@@ -167,11 +169,11 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   //Used to convert native encoder units to turret degrees
-  private double degreesToSRX(double degrees){
-    return degrees / (ConversionConstants.kTurretDegreesPerRotation * ConversionConstants.kTurretTicksPerRotation);
+  private double degreesToMax(double degrees){
+    return degrees * ConversionConstants.kTurretGearRatio / ConversionConstants.kTurretDegreesPerRotation;
   }
 
-  private double srxToDegrees(double srx){
-    return srx * ConversionConstants.kTurretTicksPerRotation * ConversionConstants.kTurretDegreesPerRotation;
+  private double maxToDegrees(double max){
+    return max * ConversionConstants.kTurretDegreesPerRotation / ConversionConstants.kTurretGearRatio ;
   }
 }
