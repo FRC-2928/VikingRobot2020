@@ -21,10 +21,17 @@ public class ClimberSubsystem extends SubsystemBase {
   private BrakeState currentBrakeState;
   private ClimberState currentClimberState;
 
+  //Statemachine for overall climber state
   public enum ClimberState{
-    STOWED, DEPLOYING, DEPLOYED, CLIMBED;
+    STOWED, DEPLOYING, DEPLOYED, OPEN_LOOP, CLIMBED;
   }
 
+  //Statemachine to set climber setpoint
+  public enum ClimberSetpoint{
+    NONE, LOW, MID, HIGH;
+  }
+
+  //Statemachine for pneumatic brake in the gearbox
   public enum BrakeState{
     OFF, ON;
   }
@@ -35,6 +42,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     m_climberMotor.configFactoryDefault();
 
+    //These settings are set by default but it's good practice to set them
     m_climberMotor.configVoltageCompSaturation(12);
     m_climberMotor.enableVoltageCompensation(true);
     m_climberMotor.configNominalOutputForward(0);
