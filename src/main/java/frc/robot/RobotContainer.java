@@ -82,7 +82,7 @@ public class RobotContainer {
   public void ConfigureControlButtons () {
       // Spin the control panel three times
       new JoystickButton(m_operatorController, Button.kY.value)
-      .whenPressed(() -> m_controlPanel.rotateSegments(RobotMap.threeTurns));
+      .whenPressed(() -> m_controlPanel.rotateSegments(Constants.threeTurns));
 
         // Spin the control panel to target color
         //may switch to have one button control all.
