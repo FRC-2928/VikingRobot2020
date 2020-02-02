@@ -9,9 +9,22 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import edu.wpi.first.wpilibj.XboxController.Button;
+import frc.robot.Constants.RobotMap;
+import frc.robot.commands.controlpanel.RotateToColor;
+import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
+import frc.robot.subsystems.intake.Intake;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+
 
 /**
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -21,18 +34,24 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  private final FlywheelSubsystem flywheelsubsystem = new FlywheelSubsystem();
 
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+  private final XboxController driveController = new XboxController(0);
+  private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
+  private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
+  private final Intake m_intake = new Intake();
+  private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
 
-
-
+  XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
+  XboxController m_operatorController = new XboxController(Constants.OIConstants.kOperatorControllerPort);
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+
+    m_intake.setDefaultCommand( new InstantCommand(m_intake::stopMotor, m_intake));
   }
 
   /**
@@ -40,11 +59,92 @@ public class RobotContainer {
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   *
+   * 
    */
   private void configureButtonBindings() {
+
+    velocityControlFlywheel.whileHeld(
+      new RunCommand(() -> {
+        double targetRPM = SmartDashboard.getNumber("Target RPM", 0);
+        flywheelsubsystem.setFlywheelRPM(targetRPM);
+      }, 
+      flywheelsubsystem)
+    );
+
+    ConfigureControlButtons(); 
+
+    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.75),flywheelsubsystem));
+
+  
   }
 
+  public void ConfigureControlButtons () {
+      // Spin the control panel three times
+      new JoystickButton(m_operatorController, Button.kY.value)
+      .whenPressed(() -> m_controlPanel.rotateSegments(Constants.threeTurns));
 
+        // Spin the control panel to target color
+        //may switch to have one button control all.
+    new JoystickButton(m_operatorController, Button.kX.value)
+    .whenPressed(new ConditionalCommand(
+
+       // TRUE - the detected color is unknown
+       new RotateToColor(m_controlPanel)
+         // so rotate half a segment before rotating to color
+         .beforeStarting(m_controlPanel::rotateHalfSegment),
+
+       // FALSE - the color is known so rotate to target color
+       new RotateToColor(m_controlPanel),
+
+       // CONDITION - is the color unknown?
+       m_controlPanel.unknownColor()
+     )
+
+ );
+    
+  }
+
+  public void onInitialize(){
+    flywheelsubsystem.configFeedbackGains();
+    //buttons for the intake
+    configureIntakeButtons();
+    
+  }
+
+  private void configureIntakeButtons() {
+    // Pickup balls from the ground
+    new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
+      //extend intake
+      new InstantCommand(m_intake::groundPickup, m_intake ),
+      //wait until intake deploys
+      new WaitCommand(1),
+      // run motors
+      new RunCommand(m_intake::startMotor, m_intake)
+    ));
+
+
+    // Stow the intake
+    new JoystickButton(m_driverController, Button.kB.value).whenReleased(new SequentialCommandGroup(
+      //stop motors
+      new InstantCommand(m_intake::stopMotor, m_intake),
+      //retract intake
+      new InstantCommand(m_intake::Stowed, m_intake )
+    ));
+
+
+
+    // Pickup balls from the Player Station
+    new JoystickButton(m_driverController, Button.kX.value).whenPressed(new SequentialCommandGroup(
+      //extend intake
+      new InstantCommand(m_intake::StationPickup, m_intake ),
+      //wait until intake deploys
+      new WaitCommand(1),
+      // run motors
+      new RunCommand(m_intake::startMotor, m_intake)
+    ));
+
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -52,6 +152,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+    return new PrintCommand("screw u ");
   }
 }
