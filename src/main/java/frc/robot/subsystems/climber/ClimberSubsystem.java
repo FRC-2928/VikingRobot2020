@@ -7,13 +7,9 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.Solenoid;
-<<<<<<< Updated upstream
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-=======
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
->>>>>>> Stashed changes
 import frc.robot.Constants.RobotMap;
 
 /**
@@ -24,26 +20,12 @@ public class ClimberSubsystem extends SubsystemBase {
   private WPI_TalonFX m_climberMotor;
   private Solenoid m_climberBrake;
 
-<<<<<<< Updated upstream
-  private BrakeState currentBrakeState;
-  private ClimberState currentClimberState;
-
-  //Statemachine for overall climber state
-  public enum ClimberState{
-    STOWED, DEPLOYING, DEPLOYED, OPEN_LOOP, CLIMBED;
-  }
-
-  //Statemachine to set climber setpoint
-  public enum ClimberSetpoint{
-    NONE, LOW, MID, HIGH;
-=======
   private BrakeState m_currentBrakeState;
   private ClimberState m_currentClimberState;
 
   //Statemachine for overall climber state
   public enum ClimberState{
     STOWED, OPEN_LOOP, LOW, MID, HIGH, CLIMBED;
->>>>>>> Stashed changes
   }
 
   //Statemachine for pneumatic brake in the gearbox
@@ -68,8 +50,6 @@ public class ClimberSubsystem extends SubsystemBase {
     m_climberMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 45, 80, 0.04));
 
     m_climberMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-<<<<<<< Updated upstream
-=======
 
     //Default command will enable brake and stop elevator
     setDefaultCommand(
@@ -78,7 +58,6 @@ public class ClimberSubsystem extends SubsystemBase {
         setElevatorPower(0);
       }, this)
     );
->>>>>>> Stashed changes
   }
 
   @Override
@@ -90,17 +69,6 @@ public class ClimberSubsystem extends SubsystemBase {
     m_climberMotor.set(ControlMode.PercentOutput, power);
   }
 
-<<<<<<< Updated upstream
-  public double getElevatorEncoder(){
-    return m_climberMotor.getSelectedSensorPosition();
-  }
-
-  // //
-  // public double getElevatorPosition(){}
-
-  public void setBrakeState(BrakeState state){
-    currentBrakeState = state;
-=======
   public double getElevatorNativeEncoder(){
     return m_climberMotor.getSelectedSensorPosition();
   }
@@ -114,7 +82,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void setBrakeState(BrakeState state){
     m_currentBrakeState = state;
->>>>>>> Stashed changes
 
     switch(state){
       case ON:
