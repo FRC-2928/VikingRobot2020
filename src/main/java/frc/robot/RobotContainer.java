@@ -56,18 +56,18 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     
-    // new JoystickButton(m_driverController, Button.kX.value)
-    //   .whenPressed(new InstantCommand(m_feeder::stopHopper, m_feeder)
-    // ); 
+    new JoystickButton(m_driverController, Button.kX.value)
+      .whenPressed(new InstantCommand(m_feeder::toggleFeedingHopper, m_feeder)
+    ); 
 
-    // //set button values later
-    // new JoystickButton(m_driverController, Button.kY.value)
-    //   .whenPressed(new InstantCommand(m_feeder::reverseHopper, m_feeder)
-    // ); 
+    //set button values later
+    new JoystickButton(m_driverController, Button.kY.value)
+      .whenPressed(new InstantCommand(m_feeder::toggleReversedHopper, m_feeder)
+    ); 
 
     //used toggle instead of seprate buttons
-    new JoystickButton(m_driverController, Button.kA.value) //filler number for button
-    .whenPressed(new InstantCommand(m_feeder::toggleHopperState, m_feeder));
+    // new JoystickButton(m_driverController, Button.kA.value) //filler number for button
+    // .whenPressed(new InstantCommand(m_feeder::toggleHopperState, m_feeder));
   }
 
   /**

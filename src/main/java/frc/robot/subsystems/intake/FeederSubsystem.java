@@ -157,7 +157,6 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     if (m_indexState == IndexState.WAITING_TO_INDEX) {
-
       stopIndex(); // full and don't want to add a ball.
       startHopper(); // Get more balls in
     }
@@ -173,6 +172,11 @@ public class FeederSubsystem extends SubsystemBase {
     // There's a ball at the top so don't index
     if(topSensorTripped()){
       m_indexState = IndexState.FULL;
+      return;
+    }
+
+    if(middleSensorTripped()){
+      m_indexState = IndexState.WAITING_TO_INDEX;
       return;
     }
 
@@ -194,9 +198,9 @@ public class FeederSubsystem extends SubsystemBase {
     return m_bottomSensor.get();
   }
 
-  // public boolean middleSensorTripped(){
-  //   return m_middleSensor.get();
-  // }
+  public boolean middleSensorTripped(){
+     return m_middleSensor.get();
+ }
 
   public boolean topSensorTripped(){
     return m_topSensor.get();
@@ -227,6 +231,24 @@ public class FeederSubsystem extends SubsystemBase {
       }
       else {startHopper();}
     }
+  }
+
+  // Toggle the hopper on and off while in FEEDING state.
+  public void toggleFeedingHopper() {
+    if (m_hopperState == HopperState.FEEDING || m_hopperState == HopperState.REVERSED) {
+      stopHopper();
+    } else {
+      startHopper();
+    }  
+  }
+
+  // Toggle the hopper on and off while in REVERSED state.
+  public void toggleReversedHopper() {
+    if (m_hopperState == HopperState.REVERSED || m_hopperState == HopperState.FEEDING) {
+      stopHopper();
+    } else {
+      reverseHopper();
+    }  
   }
 
 }
