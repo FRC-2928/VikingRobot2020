@@ -31,29 +31,22 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    // Control Panel
+    public static final double kControlPanelCircumference = 0.81 * Math.PI;
+
+    public static final double kColorArcLength = kControlPanelCircumference / 8;
+    
+    public static final double kManipulatorCircumference = 0.0508 * Math.PI;
+    
+    public static double threeTurns = 26.0; // Rotate 26 segments 
+
     public static final class RobotMap{
-         // PID constants
 
-     public static double kPanelP = 0.1;
-     public static double kPanelI = 1e-4;
-     public static double kPanelD = 1;
-     public static double kPanelIzone = 0;
-     public static double kPanelFF = 0;
-     public static double kMaxOutput = 1;
-     public static double kMinOutput = -1;
-
-            // Control Panel
-        public static final double kControlPanelCircumference = 0.81 * Math.PI;
-
-        public static final double kColorArcLength = kControlPanelCircumference / 8;
-
-        public static final double kManipulatorCircumference = 0.0508 * Math.PI;
-
-        public static double threeTurns = 26.0; // Rotate 26 segments 
         //Drivetrain
 
         //Shooter
         public static final int kFlywheelTalonFX = 0;
+
         //Climber
 
         //Control Panel
@@ -68,6 +61,14 @@ public final class Constants {
     }
 
     public static final class PIDConstants{
+        //Control panel constants
+        public static double kPanelP = 0.1;
+        public static double kPanelI = 1e-4;
+        public static double kPanelD = 1;
+        public static double kPanelIzone = 0;
+        public static double kPanelFF = 0;
+        public static double kMaxOutput = 1;
+        public static double kMinOutput = -1;
 
     }
 
@@ -76,11 +77,7 @@ public final class Constants {
         public static final int kFlywheelTalonFX = 0;
         
     }
-
-    public static final class Conversions{
-        public static final int kFlywheelEncoderTicksPerRotation = 2048;
-    }
-
+    
     public static final class OIConstants {
         public static final int kDriverControllerPort =1;
         public static final int kOperatorControllerPort =2;
