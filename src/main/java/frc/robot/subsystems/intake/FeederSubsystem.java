@@ -32,17 +32,17 @@ public class FeederSubsystem extends SubsystemBase {
   private double m_indexSetpoint = m_indexSetpointInitial;
 
   public enum HopperState{
-    STOPPED, REVERSED, FEEDING, FULL;
+    STOPPED, REVERSED, FEEDING, FULL, HALTED;
   }
 
   private HopperState previousHopperState;
 
   public enum IndexState{
-    WAITING_TO_INDEX, READY_TO_INDEX, FULL,INDEXING;
+    WAITING_TO_INDEX, READY_TO_INDEX, FULL,INDEXING, HALTED;
   }
 
-  private HopperState m_hopperState = HopperState.STOPPED;
-  private IndexState m_indexState = IndexState.WAITING_TO_INDEX;
+  private HopperState m_hopperState = HopperState.HALTED;
+  private IndexState m_indexState = IndexState.HALTED;
 
   // ---- Constructor -----
   public FeederSubsystem() {
@@ -82,7 +82,7 @@ public class FeederSubsystem extends SubsystemBase {
   public void periodic() {
     // Moves incoming ball up the tower. 
     // This method will be called once per scheduler
-    index();
+    //index();
   }
 
   // Set power to the hopper motor
@@ -192,6 +192,10 @@ public class FeederSubsystem extends SubsystemBase {
 
   public void setIndexState(IndexState state) {
     m_indexState = state;
+  }
+
+  public void setHopperState(HopperState state) {
+    m_hopperState = state;
   }
 
   public boolean bottomSensorTripped(){
