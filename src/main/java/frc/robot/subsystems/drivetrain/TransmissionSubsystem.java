@@ -13,46 +13,46 @@ public class TransmissionSubsystem extends SubsystemBase {
   private Solenoid m_shiftPiston;
   private GearState m_gearState;
 
-  public enum GearState{
+  public enum GearState {
     HIGH, LOW;
   }
 
   public TransmissionSubsystem() {
-    
+
     m_shiftPiston = new Solenoid(RobotMap.kDrivetrainShiftSolenoid);
 
     m_gearState = GearState.HIGH;
 
   }
 
-  public void setGearState(GearState state){
+  public void setGearState(GearState state) {
     m_gearState = state;
 
-    switch(state){
+    switch (state) {
 
     case HIGH:
-    setTrue();
-    break;
+      setTrue();
+      break;
 
     case LOW:
-    setFalse();
-    break;
+      setFalse();
+      break;
     }
   }
 
-  public void toggle(){
+  public void toggle() {
     setGearState(m_gearState == GearState.LOW ? GearState.HIGH : GearState.LOW);
   }
 
-  public GearState getGearState(){
+  public GearState getGearState() {
     return m_gearState;
   }
 
-  private void setTrue(){
+  private void setTrue() {
     m_shiftPiston.set(true);
   }
-  
-  private void setFalse(){
+
+  private void setFalse() {
     m_shiftPiston.set(false);
   }
 

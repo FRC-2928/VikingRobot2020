@@ -12,7 +12,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
-import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -57,6 +56,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_leftSlave.setInverted(InvertType.FollowMaster);
     m_rightSlave.follow(m_rightMaster, FollowerType.PercentOutput);
     m_rightSlave.setInverted(InvertType.FollowMaster);
+    
+    m_rightMaster.setInverted(InvertType.InvertMotorOutput);
 
     //May do SpeedControllerGroup instead, not yet sure
     for(TalonFX fx : new TalonFX[] {m_leftMaster, m_leftSlave, m_rightMaster, m_rightSlave}){
@@ -94,6 +95,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     resetEncoders();
 
     differentialdrive = new DifferentialDrive(m_leftMaster, m_rightMaster);
+    differentialdrive.setRightSideInverted(false);
     m_kinematics = new DifferentialDriveKinematics(DrivetrainConstants.kTrackWidthMeters);
     m_odometry = new DifferentialDriveOdometry(new Rotation2d(getYaw()));
 
@@ -133,6 +135,4 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_leftMaster.setSelectedSensorPosition(0);
     m_rightMaster.setSelectedSensorPosition(0);
   }
-
-
 }
