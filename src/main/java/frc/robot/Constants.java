@@ -79,7 +79,10 @@ public final class Constants {
     public static final class ConversionConstants{
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final int kFlywheelTalonFX = 0;
-        
+
+        public static final double kClimberEncoderTicksPerRotation = 2048; 
+        public static final double kClimberGearRatio = 54 / 1;
+        public static final double kDistancePerPullyRotation = 420; //Placeholder
     }
 
     public static final class Conversions{
