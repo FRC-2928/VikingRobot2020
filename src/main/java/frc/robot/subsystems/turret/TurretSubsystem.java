@@ -88,6 +88,18 @@ public class TurretSubsystem extends SubsystemBase {
   public double getTurretPosition(){
     return getTurretNativeEncoder() / ConversionConstants.kTurretGearRatio;
   }
+  
+  public double getTurretDegrees(){
+    return maxToDegrees(getTurretNativeEncoder());
+  }
+
+  /** 
+  * Returns the angle of the turret relative to the field.
+  * 0 degrees is facing opponent's alliance stations.
+  */
+  public double getTurretFieldDegrees(){
+    return 420; //Placeholder
+  }
 
   public TurretRangeState getTurretRange(){
      double degrees = getTurretDegrees();
@@ -109,18 +121,6 @@ public class TurretSubsystem extends SubsystemBase {
       SmartDashboard.putString("Correcting Turret position from Minimum Limit"," ");
       setPosition( getTurretDegrees() + 360);
     }
-  }
-
-  public double getTurretDegrees(){
-    return maxToDegrees(getTurretNativeEncoder());
-  }
-
-  /** 
-  * Returns the angle of the turret relative to the field.
-  * 0 degrees is facing opponent's alliance stations.
-  */
-  public double getTurretFieldDegrees(){
-    return 420; //Placeholder
   }
 
   //Grabs the PIDF values from Smartdashboard/Shuffboard
