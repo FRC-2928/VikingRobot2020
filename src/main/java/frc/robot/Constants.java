@@ -7,10 +7,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
-import edu.wpi.first.wpilibj.Solenoid;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants.  This class should not be used for any other purpose.  All constants should be
@@ -36,6 +32,24 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
  */
 public final class Constants {
     public static final class RobotMap{
+         // PID constants
+
+     public static double kPanelP = 0.1;
+     public static double kPanelI = 1e-4;
+     public static double kPanelD = 1;
+     public static double kPanelIzone = 0;
+     public static double kPanelFF = 0;
+     public static double kMaxOutput = 1;
+     public static double kMinOutput = -1;
+
+            // Control Panel
+        public static final double kControlPanelCircumference = 0.81 * Math.PI;
+
+        public static final double kColorArcLength = kControlPanelCircumference / 8;
+
+        public static final double kManipulatorCircumference = 0.0508 * Math.PI;
+
+        public static double threeTurns = 26.0; // Rotate 26 segments 
         //Drivetrain
 
         //Shooter
@@ -63,7 +77,6 @@ public final class Constants {
     }
 
     public static final class ConversionConstants{
-      
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final int kFlywheelTalonFX = 0;
         
@@ -75,6 +88,7 @@ public final class Constants {
 
     public static final class OIConstants {
         public static final int kDriverControllerPort =1;
+        public static final int kOperatorControllerPort =2;
     }
 }
 
