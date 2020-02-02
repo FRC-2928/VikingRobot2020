@@ -43,6 +43,10 @@ public final class Constants {
     public static final class RobotMap{
 
         //Drivetrain
+        public static final int kDrivetrainLeftFrontTalonFX = 14;
+        public static final int kDrivetrainLeftBackTalonFX = 15;
+        public static final int kDrivetrainRightFrontTalonFX = 1;
+        public static final int kDrivetrainRightBackTalonFX = 0;
 
         //Shooter
         public static final int kFlywheelTalonFX = 0;
@@ -51,16 +55,22 @@ public final class Constants {
         public static final int kTurretSparkMax = 420;
 
         //Climber
+      
+        //Intake
+        public static final int kIntakeWPI_TalonSRX = 6; //placeholder
 
         //Control Panel
         public static final int kControlPanelSparkMax = 69; //Placeholder
 
         //Solenoids
+        public static final int kDrivetrainShiftSolenoid = 0; //Placeholder
         public static final int kIntakeSoleniodRightOne = 69; //place holder
         public static final int kIntakeSoleniodRightTwo = 69;
         public static final int kIntakeSoleniodLeftOne = 69;
         public static final int kIntakeSoleniodLeftTwo = 69;
-        public static final int kIntakeWPI_TalonSRX = 6; //placeholder
+
+        //Sensors
+        public static final int kPigeonIMU = 3;
     }
 
     public static final class PIDConstants{
@@ -87,6 +97,10 @@ public final class Constants {
     public static final class OIConstants {
         public static final int kDriverControllerPort =1;
         public static final int kOperatorControllerPort =2;
+    }
+
+    public static final class DrivetrainConstants{
+        public static final double kTrackWidthMeters = 69; //Placeholder
     }
 }
 
