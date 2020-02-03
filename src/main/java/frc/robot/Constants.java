@@ -16,4 +16,39 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    public static final class DriveConstants {
+        public static final int kLeftMasterDeviceID = 0;
+        public static final int kLeftSlaveDeviceID = 1;
+        public static final int kRightMasterDeviceID = 2;
+        public static final int kRightSlaveDeviceID = 3;
+
+        public static final int kPigeonDeviceID = 4;
+    }
+
+    public static final class TransmissionConstants {
+        public static final int kSolenoidChannel = 1;
+    }
+
+    public static final class FlywheelConstants {
+        public static final int kControllerDeviceID = 0;
+        
+        public static final double kGearRatio = 1.0;
+        public static final double kUnitsPerRev = 1.0;
+    }
+
+    public static final class HoodConstants {
+        public static final int kControllerDeviceID = 1;
+
+        public static final double kGearRatio = 1.0;
+        public static final double kUnitsPerRev = 1.0;
+    }
+
+    public static final class TurretConstants {
+        public static final int kControllerDeviceID = 1;
+
+        public static final double kGearRatio = 236.11;
+        public static final double kUnitsPerRev = 42.0;
+    }
+
 }
