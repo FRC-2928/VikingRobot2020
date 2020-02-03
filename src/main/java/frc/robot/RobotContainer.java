@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.RobotMap;
 import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -35,12 +36,13 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final FlywheelSubsystem flywheelsubsystem = new FlywheelSubsystem();
+  private final Intake m_intake = new Intake();
+  private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
+  private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem();
 
   private final XboxController driveController = new XboxController(0);
   private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
   private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
-  private final Intake m_intake = new Intake();
-  private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
 
   XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
   XboxController m_operatorController = new XboxController(Constants.OIConstants.kOperatorControllerPort);
