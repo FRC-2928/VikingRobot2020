@@ -114,4 +114,9 @@ public class SmartSparkMax extends CANSparkMax implements SmartSpeedController {
     public double getMeasuredCurrent() {
         return getOutputCurrent();
     }
+
+    @Override
+    public void resetEncoder() {
+        m_encoder.setPosition(0.0);
+    }
 }

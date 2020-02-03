@@ -128,6 +128,11 @@ public class FakeSmartSpeedController implements SmartSpeedController {
         return m_measuredCurrentSupplier.getAsDouble();
     }
 
+    @Override
+    public void resetEncoder() {
+        m_position = 0;
+    }
+
     public double getFeedforward() {
         return m_feedforward;
     }

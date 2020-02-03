@@ -22,4 +22,6 @@ public interface SmartSpeedController extends SpeedController {
     void setCurrent(double currentAmps);
     double getTargetCurrent();
     double getMeasuredCurrent();
+
+    void resetEncoder();
 }

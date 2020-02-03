@@ -1,15 +1,17 @@
 package frc.org.ballardrobotics.speedcontrollers.ctre;
 
+import javax.naming.OperationNotSupportedException;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 
 /**
  * Add your docs here.
  */
-public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController {
+public class SmartVictorSPX extends WPI_VictorSPX implements SmartSpeedController {
     public static final double kNominalVoltageVolts = 12.0;
     public static final int kVelocitySlotIdx = 0;
     public static final int kPositionSlotIdx = 1;
@@ -23,13 +25,12 @@ public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController 
     private double m_targetVelocityRPM;
     private double m_targetPositionRevolutions;
     private double m_targetVoltageVolts;
-    private double m_targetCurrentAmps;
 
-    public SmartTalonSRX(int deviceNumber) {
+    public SmartVictorSPX(int deviceNumber) {
         this(deviceNumber, 1.0);
     }
 
-    public SmartTalonSRX(int deviceNumber, double unitsPerRevolution) {
+    public SmartVictorSPX(int deviceNumber, double unitsPerRevolution) {
         super(deviceNumber);
         kUnitsPerRevolution = unitsPerRevolution;
         configVoltageCompSaturation(kNominalVoltageVolts);
@@ -97,18 +98,19 @@ public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController 
 
     @Override
     public void setCurrent(double currentAmps) {
-        m_targetCurrentAmps = currentAmps;
-        set(ControlMode.Current, currentAmps);
+        System.err.println("UnsupportedOperation: VictorSPX does not support setCurrent(double)");
     }
 
     @Override
     public double getTargetCurrent() {
-        return m_targetCurrentAmps;
+        System.err.println("UnsupportedOperation: VictorSPX does not support getTargetCurrent()");
+        return 0.0;
     }
 
     @Override
     public double getMeasuredCurrent() {
-        return getSupplyCurrent();
+        System.err.println("UnsupportedOperation: VictorSPX does not support getMeasuredCurrent()");
+        return 0.0;
     }
 
     @Override

@@ -1,7 +1,11 @@
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,6 +22,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private Gyro m_gyro;
 
   private DifferentialDrive m_drive;
+
+  private DifferentialDriveKinematics m_kinematics;
+
+  private DifferentialDriveOdometry m_odometry;
+
+  private Pose2d m_pose;
 
   private double m_heading;
   private double m_leftPosition, m_rightPosition;
@@ -52,8 +62,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_leftController = leftController;
     m_rightController = rightController;
     m_gyro = gyro;
+
     m_drive = new DifferentialDrive(m_leftController, m_rightController);
     m_drive.setRightSideInverted(false);
+
+    resetGyro();
+    resetEncoders();
+
+    m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(gyro.getAngle()));
   }
 
   @Override
@@ -71,6 +87,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     m_leftCurrent = m_leftController.getMeasuredCurrent();
     m_rightCurrent = m_rightController.getMeasuredCurrent();
+
+    m_pose = m_odometry.update(Rotation2d.fromDegrees(m_heading), m_leftPosition, m_rightPosition);
 
     SmartDashboard.putNumber("drive_heading", m_heading);
     SmartDashboard.putNumber("drive_left_pos", m_leftPosition);
@@ -101,6 +119,25 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public void arcadeDrive(double move, double rotate) {
     m_drive.arcadeDrive(move, rotate);
+  }
+
+  public void setPose(Pose2d pose) {
+    m_pose = pose;
+    resetEncoders();
+    m_odometry.resetPosition(pose, Rotation2d.fromDegrees(m_heading));
+  }
+
+  public void resetGyro() {
+    m_gyro.reset();
+  }
+
+  public void resetEncoders() {
+    m_leftController.resetEncoder();
+    m_rightController.resetEncoder();
+  }
+
+  public Pose2d getPose() {
+    return m_pose;
   }
 
   public double getHeading() {

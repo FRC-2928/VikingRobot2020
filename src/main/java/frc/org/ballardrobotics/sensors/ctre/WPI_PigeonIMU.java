@@ -14,12 +14,12 @@ public class WPI_PigeonIMU extends PigeonIMU implements Gyro {
 
     @Override
     public void close() throws Exception {
-        // NO-OP
+        System.err.println("UnsupportedOperation: WPI_PigeonIMU does not support close()");
     }
 
     @Override
     public void calibrate() {
-        throw new UnsupportedOperationException("calibrate() is not supported for PigeonIMU. Use the Phoenix Tuner to calibrate.");
+        System.err.println("UnsupportedOperation: WPI_PigeonIMU does not support calibrate()");
     }
 
     @Override

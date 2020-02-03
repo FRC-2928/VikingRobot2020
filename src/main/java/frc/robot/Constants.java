@@ -22,8 +22,9 @@ public final class Constants {
         public static final int kLeftSlaveDeviceID = 1;
         public static final int kRightMasterDeviceID = 2;
         public static final int kRightSlaveDeviceID = 3;
-
         public static final int kPigeonDeviceID = 4;
+
+        public static final double kTrackWidthMeters = 0.5;
     }
 
     public static final class TransmissionConstants {
