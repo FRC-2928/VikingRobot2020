@@ -86,8 +86,8 @@ public final class Constants {
     }
 
     public static final class ConversionConstants{
-        public static final double kTurretGearRatio = 236.11; //Placeholder
-        public static final double kTurretDegreesPerRotation = 330; //Placeholder
+        public static final double kTurretGearRatio = 236.11; 
+        public static final double kTurretDegreesPerRotation = 360; 
 
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final int kFlywheelTalonFX = 0;

@@ -11,9 +11,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.RobotMap;
+
 /**
-* TurretSubsystem is responsible for subsystem level logic with the turret.
-*/
+ * TurretSubsystem is responsible for subsystem level logic with the turret.
+ */
 public class TurretSubsystem extends SubsystemBase {
   private CANSparkMax m_turretMotor;
   private CANEncoder m_turretEncoder;
@@ -21,19 +22,19 @@ public class TurretSubsystem extends SubsystemBase {
 
   private TurretState m_turretState;
 
-  //Feedback gains
+  // Feedback gains
   private double kP = 0;
   private double kF = 0;
 
-  //Turrent working limits
+  // Turrent working limits
   private final double minWorkingLimit = -225;
   private final double maxWorkingLimit = 225;
 
-  public enum TurretState{
+  public enum TurretState {
     IDLE, SEARCHING, FOUND, LOCKED;
   }
 
-  public enum TurretRangeState{
+  public enum TurretRangeState {
     OVER, UNDER, NORMAL;
   }
 
@@ -50,7 +51,8 @@ public class TurretSubsystem extends SubsystemBase {
 
     m_turretPID = m_turretMotor.getPIDController();
 
-    //Used to config PIDF gains
+    // Used to config PIDF gains
+    SmartDashboard.putNumber("Turret Reference", 0);
     SmartDashboard.putNumber("Turret kP", kP);
     SmartDashboard.putNumber("Turret kF", kF);
   }
@@ -63,68 +65,69 @@ public class TurretSubsystem extends SubsystemBase {
     // Report reaching limits
     TurretRangeState turretRangeState = getTurretRange();
     if (turretRangeState == TurretRangeState.OVER) {
-      SmartDashboard.putString("Turret position at Maximum Limit"," ");
+      SmartDashboard.putString("Turret position at Maximum Limit", " ");
     } else if (turretRangeState == TurretRangeState.UNDER) {
-      SmartDashboard.putString("Turret position at Minimum Limit"," ");
+      SmartDashboard.putString("Turret position at Minimum Limit", " ");
     }
   }
 
-  public void setPower(double power){
+  public void setPower(double power) {
     m_turretMotor.set(power);
   }
 
-  public void setPosition(double degrees){
+  public void setPosition(double degrees) {
     m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition);
   }
 
-  public void stopMotor(){
+  public void stopMotor() {
     setPower(0);
   }
 
-  public double getTurretNativeEncoder(){
+  public double getTurretNativeEncoder() {
     return m_turretEncoder.getPosition();
   }
 
-  public double getTurretPosition(){
+  public double getTurretPosition() {
     return getTurretNativeEncoder() / ConversionConstants.kTurretGearRatio;
   }
-  
-  public double getTurretDegrees(){
+
+  public double getTurretDegrees() {
     return maxToDegrees(getTurretNativeEncoder());
   }
 
-  /** 
-  * Returns the angle of the turret relative to the field.
-  * 0 degrees is facing opponent's alliance stations.
-  */
-  public double getTurretFieldDegrees(){
-    return 420; //Placeholder
+  /**
+   * Returns the angle of the turret relative to the field. 0 degrees is facing
+   * opponent's alliance stations.
+   */
+  public double getTurretFieldDegrees() {
+    return 420; // Placeholder
   }
 
-  public TurretRangeState getTurretRange(){
-     double degrees = getTurretDegrees();
-     if (degrees > maxWorkingLimit) {
-       return TurretRangeState.OVER;
-     }
-     else if (degrees < minWorkingLimit) {
+  public TurretRangeState getTurretRange() {
+    double degrees = getTurretDegrees();
+    if (degrees > maxWorkingLimit) {
+      return TurretRangeState.OVER;
+    } else if (degrees < minWorkingLimit) {
       return TurretRangeState.UNDER;
-     }
-     else return TurretRangeState.NORMAL;
+    } else
+      return TurretRangeState.NORMAL;
   }
 
-  public void correctTurretRange(){
+  public void correctTurretRange() {
     TurretRangeState turretRangeState = getTurretRange();
     if (turretRangeState == TurretRangeState.OVER) {
-      SmartDashboard.putString("Correcting Turret position from Maximum Limit"," ");
-      setPosition( getTurretDegrees() - 360);
-    } else if (turretRangeState == TurretRangeState.UNDER) {
-      SmartDashboard.putString("Correcting Turret position from Minimum Limit"," ");
-      setPosition( getTurretDegrees() + 360);
+      SmartDashboard.putString("Correcting Turret position from Maximum Limit", " ");
+      setPosition(getTurretDegrees() - 360);
+    } 
+    
+    else if (turretRangeState == TurretRangeState.UNDER) {
+      SmartDashboard.putString("Correcting Turret position from Minimum Limit", " ");
+      setPosition(getTurretDegrees() + 360);
     }
   }
 
-  //Grabs the PIDF values from Smartdashboard/Shuffboard
-  public void configTurretFeedbackGains(){
+  // Grabs the PIDF values from Smartdashboard/Shuffboard
+  public void configTurretFeedbackGains() {
     kP = SmartDashboard.getNumber("Turret kP", kP);
     kF = SmartDashboard.getNumber("Turret kF", kF);
 
@@ -137,43 +140,42 @@ public class TurretSubsystem extends SubsystemBase {
     System.out.println("Turret gains configed: kP " + kP + "kF " + kF);
   }
 
-  //May be easier to move to command for logic
-  public void searchForTarget(){
+  public void searchForTarget() {
 
   }
 
-  public void setTurretState(TurretState state){
+  public void setTurretState(TurretState state) {
     m_turretState = state;
 
-    switch(state){
-      case IDLE:
+    switch (state) {
+    case IDLE:
       stopMotor();
       break;
 
-      case SEARCHING:
+    case SEARCHING:
       break;
 
-      case FOUND:
+    case FOUND:
       break;
 
-      case LOCKED:
+    case LOCKED:
       break;
 
-      default:
+    default:
       break;
     }
   }
 
-  public TurretState getTurretState(){
+  public TurretState getTurretState() {
     return m_turretState;
   }
 
-  //Used to convert native encoder units to turret degrees
-  private double degreesToMax(double degrees){
+  // Used to convert native encoder units to turret degrees
+  private double degreesToMax(double degrees) {
     return degrees * ConversionConstants.kTurretGearRatio / ConversionConstants.kTurretDegreesPerRotation;
   }
 
-  private double maxToDegrees(double max){
-    return max * ConversionConstants.kTurretDegreesPerRotation / ConversionConstants.kTurretGearRatio ;
+  private double maxToDegrees(double max) {
+    return max * ConversionConstants.kTurretDegreesPerRotation / ConversionConstants.kTurretGearRatio;
   }
 }

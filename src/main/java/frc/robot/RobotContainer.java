@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.RobotMap;
 import frc.robot.commands.controlpanel.RotateToColor;
@@ -36,11 +37,14 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final FlywheelSubsystem flywheelsubsystem = new FlywheelSubsystem();
+  private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
   private final Intake m_intake = new Intake();
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
   private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem();
 
   private final XboxController driveController = new XboxController(0);
+
+  private final JoystickButton turretPositionControl = new JoystickButton(driveController, 1);
   private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
   private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
 
@@ -72,6 +76,14 @@ public class RobotContainer {
         flywheelsubsystem.setFlywheelRPM(targetRPM);
       }, 
       flywheelsubsystem)
+    );
+
+    turretPositionControl.whileHeld(
+      new RunCommand(() -> {
+        double reference = SmartDashboard.getNumber("Turret Reference", 0);
+        m_turretSubsystem.setPosition(reference);
+      },
+      m_turretSubsystem)
     );
 
     ConfigureControlButtons(); 
