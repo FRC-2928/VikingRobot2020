@@ -1,17 +1,23 @@
 package frc.robot.commands.shooter;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 
 public class FlywheelSetVelocityCommand extends CommandBase {
   private FlywheelSubsystem m_flywheel;
-  private double m_velocityRPM;
+  private DoubleSupplier m_velocitySupplier;
 
-  public FlywheelSetVelocityCommand(double velocityRPM, FlywheelSubsystem flywheel) {
+  public FlywheelSetVelocityCommand(FlywheelSubsystem flywheel, double velocityRPM) {
+    this(flywheel, () -> velocityRPM);
+  }
+
+  public FlywheelSetVelocityCommand(FlywheelSubsystem flywheel, DoubleSupplier velocitySupplier) {
     addRequirements(flywheel);
 
-    m_velocityRPM = velocityRPM;
     m_flywheel = flywheel;
+    m_velocitySupplier = velocitySupplier;
   }
 
   @Override
@@ -20,7 +26,7 @@ public class FlywheelSetVelocityCommand extends CommandBase {
 
   @Override
   public void execute() {
-    m_flywheel.setVelocity(m_velocityRPM);
+    m_flywheel.setVelocity(m_velocitySupplier.getAsDouble());
   }
 
   @Override

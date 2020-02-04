@@ -56,4 +56,8 @@ public class TurretSubsystem extends SubsystemBase {
   public void setPosition(double positionRotations) {
     m_controller.setPosition(positionRotations);
   }
+
+  public double getPosition() {
+    return m_controller.getMeasuredPosition();
+  }
 }

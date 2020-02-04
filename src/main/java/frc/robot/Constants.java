@@ -17,6 +17,11 @@ package frc.robot;
  */
 public final class Constants {
 
+    public static final class OIConstants {
+        public static final int kDriveControllerPort = 0;
+        public static final int kOperatorControllerPort = 1;
+    }
+
     public static final class DriveConstants {
         public static final int kLeftMasterDeviceID = 0;
         public static final int kLeftSlaveDeviceID = 1;
@@ -50,6 +55,18 @@ public final class Constants {
 
         public static final double kGearRatio = 236.11;
         public static final double kUnitsPerRev = 42.0;
+    }
+
+    public static final class FeederConstants {
+        public static final int kControllerDeviceID = 1;
+
+        public static final int kTopSensorChannel = 0;
+        public static final int kMiddleSensorChannel = 1;
+        public static final int kBottomSensorChannel = 2;
+    }
+
+    public static final class HopperConstants {
+        public static final int kControllerDeviceID = 1;
     }
 
 }

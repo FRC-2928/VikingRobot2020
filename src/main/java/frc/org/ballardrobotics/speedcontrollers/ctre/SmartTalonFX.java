@@ -126,4 +126,9 @@ public class SmartTalonFX extends WPI_TalonFX implements SmartSpeedController {
             feed();
         }
     }
+
+    @Override
+    public void resetEncoder() {
+        setSelectedSensorPosition(0);
+    }
 }

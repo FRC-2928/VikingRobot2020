@@ -11,9 +11,9 @@ import frc.robot.subsystems.drive.DrivetrainSubsystem;
  * This is done by making the following measurements:
  *    1) The rotation of the robot via gyro, in radians, called theta.
  *    2) The arcLength of the wheel path via encoders, in meters, called s.
- * Then we solve the the radius r of the circle using the equation:
+ * Then, we solve the the radius r of the circle using the equation:
  *    r = s / theta
- * The track width is then two times this radius.
+ * The track width is two times this radius.
  */
 public class DrivetrainCalculateTrackWidthCommand extends CommandBase {
   private DrivetrainSubsystem m_drivetrain;
