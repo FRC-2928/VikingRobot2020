@@ -65,6 +65,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     m_drive = new DifferentialDrive(m_leftController, m_rightController);
     m_drive.setRightSideInverted(false);
+    m_drive.setDeadband(0.1);
 
     resetGyro();
     resetEncoders();
