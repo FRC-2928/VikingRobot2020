@@ -10,10 +10,12 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
+import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 
 /**
  * TurretSubsystem is responsible for subsystem level logic with the turret.
+ * Positive power/encoder values is right, negative is left
  */
 public class TurretSubsystem extends SubsystemBase {
   private CANSparkMax m_turretMotor;
@@ -23,8 +25,8 @@ public class TurretSubsystem extends SubsystemBase {
   private TurretState m_turretState;
 
   // Feedback gains
-  private double kP = 0;
-  private double kF = 0;
+  private double kP = PIDConstants.kPTurret;
+  private double kF = PIDConstants.kFTurret;
 
   // Turrent working limits
   private final double minWorkingLimit = -225;

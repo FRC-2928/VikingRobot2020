@@ -83,6 +83,9 @@ public final class Constants {
         public static double kMaxOutput = 1;
         public static double kMinOutput = -1;
 
+        public static double kPTurret = 0;
+        public static double kFTurret = 0;
+
     }
 
     public static final class ConversionConstants{
