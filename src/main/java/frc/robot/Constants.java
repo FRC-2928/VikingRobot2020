@@ -42,6 +42,12 @@ public final class Constants {
      public static double kMaxOutput = 1;
      public static double kMinOutput = -1;
 
+     public static double kClimberP = 0.1;
+     public static double kClimberI = 1e-4;
+     public static double kClimberD = 1;
+     public static int kClimberIzone = 0;
+     public static double kClimberFF = 0;
+
             // Control Panel
         public static final double kControlPanelCircumference = 0.81 * Math.PI;
 
@@ -70,6 +76,7 @@ public final class Constants {
         public static final int kIntakeSoleniodLeftOne = 69;
         public static final int kIntakeSoleniodLeftTwo = 69;
         public static final int kClimberSolenoidBrake = 420;
+        public static final int kClimberTomahawk = 420;
     }
 
     public static final class PIDConstants{

@@ -19,6 +19,7 @@ import frc.robot.Constants.RobotMap;
 public class ClimberSubsystem extends SubsystemBase {
   private WPI_TalonFX m_climberMotor;
   private Solenoid m_climberBrake;
+  private Solenoid m_climberTomahawk;
 
   private BrakeState m_currentBrakeState;
   private ClimberState m_currentClimberState;
@@ -36,6 +37,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public ClimberSubsystem() {
     m_climberMotor = new WPI_TalonFX(RobotMap.kClimberTalonFX);
     m_climberBrake = new Solenoid(RobotMap.kClimberSolenoidBrake);
+    m_climberTomahawk = new Solenoid(RobotMap.kClimberTomahawk);
 
     m_climberMotor.configFactoryDefault();
 
@@ -65,8 +67,26 @@ public class ClimberSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  //Grabs the PIDF values from Smartdashboard/Shuffboard
+  public void configClimberGains(){
+    // kP = SmartDashboard.getNumber("Turret kP", kP);
+    // kF = SmartDashboard.getNumber("Turret kF", kF);
+
+    m_climberMotor.config_kP(0, RobotMap.kClimberP);
+    m_climberMotor.config_kI(0, RobotMap.kClimberI);
+    m_climberMotor.config_kD(0, RobotMap.kClimberD);
+    m_climberMotor.config_IntegralZone(0, RobotMap.kClimberIzone);
+    m_climberMotor.config_kF(0, RobotMap.kClimberFF);
+
+    //System.out.println("Turret gains configed: kP " + kP + "kF " + kF);
+  }
+
   public void setElevatorPower(double power){
     m_climberMotor.set(ControlMode.PercentOutput, power);
+  }
+
+  public void setElevatorPosition(double position){
+    m_climberMotor.set(ControlMode.Position, position);
   }
 
   public double getElevatorNativeEncoder(){
@@ -78,6 +98,14 @@ public class ClimberSubsystem extends SubsystemBase {
     position /= ConversionConstants.kClimberGearRatio;
     position *= ConversionConstants.kDistancePerPullyRotation;
     return position;
+  }
+
+  public void engageTomahawk(){
+    m_climberTomahawk.set(true);
+  }
+
+  public void disengageTomahawk(){
+    m_climberTomahawk.set(false);
   }
 
   public void setBrakeState(BrakeState state){
@@ -103,6 +131,40 @@ public class ClimberSubsystem extends SubsystemBase {
       m_climberBrake.set(false);
     }
   }
+  
+  public void setClimber(ClimberState state){
+    m_currentClimberState = state;
 
+    switch (state) {
+      case STOWED:
+        //default state
+        disengageTomahawk();
+        break;
 
+      case OPEN_LOOP:
+        // Open Loop State
+        disengageTomahawk();
+        break;
+
+      case LOW:
+        // Low state
+        engageTomahawk();
+        break;
+
+      case MID:
+        // mid state
+        engageTomahawk();
+        break;
+
+      case HIGH:
+        //High state
+        engageTomahawk();
+        break;
+
+      case CLIMBED:
+        // Climbed state
+        break;
+    }
+  }
+  //STOWED, OPEN_LOOP, LOW, MID, HIGH, CLIMBED
 }
