@@ -26,6 +26,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   // Feedback gains
   private double kP = PIDConstants.kPTurret;
+  // Arbritary feedforward in volts
   private double kF = PIDConstants.kFTurret;
 
   // Turrent working limits
@@ -78,7 +79,9 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setPosition(double degrees) {
-    m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition);
+    kF = SmartDashboard.getNumber("Turret kF", kF);
+
+    m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition, 0, kF);
   }
 
   public void stopMotor() {
@@ -131,13 +134,11 @@ public class TurretSubsystem extends SubsystemBase {
   // Grabs the PIDF values from Smartdashboard/Shuffboard
   public void configTurretFeedbackGains() {
     kP = SmartDashboard.getNumber("Turret kP", kP);
-    kF = SmartDashboard.getNumber("Turret kF", kF);
 
     m_turretPID.setP(kP, 0);
     m_turretPID.setI(0, 0);
     m_turretPID.setIZone(0, 0);
     m_turretPID.setD(0, 0);
-    m_turretPID.setFF(kF, 0);
 
     System.out.println("Turret gains configed: kP " + kP + "kF " + kF);
   }
