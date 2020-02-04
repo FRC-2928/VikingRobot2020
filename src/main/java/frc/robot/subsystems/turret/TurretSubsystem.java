@@ -23,6 +23,7 @@ public class TurretSubsystem extends SubsystemBase {
   private CANPIDController m_turretPID;
 
   private TurretState m_turretState;
+  private TurretRangeState m_turretRangeState;
 
   // Feedback gains
   private double kP = PIDConstants.kPTurret;
@@ -30,15 +31,15 @@ public class TurretSubsystem extends SubsystemBase {
   private double kF = PIDConstants.kFTurret;
 
   // Turrent working limits
-  private final double minWorkingLimit = -225;
-  private final double maxWorkingLimit = 225;
+  private final double leftMaxLimit = -225;
+  private final double rightMaxLimit = 225;
 
   public enum TurretState {
     IDLE, SEARCHING, FOUND, LOCKED;
   }
 
   public enum TurretRangeState {
-    OVER, UNDER, NORMAL;
+    LEFT_LIMIT, RIGHT_LIMIT, NORMAL;
   }
 
   public TurretSubsystem() {
@@ -66,12 +67,7 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Turret position degrees", getTurretPosition());
 
     // Report reaching limits
-    TurretRangeState turretRangeState = getTurretRange();
-    if (turretRangeState == TurretRangeState.OVER) {
-      SmartDashboard.putString("Turret position at Maximum Limit", " ");
-    } else if (turretRangeState == TurretRangeState.UNDER) {
-      SmartDashboard.putString("Turret position at Minimum Limit", " ");
-    }
+    m_turretRangeState = getTurretRange();
   }
 
   public void setPower(double power) {
@@ -110,23 +106,26 @@ public class TurretSubsystem extends SubsystemBase {
 
   public TurretRangeState getTurretRange() {
     double degrees = getTurretDegrees();
-    if (degrees > maxWorkingLimit) {
-      return TurretRangeState.OVER;
-    } else if (degrees < minWorkingLimit) {
-      return TurretRangeState.UNDER;
-    } else
-      return TurretRangeState.NORMAL;
+
+    if (degrees > rightMaxLimit) {
+      return TurretRangeState.RIGHT_LIMIT;
+    } 
+
+    else if (degrees < leftMaxLimit) {
+      return TurretRangeState.LEFT_LIMIT;
+    } 
+
+    return TurretRangeState.NORMAL;
   }
 
   public void correctTurretRange() {
-    TurretRangeState turretRangeState = getTurretRange();
-    if (turretRangeState == TurretRangeState.OVER) {
-      SmartDashboard.putString("Correcting Turret position from Maximum Limit", " ");
+    if (m_turretRangeState == TurretRangeState.RIGHT_LIMIT) {
+      SmartDashboard.putString("Correcting Turret position from Right Limit", " ");
       setPosition(getTurretDegrees() - 360);
     } 
     
-    else if (turretRangeState == TurretRangeState.UNDER) {
-      SmartDashboard.putString("Correcting Turret position from Minimum Limit", " ");
+    else if (m_turretRangeState == TurretRangeState.LEFT_LIMIT) {
+      SmartDashboard.putString("Correcting Turret position from Left Limit", " ");
       setPosition(getTurretDegrees() + 360);
     }
   }
