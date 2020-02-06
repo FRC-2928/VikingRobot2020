@@ -16,6 +16,7 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  
     public static final class RobotMap{
         //Drivetrain
 
@@ -50,15 +51,15 @@ public final class Constants {
     public static final int kIRSensorTop = 2;
 
 
+    
+  }
+
+  public static final class PIDConstants{
     public static final double indexPower = 0.4;
     public static final double indexSetpoint = 100;
   }
 
-    public static final class PIDConstants{
-
-    }
-
-    public static final class ConversionConstants{
-
-    }
+  public static final class ConversionConstants{
+    
+  }
 }
