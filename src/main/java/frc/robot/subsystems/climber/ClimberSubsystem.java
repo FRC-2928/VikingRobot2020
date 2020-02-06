@@ -120,13 +120,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public void setBrakeState(BrakeState state) {
     m_brakeState = state;
   }
-  //STOWED, OPEN_LOOP, LOW, MID, HIGH, CLIMBED
   
-
-  // -----------------------------------------------------------
-  // Sensor Input
-  // -----------------------------------------------------------
-
   // -----------------------------------------------------------
   // Sensor Input
   // -----------------------------------------------------------
