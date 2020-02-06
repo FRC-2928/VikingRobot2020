@@ -87,9 +87,7 @@ public final class Constants {
         public static double kClimberFF = 0;
     
         public static final double kStowedPositionSetpoint = 0.0; // Meters
-        public static final double kLowPositionSetpoint = 1.0; // Meters
-        public static final double kMidPositionSetpoint = 1.2; // Meters
-        public static final double kHighPositionSetpoint = 1.4; // Meters
+        public static final double kLowerPositionSetpoint = 1.0; // Meters
         public static final double kDeployPositionSetpoint = 1.6; // Meters
         public static final double kCLimberPower = 0.4; // Power Percent
     

@@ -21,14 +21,13 @@ import frc.robot.Constants.RobotMap;
 public class ClimberSubsystem extends SubsystemBase {
   private WPI_TalonFX m_climberMotor;
   private Solenoid m_climberBrake;
-  private Solenoid m_climberTomahawk;
 
   private BrakeState m_brakeState;
   private ClimberState m_climberState;
 
   //Statemachine for overall climber state
   public enum ClimberState{
-    STOWED, READY_TO_LATCH, LATCHED, LOW, MID, HIGH, HANGING, HUNG, INTERRUPTED,DEPLOYING;
+    STOWED, READY_TO_LATCH, LATCHED, LOWERING, INTERRUPTED,DEPLOYING, ASSENT_COMPLETE;
   }
 
   //Statemachine for pneumatic brake in the gearbox
@@ -42,7 +41,6 @@ public class ClimberSubsystem extends SubsystemBase {
   public ClimberSubsystem() {
     m_climberMotor = new WPI_TalonFX(RobotMap.kClimberTalonFX);
     m_climberBrake = new Solenoid(RobotMap.kClimberSolenoidBrake);
-    m_climberTomahawk = new Solenoid(RobotMap.kClimberTomahawk);
 
     m_climberMotor.configFactoryDefault();
 
@@ -97,16 +95,8 @@ public class ClimberSubsystem extends SubsystemBase {
         setpoint = PIDConstants.kStowedPositionSetpoint - currentPosition;
         break;
 
-      case LOW:
-        setpoint = PIDConstants.kLowPositionSetpoint - currentPosition;       
-        break;
-
-      case MID:
-        setpoint = PIDConstants.kMidPositionSetpoint - currentPosition;
-        break;
-
-      case HIGH:
-        setpoint = PIDConstants.kHighPositionSetpoint - currentPosition;
+      case LOWERING:
+        setpoint = PIDConstants.kLowerPositionSetpoint - currentPosition;       
         break;
 
       case  DEPLOYING:
@@ -154,13 +144,7 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public void setElevatorPosition(double position){
-    if (position < 0.0) {
-      m_climberMotor.setInverted(true);
-    } else {
-      m_climberMotor.setInverted(false);
-    }
-    // Always pass it a positive value
-    m_climberMotor.set(ControlMode.Position, Math.abs(position));
+    m_climberMotor.set(ControlMode.Position, position);
   }
 
   public void setBrakePosition(BrakeState state){
