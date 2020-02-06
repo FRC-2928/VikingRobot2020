@@ -89,8 +89,8 @@ public class RobotContainer {
       m_turretSubsystem)
     );
 
-    turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.9)));
-    turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.9)));
+    turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.5)));
+    turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.5)));
 
     ConfigureControlButtons(); 
 

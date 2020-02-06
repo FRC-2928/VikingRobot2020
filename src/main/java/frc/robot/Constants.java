@@ -83,13 +83,14 @@ public final class Constants {
         public static double kMaxOutput = 1;
         public static double kMinOutput = -1;
 
-        public static double kPTurret = 0;
-        public static double kFTurret = 0;
+        public static double kPTurret = 0.035;
+        public static double kDTurret = 0.3;
+        public static double kFTurret = 0.3;
 
     }
 
     public static final class ConversionConstants{
-        public static final double kTurretGearRatio = 24.165; 
+        public static final double kTurretGearRatio = 169.155; 
         public static final double kTurretDegreesPerRotation = 360; 
 
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
