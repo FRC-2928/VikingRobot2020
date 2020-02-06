@@ -8,7 +8,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;;
 
@@ -109,7 +108,6 @@ public class FeederSubsystem extends SubsystemBase {
 
   }
 
-  // Called in a loop at periodic
   // Handles the indexing of balls in the tower
   public void index() {
 
@@ -170,12 +168,6 @@ public class FeederSubsystem extends SubsystemBase {
       return;
     }
 
-    // // Ball in the middle with bottom slot empty - state 2
-    // if (middleSensorTripped() && !bottomSensorTripped()) {
-    //   m_indexState = IndexState.WAITING_TO_INDEX;
-    //   return;
-    // }
-
     // Ball on the bottom with top slot is open
     if (bottomSensorTripped() && !topSensorTripped()) {
       m_indexState = IndexState.READY_TO_INDEX; // states 3 & 4
@@ -217,7 +209,7 @@ public class FeederSubsystem extends SubsystemBase {
   }
 
   // -----------------------------------------------------------
-  // Actavator Output
+  // Actuator Output
   // -----------------------------------------------------------
 
   // Set power to the hopper motor
