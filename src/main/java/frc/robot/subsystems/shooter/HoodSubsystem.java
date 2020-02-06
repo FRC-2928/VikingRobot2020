@@ -1,7 +1,6 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.ctre.SmartTalonSRX;
@@ -11,6 +10,9 @@ import frc.robot.Robot;
 
 public class HoodSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;
+
+  private double m_targetVoltage, m_measuredVoltage;
+  private double m_targetPosition, m_measuredPosition;
 
   public static HoodSubsystem create() {
     if (Robot.isReal()) {
@@ -30,15 +32,20 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public HoodSubsystem(SmartSpeedController controller) {
-    setDefaultCommand(new RunCommand(this::stop, this));
-    
     m_controller = controller;
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("hood_measured_voltage", m_controller.getMeasuredVoltage());
-    SmartDashboard.putNumber("hood_measured_position", getPosition());
+    m_targetVoltage = m_controller.getTargetVoltage();
+    m_measuredVoltage = m_controller.getMeasuredVoltage();
+    m_targetPosition = m_controller.getTargetPostion() * 360.0;
+    m_measuredPosition = m_controller.getMeasuredPosition() * 360.0;
+
+    SmartDashboard.putNumber("hood_target_voltage", m_targetVoltage);
+    SmartDashboard.putNumber("hood_measured_voltage", m_measuredVoltage);
+    SmartDashboard.putNumber("hood_target_position", m_targetPosition);
+    SmartDashboard.putNumber("hood_measured_position", m_measuredPosition);
   }
 
   public void stop() {
@@ -49,11 +56,28 @@ public class HoodSubsystem extends SubsystemBase {
     m_controller.setVoltage(voltageVolts);
   }
 
+  public double getMeasuredVoltage() {
+    return m_measuredVoltage;
+  }
+
+  public double getTargetVoltage() {
+    return m_targetVoltage;
+  }
+
   public void setPosition(double degrees) {
     m_controller.setPosition(degrees / 360.0);
   }
 
-  public double getPosition() {
-    return m_controller.getMeasuredPosition() * 360.0;
+  public double getMeasuredPosition() {
+    return m_measuredPosition;
+  }
+
+  public double getTargetPosition() {
+    return m_targetPosition;
+  }
+
+  public boolean atTargetPosition() {
+    double error = m_targetPosition - m_measuredPosition;
+    return Math.abs(error) < HoodConstants.kAcceptablePositionErrorDeg;
   }
 }

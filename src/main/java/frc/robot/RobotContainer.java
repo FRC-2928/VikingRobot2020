@@ -1,18 +1,28 @@
 package frc.robot;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.org.ballardrobotics.triggers.AxisNonZeroTrigger;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.FlywheelConstants;
+import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.ShooterSetpoints;
+import frc.robot.Constants.TurretConstants;
+import frc.robot.commands.auto.AutoFeedCommand;
+import frc.robot.commands.auto.AutoIndexCommand;
 import frc.robot.commands.auto.AutoTargetCommand;
 import frc.robot.commands.drive.DrivetrainArcadeDriveCommand;
 import frc.robot.commands.drive.TransmissionSetHighGearCommand;
 import frc.robot.commands.drive.TransmissionSetLowGearCommand;
+import frc.robot.commands.shooter.ShooterSetSetpointCommand;
+import frc.robot.oi.DriverOI;
+import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.drive.DrivetrainSubsystem;
 import frc.robot.subsystems.drive.TransmissionSubsystem;
 import frc.robot.subsystems.indexer.FeederSubsystem;
@@ -23,23 +33,28 @@ import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.utilities.LimeliteUtility;
 
 public class RobotContainer {
-  private DrivetrainSubsystem m_drivetrain = DrivetrainSubsystem.create();
-  private TransmissionSubsystem m_transmission = TransmissionSubsystem.create();
+  private final DrivetrainSubsystem m_drivetrain;
+  private final TransmissionSubsystem m_transmission;
+  private final FlywheelSubsystem m_flywheel;
+  private final HoodSubsystem m_hood;
+  private final TurretSubsystem m_turret;
+  private final FeederSubsystem m_feeder;
+  private final HopperSubsystem m_hopper;
 
-  private FlywheelSubsystem m_flywheel = FlywheelSubsystem.create();
-  private HoodSubsystem m_hood = HoodSubsystem.create();
-  private TurretSubsystem m_turret = TurretSubsystem.create();
-
-  private FeederSubsystem m_feeder = FeederSubsystem.create();
-  private HopperSubsystem m_hopper = HopperSubsystem.create();
-
-  private XboxController m_driveController = new XboxController(OIConstants.kDriveControllerPort);
+  private final DriverOI m_driverOI;
 
   public RobotContainer() {
-    DoubleSupplier moveSupplier = () -> m_driveController.getTriggerAxis(Hand.kRight)
-        - m_driveController.getTriggerAxis(Hand.kLeft);
-    DoubleSupplier rotateSupplier = () -> m_driveController.getX(Hand.kLeft);
-    m_drivetrain.setDefaultCommand(new DrivetrainArcadeDriveCommand(m_drivetrain, moveSupplier, rotateSupplier));
+    m_drivetrain = DrivetrainSubsystem.create();
+    m_transmission = TransmissionSubsystem.create();
+    m_flywheel = FlywheelSubsystem.create();
+    m_hood = HoodSubsystem.create();
+    m_turret = TurretSubsystem.create();
+    m_feeder = FeederSubsystem.create();
+    m_hopper = HopperSubsystem.create();
+
+    m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriveControllerPort));
+
+    m_drivetrain.setDefaultCommand(new DrivetrainArcadeDriveCommand(m_drivetrain, m_driverOI.getMoveSupplier(), m_driverOI.getRotateSupplier()));
 
     configureButtonBindings();
   }
@@ -51,23 +66,33 @@ public class RobotContainer {
   }
 
   private void configureDriveBindings() {
-    new JoystickButton(m_driveController, XboxController.Button.kBumperLeft.value)
-        .whenPressed(new TransmissionSetLowGearCommand(m_transmission));
-    new JoystickButton(m_driveController, XboxController.Button.kBumperRight.value)
-        .whenPressed(new TransmissionSetHighGearCommand(m_transmission));
+    m_driverOI.getShiftLowButton().whenPressed(new TransmissionSetLowGearCommand(m_transmission));
+    m_driverOI.getShiftHighButton().whenPressed(new TransmissionSetHighGearCommand(m_transmission));
   }
 
   private void configureIndexerBindings() {
-    new JoystickButton(m_driveController, XboxController.Button.kStart.value)
-        .whenPressed(new AutoTargetCommand(m_hood, m_turret, LimeliteUtility::getData, m_drivetrain::getHeading));
+    m_driverOI.getFlywheelButton().whenPressed(new AutoFeedCommand(m_hopper, m_feeder, () -> {
+      // This method checks that hood, turret and flywheel are all near their
+      // setpoints. The feeder will only run if they are all on target.
+      //return m_hood.atTargetPosition() && m_turret.atTargetPosition() && m_flywheel.atTargetVelocity();
+
+      return true;
+    }));
+    m_driverOI.getFlywheelButton().whenReleased(new AutoIndexCommand(m_hopper, m_feeder));
   }
 
   private void configureShooterBindings() {
-    new AxisNonZeroTrigger(() -> m_driveController.getTriggerAxis(Hand.kRight)).whileActiveContinuous(new PrintCommand("trigger pressed"));
+    m_driverOI.getEnableAutoTargetButton().whenPressed(new AutoTargetCommand(m_hood,
+        m_turret, m_flywheel, LimeliteUtility::getData, m_drivetrain::getHeading, m_driverOI.getFlywheelButton()));
+
+    m_driverOI.getEnableAutoTargetButton().whenPressed(new InstantCommand(() -> {
+      m_hopper.getCurrentCommand().cancel();
+      m_turret.getCurrentCommand().cancel();
+      m_flywheel.getCurrentCommand().cancel();
+    }));
   }
 
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
     return new PrintCommand("auto not implemented");
   }
 }

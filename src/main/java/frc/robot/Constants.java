@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import frc.robot.types.ShooterSetpoint;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants.  This class should not be used for any other purpose.  All constants should be
@@ -41,6 +43,8 @@ public final class Constants {
         
         public static final double kGearRatio = 1.0;
         public static final double kUnitsPerRev = 1.0;
+
+        public static final double kAcceptableVelocityErrorRPM = 100;
     }
 
     public static final class HoodConstants {
@@ -48,6 +52,8 @@ public final class Constants {
 
         public static final double kGearRatio = 1.0;
         public static final double kUnitsPerRev = 1.0;
+
+        public static final double kAcceptablePositionErrorDeg = 2.0;
     }
 
     public static final class TurretConstants {
@@ -55,6 +61,8 @@ public final class Constants {
 
         public static final double kGearRatio = 236.11;
         public static final double kUnitsPerRev = 42.0;
+
+        public static final double kAcceptablePositionErrorDeg = 2.0;
     }
 
     public static final class FeederConstants {
@@ -67,6 +75,10 @@ public final class Constants {
 
     public static final class HopperConstants {
         public static final int kControllerDeviceID = 1;
+    }
+
+    public static final class ShooterSetpoints {
+        public static final ShooterSetpoint kInitiationLine = new ShooterSetpoint(30, 0, 5000);
     }
 
 }

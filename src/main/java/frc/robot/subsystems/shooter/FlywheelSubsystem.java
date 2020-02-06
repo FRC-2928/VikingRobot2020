@@ -6,7 +6,6 @@ import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.ctre.SmartTalonSRX;
@@ -16,6 +15,9 @@ import frc.robot.Robot;
 
 public class FlywheelSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;
+
+  private double m_targetVoltage, m_measuredVoltage;
+  private double m_targetVelocity, m_measuredVelocity;
 
   public static FlywheelSubsystem create() {
     if (Robot.isReal()) {
@@ -57,15 +59,20 @@ public class FlywheelSubsystem extends SubsystemBase {
   }
 
   public FlywheelSubsystem(SmartSpeedController controller) {
-    setDefaultCommand(new RunCommand(this::stop, this));
-    
     m_controller = controller;
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("flywheel_measured_voltage", m_controller.getMeasuredVoltage());
-    SmartDashboard.putNumber("flywheel_measured_velocity", m_controller.getMeasuredVelocity());
+    m_targetVoltage = m_controller.getTargetVoltage();
+    m_measuredVoltage = m_controller.getMeasuredVoltage();
+    m_targetVelocity = m_controller.getTargetVelocity();
+    m_measuredVelocity = m_controller.getMeasuredVelocity();
+
+    SmartDashboard.putNumber("flywheel_target_voltage", m_targetVoltage);
+    SmartDashboard.putNumber("flywheel_measured_voltage", m_measuredVoltage);
+    SmartDashboard.putNumber("flywheel_target_velocity", m_targetVelocity);
+    SmartDashboard.putNumber("flywheel_measured_velocity", m_measuredVelocity);
   }
 
   public void stop() {
@@ -76,7 +83,28 @@ public class FlywheelSubsystem extends SubsystemBase {
     m_controller.setVoltage(voltageVolts);
   }
 
+  public double getMeasuredVoltage() {
+    return m_measuredVoltage;
+  }
+
+  public double getTargetVoltage() {
+    return m_targetVoltage;
+  }
+
   public void setVelocity(double velocityRPM) {
     m_controller.setVelocity(velocityRPM);
+  }
+
+  public double getMeasuredVelocity() {
+    return m_measuredVelocity;
+  }
+
+  public double getTargetVelocity() {
+    return m_targetVelocity;
+  }
+
+  public boolean atTargetVelocity() {
+    double error = m_targetVelocity - m_measuredVelocity;
+    return Math.abs(error) < FlywheelConstants.kAcceptableVelocityErrorRPM;
   }
 }

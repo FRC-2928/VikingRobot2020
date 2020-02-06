@@ -7,8 +7,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.ctre.SmartVictorSPX;
 import frc.org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
-import frc.robot.Robot;
 import frc.robot.Constants.FeederConstants;
+import frc.robot.Robot;
 
 public class FeederSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;

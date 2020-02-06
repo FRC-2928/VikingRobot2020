@@ -14,8 +14,8 @@ import frc.org.ballardrobotics.sensors.fakes.FakeGyro;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
 import frc.org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
-import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Robot;
 
 public class DrivetrainSubsystem extends SubsystemBase {
   private SmartSpeedController m_leftController, m_rightController;
@@ -57,8 +57,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
   
   public DrivetrainSubsystem(SmartSpeedController leftController, SmartSpeedController rightController, Gyro gyro) {
-    setDefaultCommand(new RunCommand(this::stop, this));
-    
+    // default command is set in RobotContainer.
+
     m_leftController = leftController;
     m_rightController = rightController;
     m_gyro = gyro;

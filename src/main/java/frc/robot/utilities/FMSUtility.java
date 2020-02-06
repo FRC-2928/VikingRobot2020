@@ -1,6 +1,6 @@
 package frc.robot.utilities;
 
-import frc.robot.utilities.ColorUtility.ControlPanelColor;
+import frc.robot.types.ControlPanelColor;
 
 public class FMSUtility {
     

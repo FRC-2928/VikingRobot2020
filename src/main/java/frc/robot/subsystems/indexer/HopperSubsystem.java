@@ -6,8 +6,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.ctre.SmartVictorSPX;
 import frc.org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
-import frc.robot.Robot;
 import frc.robot.Constants.HopperConstants;
+import frc.robot.Robot;
 
 public class HopperSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;
@@ -31,6 +31,7 @@ public class HopperSubsystem extends SubsystemBase {
 
   public HopperSubsystem(SmartSpeedController controller) {
     setDefaultCommand(new RunCommand(this::stop, this));
+
     m_controller = controller;
   }
 
