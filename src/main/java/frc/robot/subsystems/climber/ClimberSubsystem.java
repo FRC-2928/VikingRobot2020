@@ -28,7 +28,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   //Statemachine for overall climber state
   public enum ClimberState{
-    STOWED, READY_TO_LATCH, LATCHED, LOW, MID, HIGH, CLIMBING, CLIMBED, INTERRUPTED;
+    STOWED, READY_TO_LATCH, LATCHED, LOW, MID, HIGH, HANGING, HUNG, INTERRUPTED,DEPLOYING;
   }
 
   //Statemachine for pneumatic brake in the gearbox
@@ -109,8 +109,8 @@ public class ClimberSubsystem extends SubsystemBase {
         setpoint = PIDConstants.kHighPositionSetpoint - currentPosition;
         break;
 
-      case CLIMBING:
-        setpoint = PIDConstants.kLiftPositionSetpoint;
+      case  DEPLOYING:
+        setpoint = PIDConstants.kDeployPositionSetpoint - currentPosition;
         break;
 
       default:
@@ -161,17 +161,6 @@ public class ClimberSubsystem extends SubsystemBase {
     }
     // Always pass it a positive value
     m_climberMotor.set(ControlMode.Position, Math.abs(position));
-  }
-
-  public void engageTomahawk(){
-    m_climberTomahawk.set(true);
-    if (m_climberState == ClimberState.READY_TO_LATCH) {
-      m_climberState = ClimberState.LATCHED;
-    }
-  }
-
-  public void disengageTomahawk(){
-    m_climberTomahawk.set(false);
   }
 
   public void setBrakePosition(BrakeState state){

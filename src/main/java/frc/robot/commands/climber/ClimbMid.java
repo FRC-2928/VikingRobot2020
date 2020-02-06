@@ -8,12 +8,12 @@ import frc.robot.subsystems.climber.ClimberSubsystem.BrakeState;
 /**
  * Stops the feeder subsystem
  */
-public class ClimbLow extends CommandBase {
+public class ClimbMid extends CommandBase {
     // The subsystem the command runs on
     private final ClimberSubsystem m_climber;
     private double m_positionSetpoint;
 
-    public ClimbLow(ClimberSubsystem subsystem) {
+    public ClimbMid(ClimberSubsystem subsystem) {
         m_climber = subsystem;
         addRequirements(m_climber);
     }
@@ -21,7 +21,7 @@ public class ClimbLow extends CommandBase {
     @Override
     public void initialize() {
         m_climber.setBrakePosition(BrakeState.OFF);
-        m_climber.setClimberState(ClimberState.LOW);
+        m_climber.setClimberState(ClimberState.MID);
 
         m_positionSetpoint = m_climber.calculateSetpoint();
     }
