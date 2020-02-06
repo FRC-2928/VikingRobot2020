@@ -25,7 +25,8 @@ public class AutoIndexCommand extends CommandBase {
 
   @Override
   public void execute() {
-    
+    m_hopper.stop();
+    m_feeder.stop();
   }
 
   @Override

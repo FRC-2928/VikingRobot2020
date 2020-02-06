@@ -13,6 +13,7 @@ public class HoodSubsystem extends SubsystemBase {
 
   private double m_targetVoltage, m_measuredVoltage;
   private double m_targetPosition, m_measuredPosition;
+  private boolean m_onTarget;
 
   public static HoodSubsystem create() {
     if (Robot.isReal()) {
@@ -41,11 +42,13 @@ public class HoodSubsystem extends SubsystemBase {
     m_measuredVoltage = m_controller.getMeasuredVoltage();
     m_targetPosition = m_controller.getTargetPostion() * 360.0;
     m_measuredPosition = m_controller.getMeasuredPosition() * 360.0;
+    m_onTarget = Math.abs(m_targetPosition - m_measuredPosition) < HoodConstants.kAcceptablePositionErrorDeg;
 
     SmartDashboard.putNumber("hood_target_voltage", m_targetVoltage);
     SmartDashboard.putNumber("hood_measured_voltage", m_measuredVoltage);
     SmartDashboard.putNumber("hood_target_position", m_targetPosition);
     SmartDashboard.putNumber("hood_measured_position", m_measuredPosition);
+    SmartDashboard.putBoolean("hood_on_target", m_onTarget);
   }
 
   public void stop() {
@@ -77,7 +80,6 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public boolean atTargetPosition() {
-    double error = m_targetPosition - m_measuredPosition;
-    return Math.abs(error) < HoodConstants.kAcceptablePositionErrorDeg;
+    return m_onTarget;
   }
 }

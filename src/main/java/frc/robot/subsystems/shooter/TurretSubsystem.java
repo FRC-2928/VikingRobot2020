@@ -17,6 +17,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   private double m_targetVoltage, m_measuredVoltage;
   private double m_targetPosition, m_measuredPosition;
+  private boolean m_onTarget;
 
   public static TurretSubsystem create() {
     if (Robot.isReal()) {
@@ -48,11 +49,13 @@ public class TurretSubsystem extends SubsystemBase {
     m_measuredVoltage = m_controller.getMeasuredVoltage();
     m_targetPosition = m_controller.getTargetPostion() * 360.0;
     m_measuredPosition = m_controller.getMeasuredPosition() * 360.0;
+    m_onTarget = Math.abs(m_targetPosition - m_measuredPosition) < TurretConstants.kAcceptablePositionErrorDeg;
 
     SmartDashboard.putNumber("turret_target_voltage", m_targetVoltage);
     SmartDashboard.putNumber("turret_measured_voltage", m_measuredVoltage);
     SmartDashboard.putNumber("turret_target_position", m_targetPosition);
     SmartDashboard.putNumber("turret_measured_position", m_measuredPosition);
+    SmartDashboard.putBoolean("turret_on_target", m_onTarget);
   }
 
   public void stop() {
@@ -84,7 +87,6 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public boolean atTargetPosition() {
-    double error = m_targetPosition - m_measuredPosition;
-    return Math.abs(error) < TurretConstants.kAcceptablePositionErrorDeg;
+    return m_onTarget;
   }
 }

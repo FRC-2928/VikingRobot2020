@@ -1,26 +1,16 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.FlywheelConstants;
-import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.Constants.ShooterSetpoints;
-import frc.robot.Constants.TurretConstants;
 import frc.robot.commands.auto.AutoFeedCommand;
 import frc.robot.commands.auto.AutoIndexCommand;
 import frc.robot.commands.auto.AutoTargetCommand;
 import frc.robot.commands.drive.DrivetrainArcadeDriveCommand;
 import frc.robot.commands.drive.TransmissionSetHighGearCommand;
 import frc.robot.commands.drive.TransmissionSetLowGearCommand;
-import frc.robot.commands.shooter.ShooterSetSetpointCommand;
 import frc.robot.oi.DriverOI;
 import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.drive.DrivetrainSubsystem;

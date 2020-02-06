@@ -9,6 +9,9 @@ public class TurretSetPositionCommand extends CommandBase {
   private TurretSubsystem m_turret;
   private DoubleSupplier m_positionSupplier;
 
+  private boolean m_correcting;
+  private double m_correctingPosition;
+
   public TurretSetPositionCommand(TurretSubsystem turret, double positionDegrees) {
     this(turret, () -> positionDegrees);
   }
@@ -21,20 +24,20 @@ public class TurretSetPositionCommand extends CommandBase {
   }
 
   @Override
-  public void initialize() {
-  }
-
-  @Override
   public void execute() {
-    m_turret.setPosition(m_positionSupplier.getAsDouble());
-  }
+    double targetPostion = m_positionSupplier.getAsDouble();
+    if (m_correcting) {
+      targetPostion = m_correctingPosition;
+      if (m_turret.atTargetPosition()) {
+        m_correcting = false;
+      }
+    }
 
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  @Override
-  public boolean isFinished() {
-    return false;
+    if (Math.abs(targetPostion) > 225) {
+      targetPostion = Math.IEEEremainder(targetPostion, 360.0);
+      m_correcting = true;
+      m_correctingPosition = targetPostion;
+    }
+    m_turret.setPosition(targetPostion);
   }
 }

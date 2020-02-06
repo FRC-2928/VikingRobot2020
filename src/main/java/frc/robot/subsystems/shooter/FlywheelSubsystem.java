@@ -18,6 +18,7 @@ public class FlywheelSubsystem extends SubsystemBase {
 
   private double m_targetVoltage, m_measuredVoltage;
   private double m_targetVelocity, m_measuredVelocity;
+  private boolean m_onTarget;
 
   public static FlywheelSubsystem create() {
     if (Robot.isReal()) {
@@ -68,11 +69,13 @@ public class FlywheelSubsystem extends SubsystemBase {
     m_measuredVoltage = m_controller.getMeasuredVoltage();
     m_targetVelocity = m_controller.getTargetVelocity();
     m_measuredVelocity = m_controller.getMeasuredVelocity();
+    m_onTarget = Math.abs(m_targetVelocity - m_measuredVelocity) < FlywheelConstants.kAcceptableVelocityErrorRPM;
 
     SmartDashboard.putNumber("flywheel_target_voltage", m_targetVoltage);
     SmartDashboard.putNumber("flywheel_measured_voltage", m_measuredVoltage);
     SmartDashboard.putNumber("flywheel_target_velocity", m_targetVelocity);
     SmartDashboard.putNumber("flywheel_measured_velocity", m_measuredVelocity);
+    SmartDashboard.putBoolean("flywheel_on_target", m_onTarget);
   }
 
   public void stop() {
