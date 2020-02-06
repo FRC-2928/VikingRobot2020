@@ -52,7 +52,7 @@ public final class Constants {
         public static final int kFlywheelTalonFX = 0;
 
         //Turret
-        public static final int kTurretSparkMax = 420;
+        public static final int kTurretSparkMax = 4;
 
         //Climber
       
@@ -64,10 +64,10 @@ public final class Constants {
 
         //Solenoids
         public static final int kDrivetrainShiftSolenoid = 0; //Placeholder
-        public static final int kIntakeSoleniodRightOne = 69; //place holder
-        public static final int kIntakeSoleniodRightTwo = 69;
-        public static final int kIntakeSoleniodLeftOne = 69;
-        public static final int kIntakeSoleniodLeftTwo = 69;
+        public static final int kIntakeSoleniodRightOne = 1; //place holder
+        public static final int kIntakeSoleniodRightTwo = 2;
+        public static final int kIntakeSoleniodLeftOne = 3;
+        public static final int kIntakeSoleniodLeftTwo = 4;
 
         //Sensors
         public static final int kPigeonIMU = 3;
@@ -89,12 +89,11 @@ public final class Constants {
     }
 
     public static final class ConversionConstants{
-        public static final double kTurretGearRatio = 236.11; 
+        public static final double kTurretGearRatio = 24.165; 
         public static final double kTurretDegreesPerRotation = 360; 
 
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final int kFlywheelTalonFX = 0;
-        
     }
     
     public static final class OIConstants {

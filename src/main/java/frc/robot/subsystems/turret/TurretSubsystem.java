@@ -8,6 +8,8 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.PIDConstants;
@@ -49,11 +51,17 @@ public class TurretSubsystem extends SubsystemBase {
 
     m_turretMotor.enableVoltageCompensation(12);
     m_turretMotor.setIdleMode(IdleMode.kBrake);
-    m_turretMotor.setSmartCurrentLimit(30, 45, 250);
+    m_turretMotor.setSmartCurrentLimit(35, 45, 250);
+
+    m_turretMotor.setInverted(true);
 
     m_turretEncoder = m_turretMotor.getEncoder();
 
     m_turretPID = m_turretMotor.getPIDController();
+
+    m_turretEncoder.setPosition(0);
+
+    setDefaultCommand(new RunCommand(this::stopMotor, this));
 
     // Used to config PIDF gains
     SmartDashboard.putNumber("Turret Reference", 0);
@@ -64,10 +72,12 @@ public class TurretSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // should this be getTurretDegrees????
-    SmartDashboard.putNumber("Turret position degrees", getTurretPosition());
+    SmartDashboard.putNumber("Turret position degrees", getTurretDegrees());
 
     // Report reaching limits
     m_turretRangeState = getTurretRange();
+    
+    SmartDashboard.putString("Turret range", m_turretRangeState.toString());
   }
 
   public void setPower(double power) {
@@ -118,7 +128,8 @@ public class TurretSubsystem extends SubsystemBase {
     return TurretRangeState.NORMAL;
   }
 
-  public void correctTurretRange() {
+  public void correctTurretRange() {    
+
     if (m_turretRangeState == TurretRangeState.RIGHT_LIMIT) {
       SmartDashboard.putString("Correcting Turret position from Right Limit", " ");
       setPosition(getTurretDegrees() - 360);

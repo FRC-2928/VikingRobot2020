@@ -45,6 +45,9 @@ public class RobotContainer {
   private final XboxController driveController = new XboxController(0);
 
   private final JoystickButton turretPositionControl = new JoystickButton(driveController, 1);
+  private final JoystickButton turretOpenLoopLeft = new JoystickButton(driveController, 5);
+  private final JoystickButton turretOpenLoopRight = new JoystickButton(driveController, 6);
+
   private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
   private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
 
@@ -57,7 +60,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
 
-    m_intake.setDefaultCommand( new InstantCommand(m_intake::stopMotor, m_intake));
+    // m_intake.setDefaultCommand( new InstantCommand(m_intake::stopMotor, m_intake));
   }
 
   /**
@@ -85,6 +88,9 @@ public class RobotContainer {
       },
       m_turretSubsystem)
     );
+
+    turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.9)));
+    turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.9)));
 
     ConfigureControlButtons(); 
 
