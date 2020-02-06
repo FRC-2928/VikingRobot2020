@@ -80,7 +80,18 @@ public final class Constants {
     }
 
     public static final class PIDConstants{
-
+        public static double kClimberP = 0.1;
+        public static double kClimberI = 1e-4;
+        public static double kClimberD = 1;
+        public static int kClimberIzone = 0;
+        public static double kClimberFF = 0;
+    
+        public static final double kStowedPositionSetpoint = 0.0; // Meters
+        public static final double kLowPositionSetpoint = 1.0; // Meters
+        public static final double kMidPositionSetpoint = 1.2; // Meters
+        public static final double kHighPositionSetpoint = 1.4; // Meters
+        public static final double kLiftPositionSetpoint = -0.5; // Meters
+    
     }
 
     public static final class ConversionConstants{
