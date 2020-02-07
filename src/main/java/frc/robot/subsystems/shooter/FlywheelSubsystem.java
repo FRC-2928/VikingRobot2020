@@ -1,5 +1,7 @@
 package frc.robot.subsystems.shooter;
 
+import java.util.function.Consumer;
+
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
@@ -10,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.ctre.SmartTalonSRX;
 import frc.org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
+import frc.org.ballardrobotics.types.PIDValues;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Robot;
 
@@ -19,6 +22,8 @@ public class FlywheelSubsystem extends SubsystemBase {
   private double m_targetVoltage, m_measuredVoltage;
   private double m_targetVelocity, m_measuredVelocity;
   private boolean m_onTarget;
+
+  private static Consumer<PIDValues> m_onPIDValueChanged = PIDValues.kDefaultConsumer;
 
   public static FlywheelSubsystem create() {
     if (Robot.isReal()) {
@@ -46,11 +51,13 @@ public class FlywheelSubsystem extends SubsystemBase {
     controller.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_1Ms);
     controller.configVelocityMeasurementWindow(64);
 
-    controller.config_kP(0, 0.0);
-    controller.config_kI(0, 0.0);
-    controller.config_IntegralZone(0, 0);
-    controller.config_kD(0, 0.0);
-    controller.config_kF(0, 0.0);
+    m_onPIDValueChanged = (values) -> {
+      controller.config_kP(0, values.getP());
+      controller.config_kI(0, values.getI());
+      controller.config_IntegralZone(0, (int)values.getIZone());
+      controller.config_kD(0, values.getD());
+      controller.config_kF(0, values.getF());
+    };
     return new FlywheelSubsystem(controller);
   }
 
@@ -61,6 +68,8 @@ public class FlywheelSubsystem extends SubsystemBase {
 
   public FlywheelSubsystem(SmartSpeedController controller) {
     m_controller = controller;
+
+    PIDValues.displayOnShuffleboard("Tuning", "Flywheel PID", new PIDValues(0, 0, 0, 0, 0));
   }
 
   @Override
