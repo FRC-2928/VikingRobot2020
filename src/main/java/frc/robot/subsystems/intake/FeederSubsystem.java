@@ -84,9 +84,14 @@ public class FeederSubsystem extends SubsystemBase {
   public void periodic() {
     // Moves incoming ball up the tower. 
     // This method will be called once per scheduler
-    // index();
+    // runFeeder();
   }
 
+  public void stopFeeder() {
+    stopIndex();
+    stopHopper();
+    setIndexState(IndexState.HALTED);
+  }
 
   /**
    * Moves the ball up the tower.  There are two options for doing this
@@ -109,7 +114,7 @@ public class FeederSubsystem extends SubsystemBase {
   }
 
   // Handles the indexing of balls in the tower
-  public void index() {
+  public void runFeeder() {
 
     // Check if we should take any action on the index
     checkIndexState();
@@ -153,27 +158,35 @@ public class FeederSubsystem extends SubsystemBase {
   public void checkIndexState() {
 
     // The bottom sensor will remain tripped until the ball clears the
-    // sensor, so keep it in the INDEXING state.
-    if (bottomSensorTripped() && m_indexState == IndexState.INDEXING) {
+    // sensor, so stay in the INDEXING state.
+    if (m_indexState == IndexState.INDEXING && bottomSensorTripped()) {
       return;
     }
 
-    // Ball at the top - states 5,6,7,8
-    if (topSensorTripped()) {
-      if (bottomSensorTripped()) {
+    // INDEXING with bottom sensor now cleared.
+    if (m_indexState == IndexState.INDEXING) {
+      if (topSensorTripped()) {
+        m_indexState = IndexState.FULL_BUT_RECEIVING; // States 5 & 6
+      } else if (middleSensorTripped()) {
+        m_indexState = IndexState.WAITING_TO_INDEX;
+      }
+      return;
+    }
+
+    // Not currently INDEXING
+
+    // Got a new ball
+    if (bottomSensorTripped()) {
+      if (topSensorTripped()) {
         m_indexState = IndexState.FULL;  // states 7 & 8
       } else {
-        m_indexState = IndexState.FULL_BUT_RECEIVING; // states 5 & 6
-      }    
-      return;
-    }
+        m_indexState = IndexState.READY_TO_INDEX; // states 3 & 4
+      }
+    } 
 
-    // Ball on the bottom with top slot is open
-    if (bottomSensorTripped() && !topSensorTripped()) {
-      m_indexState = IndexState.READY_TO_INDEX; // states 3 & 4
-    } else {
-      // Waiting for a new ball to come in and top slot is open
-      m_indexState = IndexState.WAITING_TO_INDEX; // state 1 & 2
+    // No new ball
+    if (allSensorsCleared()) {
+      m_indexState = IndexState.WAITING_TO_INDEX;
     }
 
     // if(topSensorTripped() && !middleSensorTripped()){
@@ -204,6 +217,14 @@ public class FeederSubsystem extends SubsystemBase {
     return m_topSensor.get();
   }
 
+  public boolean allSensorsCleared() {
+    if (!bottomSensorTripped() && !middleSensorTripped() && !topSensorTripped()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   public void resetIndexEncoder(){
     m_towerMotor.setSelectedSensorPosition(0);
   }
@@ -224,7 +245,6 @@ public class FeederSubsystem extends SubsystemBase {
 
   // Start the hopper
   public void startHopper() {
-    m_hopperMotor.setInverted(false);
     m_hopperState = HopperState.FEEDING;
     setHopperPower(0.4);
   }
@@ -237,9 +257,8 @@ public class FeederSubsystem extends SubsystemBase {
 
   // Reverse the hopper
   public void reverseHopper() {
-    m_hopperMotor.setInverted(true);
     m_hopperState = HopperState.REVERSED;
-    setHopperPower(0.4);
+    setHopperPower(-0.4);
   }
 
   // Stop the indexer

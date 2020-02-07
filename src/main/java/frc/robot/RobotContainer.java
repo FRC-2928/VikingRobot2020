@@ -16,6 +16,7 @@ import frc.robot.subsystems.intake.FeederSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 //import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 //import frc.robot.subsystems.intake.FeederSubsystem;
 
@@ -64,9 +65,15 @@ public class RobotContainer {
       .whenPressed(new InstantCommand(m_feeder::toggleReversedHopper, m_feeder)
     ); 
 
-    //used toggle instead of seprate buttons
-    // new JoystickButton(m_driverController, Button.kA.value) //filler number for button
-    // .whenPressed(new InstantCommand(m_feeder::toggleHopperState, m_feeder));
+    // Start the feeder
+    new JoystickButton(m_driverController, Button.kA.value) 
+      .whenPressed(new RunCommand(m_feeder::runFeeder, m_feeder)
+    );
+
+    // Stop the feeder
+    new JoystickButton(m_driverController, Button.kB.value) 
+      .whenPressed(new InstantCommand(m_feeder::stopFeeder, m_feeder)
+    );
   }
 
   /**

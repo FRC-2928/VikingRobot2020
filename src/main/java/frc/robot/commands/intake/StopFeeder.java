@@ -27,8 +27,7 @@ public class StopFeeder extends InstantCommand {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    m_subsystem.setHopperState(HopperState.HALTED);
-    m_subsystem.setIndexState(IndexState.HALTED);
+    m_subsystem.stopFeeder();
   }
 
   // Called once the command ends or is interrupted.
