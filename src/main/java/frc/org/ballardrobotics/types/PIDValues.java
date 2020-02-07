@@ -3,6 +3,7 @@ package frc.org.ballardrobotics.types;
 import java.util.function.Consumer;
 
 import edu.wpi.first.networktables.EntryListenerFlags;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
@@ -15,41 +16,19 @@ public class PIDValues {
         System.out.println("iZone = " + values.getIZone());
     };
 
-    public static void displayOnShuffleboard(String tab, String name, PIDValues value) {
-        displayOnShuffleboard(tab, name, value, (newValue) -> {});
-    }
-
-    public static void displayOnShuffleboard(String tab, String name, PIDValues value, final Consumer<PIDValues> onValueChanged) {        
-        int flags = EntryListenerFlags.kNew | EntryListenerFlags.kUpdate;
-        var layout = Shuffleboard.getTab(tab).getLayout(name);
-
-        layout.add("P", value.getP()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            value.setP(notif.value.getDouble());
-            onValueChanged.accept(value);
-        }, flags);
-
-        layout.add("I", value.getI()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            value.setI(notif.value.getDouble());
-            onValueChanged.accept(value);
-        }, flags);
-
-        layout.add("D", value.getD()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            value.setD(notif.value.getDouble());
-            onValueChanged.accept(value);
-        }, flags);
-
-        layout.add("F", value.getF()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            value.setF(notif.value.getDouble());
-            onValueChanged.accept(value);
-        }, flags);
-
-        layout.add("iZone", value.getIZone()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            value.setIZone(notif.value.getDouble());
-            onValueChanged.accept(value);
-        }, flags);
-    }
-
     private double m_p, m_i, m_d, m_f, m_iZone;
+
+    public PIDValues() {
+        this(0, 0, 0);
+    }
+
+    public PIDValues(double p, double i, double d) {
+        this(p, i, d, 0);
+    }
+
+    public PIDValues(double p, double i, double d, double f) {
+        this(p, i, d, f, 0);
+    }
 
     public PIDValues(double p, double i, double d, double f, double iZone) {
         m_p = p;
@@ -57,6 +36,42 @@ public class PIDValues {
         m_d = d;
         m_f = f;
         m_iZone = iZone;
+    }
+
+    public void displayOnShuffleboard(String name) {
+        displayOnShuffleboard(name, (newValue) -> {});
+    }
+
+    public void displayOnShuffleboard(String name, final Consumer<PIDValues> onValueChanged) {        
+        int flags = EntryListenerFlags.kNew | EntryListenerFlags.kUpdate;
+        var layout = Shuffleboard.getTab("PIDValues").getLayout(name, BuiltInLayouts.kList);
+
+        layout.add("P", this.getP()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            this.setP(notif.value.getDouble());
+            onValueChanged.accept(this);
+        }, flags);
+
+        layout.add("I", this.getI()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            this.setI(notif.value.getDouble());
+            onValueChanged.accept(this);
+        }, flags);
+
+        layout.add("D", this.getD()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            this.setD(notif.value.getDouble());
+            onValueChanged.accept(this);
+        }, flags);
+
+        layout.add("F", this.getF()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            this.setF(notif.value.getDouble());
+            onValueChanged.accept(this);
+        }, flags);
+
+        layout.add("iZone", this.getIZone()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            this.setIZone(notif.value.getDouble());
+            onValueChanged.accept(this);
+        }, flags);
+
+        onValueChanged.accept(this);
     }
 
     private synchronized void setP(double p) {

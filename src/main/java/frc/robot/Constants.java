@@ -54,6 +54,7 @@ public final class Constants {
         public static final double kUnitsPerRev = 1.0;
 
         public static final double kAcceptablePositionErrorDeg = 2.0;
+        public static final double kAcceptableVelocityErrorDegPerSec = 0.5;
     }
 
     public static final class TurretConstants {
@@ -63,6 +64,7 @@ public final class Constants {
         public static final double kUnitsPerRev = 42.0;
 
         public static final double kAcceptablePositionErrorDeg = 2.0;
+        public static final double kAcceptableVelocityErrorDegPerSec = 0.5;
     }
 
     public static final class FeederConstants {

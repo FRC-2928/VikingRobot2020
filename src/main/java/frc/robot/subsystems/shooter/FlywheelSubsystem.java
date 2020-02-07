@@ -17,13 +17,13 @@ import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Robot;
 
 public class FlywheelSubsystem extends SubsystemBase {
+  private static Consumer<PIDValues> m_onPIDValueChanged = PIDValues.kDefaultConsumer;
+
   private SmartSpeedController m_controller;
 
   private double m_targetVoltage, m_measuredVoltage;
   private double m_targetVelocity, m_measuredVelocity;
   private boolean m_onTarget;
-
-  private static Consumer<PIDValues> m_onPIDValueChanged = PIDValues.kDefaultConsumer;
 
   public static FlywheelSubsystem create() {
     if (Robot.isReal()) {
@@ -69,7 +69,10 @@ public class FlywheelSubsystem extends SubsystemBase {
   public FlywheelSubsystem(SmartSpeedController controller) {
     m_controller = controller;
 
-    PIDValues.displayOnShuffleboard("Tuning", "Flywheel PID", new PIDValues(0, 0, 0, 0, 0));
+    new PIDValues()
+      .withP(18.0)
+      .withF(0.0)
+      .displayOnShuffleboard("Flywheel PID", m_onPIDValueChanged);
   }
 
   @Override

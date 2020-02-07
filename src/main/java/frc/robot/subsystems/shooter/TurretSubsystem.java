@@ -17,6 +17,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   private double m_targetVoltage, m_measuredVoltage;
   private double m_targetPosition, m_measuredPosition;
+  private double m_measuredVelocity;
   private boolean m_onTarget;
 
   public static TurretSubsystem create() {
@@ -49,12 +50,15 @@ public class TurretSubsystem extends SubsystemBase {
     m_measuredVoltage = m_controller.getMeasuredVoltage();
     m_targetPosition = m_controller.getTargetPostion() * 360.0;
     m_measuredPosition = m_controller.getMeasuredPosition() * 360.0;
-    m_onTarget = Math.abs(m_targetPosition - m_measuredPosition) < TurretConstants.kAcceptablePositionErrorDeg;
+    m_measuredVelocity = m_controller.getMeasuredVelocity() * 360.0 / 60.0;
+    m_onTarget = Math.abs(m_targetPosition - m_measuredPosition) < TurretConstants.kAcceptablePositionErrorDeg &&
+                 Math.abs(m_measuredVelocity) < TurretConstants.kAcceptableVelocityErrorDegPerSec;
 
     SmartDashboard.putNumber("turret_target_voltage", m_targetVoltage);
     SmartDashboard.putNumber("turret_measured_voltage", m_measuredVoltage);
     SmartDashboard.putNumber("turret_target_position", m_targetPosition);
     SmartDashboard.putNumber("turret_measured_position", m_measuredPosition);
+    SmartDashboard.putNumber("turret_measured_velocity", m_measuredVelocity);
     SmartDashboard.putBoolean("turret_on_target", m_onTarget);
   }
 
@@ -84,6 +88,10 @@ public class TurretSubsystem extends SubsystemBase {
 
   public double getTargetPosition() {
     return m_targetPosition;
+  }
+
+  public double getMeasuredVelocity() {
+    return m_measuredVelocity;
   }
 
   public boolean atTargetPosition() {

@@ -13,6 +13,7 @@ public class HoodSubsystem extends SubsystemBase {
 
   private double m_targetVoltage, m_measuredVoltage;
   private double m_targetPosition, m_measuredPosition;
+  private double m_measuredVelocity;
   private boolean m_onTarget;
 
   public static HoodSubsystem create() {
@@ -42,12 +43,15 @@ public class HoodSubsystem extends SubsystemBase {
     m_measuredVoltage = m_controller.getMeasuredVoltage();
     m_targetPosition = m_controller.getTargetPostion() * 360.0;
     m_measuredPosition = m_controller.getMeasuredPosition() * 360.0;
-    m_onTarget = Math.abs(m_targetPosition - m_measuredPosition) < HoodConstants.kAcceptablePositionErrorDeg;
+    m_measuredVelocity = m_controller.getMeasuredVelocity() * 360.0 / 60.0;
+    m_onTarget = Math.abs(m_targetPosition - m_measuredPosition) < HoodConstants.kAcceptablePositionErrorDeg &&
+                 Math.abs(m_measuredVelocity) < HoodConstants.kAcceptableVelocityErrorDegPerSec;
 
     SmartDashboard.putNumber("hood_target_voltage", m_targetVoltage);
     SmartDashboard.putNumber("hood_measured_voltage", m_measuredVoltage);
     SmartDashboard.putNumber("hood_target_position", m_targetPosition);
     SmartDashboard.putNumber("hood_measured_position", m_measuredPosition);
+    SmartDashboard.putNumber("hood_measured_velocity", m_measuredVelocity);
     SmartDashboard.putBoolean("hood_on_target", m_onTarget);
   }
 
@@ -77,6 +81,10 @@ public class HoodSubsystem extends SubsystemBase {
 
   public double getTargetPosition() {
     return m_targetPosition;
+  }
+
+  public double getMeasuredVelocity() {
+    return m_measuredVelocity;
   }
 
   public boolean atTargetPosition() {

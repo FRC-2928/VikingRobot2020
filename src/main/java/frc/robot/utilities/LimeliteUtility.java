@@ -5,8 +5,8 @@ public class LimeliteUtility {
     public class LimeliteData {
         public boolean targetFound;
 
-        public double horizontalOffsetDegrees;
-        public double verticalOffsetDegrees;
+        public double horizontalOffsetDeg;
+        public double verticalOffsetDeg;
     }
 
     public static LimeliteData getData() {
