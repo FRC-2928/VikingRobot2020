@@ -50,7 +50,7 @@ public final class Constants {
     public static final int kIRSensorMiddle = 1;
     public static final int kIRSensorTop = 2;
 
-
+    public static final double kFastForwardPower = 0.6;
     
   }
 

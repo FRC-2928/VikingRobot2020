@@ -7,7 +7,10 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Constants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;;
 
@@ -30,14 +33,13 @@ public class FeederSubsystem extends SubsystemBase {
   private final double m_indexPowerInitial = PIDConstants.indexPower;
   private final double m_indexSetpointInitial = PIDConstants.indexSetpoint;
   private double m_indexPower = m_indexPowerInitial;
-  private double m_indexSetpoint = m_indexSetpointInitial;
 
   public enum HopperState{
     STOPPED, FEEDING, REVERSED, HALTED;
   }
 
   public enum IndexState{
-    WAITING_TO_INDEX, READY_TO_INDEX, INDEXING, FULL_BUT_RECEIVING, FULL, HALTED;
+    WAITING_TO_INDEX, READY_TO_INDEX, INDEXING, FULL_BUT_RECEIVING, FULL, HALTED, REVERSED;
   }
 
   private HopperState m_hopperState = HopperState.STOPPED;
@@ -70,6 +72,9 @@ public class FeederSubsystem extends SubsystemBase {
 
     resetIndexEncoder();
 
+    // Set default command
+    setDefaultCommand(new RunCommand(this::stopFeeder, this));    
+
     //Placing the indexing values on ShuffleBoard
     SmartDashboard.putNumber("Index Power", m_indexPowerInitial);
     SmartDashboard.putNumber("Index Setpoint", m_indexSetpointInitial);
@@ -89,8 +94,9 @@ public class FeederSubsystem extends SubsystemBase {
 
   public void stopFeeder() {
     stopIndex();
-    stopHopper();
     setIndexState(IndexState.HALTED);
+    stopHopper();
+    setHopperState(HopperState.HALTED);
   }
 
   /**
@@ -188,10 +194,18 @@ public class FeederSubsystem extends SubsystemBase {
     if (allSensorsCleared()) {
       m_indexState = IndexState.WAITING_TO_INDEX;
     }
+  }
 
-    // if(topSensorTripped() && !middleSensorTripped()){
-    //   //Reset ball to mid?
-    // }
+  public void reverseFeeder() {
+    reverseHopper();
+    WaitCommand waitCommand = new WaitCommand(0.5);
+    waitCommand.execute();
+    reverseIndex();
+  }
+
+  public void fastForwardFeeder() {
+    setIndexPower(Constants.FeederConstants.kFastForwardPower);
+    setHopperPower(Constants.FeederConstants.kFastForwardPower);
   }
 
   public void setIndexState(IndexState state) {
@@ -261,6 +275,12 @@ public class FeederSubsystem extends SubsystemBase {
     setHopperPower(-0.4);
   }
 
+  // Reverse the indexer
+  public void reverseIndex() {
+    m_indexState = IndexState.REVERSED;
+    setIndexPower(-0.4);
+  }
+
   // Stop the indexer
   public void stopIndex() {
     setIndexPower(0);
@@ -291,10 +311,6 @@ public class FeederSubsystem extends SubsystemBase {
   // These are for calibrating the index 
   public void configIndexPower() {
     m_indexPower = SmartDashboard.getNumber("Index Power", m_indexPowerInitial);
-  }
-
-  public void configIndexSetpoint() {
-    m_indexSetpoint = SmartDashboard.getNumber("Index Setpoint", m_indexSetpointInitial);
   }
 
 }
