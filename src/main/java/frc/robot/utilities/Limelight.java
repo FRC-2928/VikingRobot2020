@@ -1,15 +1,17 @@
-package frc.robot.subsystems.turret;
+package frc.robot.utilities;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 /**
- * TurretLimelightSubsytem takes input from the limelight camera
- * Also responsible for doing angle and distance calculations
+ * Limelight takes readings from the two limelight cameras and feeds it to the turret and shooter
  */
-public class TurretLimelightSubsytem extends SubsystemBase {
+public class Limelight extends SubsystemBase {
+
   //Pulls values from network tables
+  //TODO: Add code to pull from both limelights
   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
   NetworkTableEntry tx = table.getEntry("tx");
   NetworkTableEntry ty = table.getEntry("ty");
@@ -20,14 +22,18 @@ public class TurretLimelightSubsytem extends SubsystemBase {
   double y;
   double area;
 
-  public TurretLimelightSubsytem() {
-    x = tx.getDouble(0.0);
-    y = ty.getDouble(0.0);
-    area = ta.getDouble(0.0);
+  public Limelight() {
+
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    updateReadings();
+  }
+
+  public void updateReadings(){
+    x = tx.getDouble(0.0);
+    y = ty.getDouble(0.0);
+    area = ta.getDouble(0.0);
   }
 }
