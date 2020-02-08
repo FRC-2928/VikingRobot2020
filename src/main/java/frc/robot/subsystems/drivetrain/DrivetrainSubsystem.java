@@ -25,10 +25,12 @@ import frc.robot.Constants.RobotMap;
    * DrivetrainSubsystem handles all subsystem level logic for the drivetrain.
    * Possibly also Ramsete idfk I haven't finished this class yet.
    */
+import frc.robot.utilities.Pigeon;
 public class DrivetrainSubsystem extends SubsystemBase {
   private WPI_TalonFX m_leftMaster, m_rightMaster;
   private WPI_TalonFX m_leftSlave, m_rightSlave;
-  private PigeonIMU m_pigeon;
+  
+  private Pigeon m_pigeon;
 
   private double m_yaw, m_pitch, m_roll;
 
@@ -49,7 +51,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_leftSlave = new WPI_TalonFX(RobotMap.kDrivetrainLeftFrontTalonFX);
     m_rightSlave = new WPI_TalonFX(RobotMap.kDrivetrainRightFrontTalonFX);
 
-    m_pigeon = new PigeonIMU(RobotMap.kPigeonIMU);
+    m_pigeon = new Pigeon();
 
     //Setting followers, followers don't automatically follow master's inverts so you must set the invert type to FollowMaster
     m_leftSlave.follow(m_leftMaster, FollowerType.PercentOutput);
@@ -97,13 +99,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
     differentialdrive = new DifferentialDrive(m_leftMaster, m_rightMaster);
     differentialdrive.setRightSideInverted(false);
     m_kinematics = new DifferentialDriveKinematics(DrivetrainConstants.kTrackWidthMeters);
-    m_odometry = new DifferentialDriveOdometry(new Rotation2d(getYaw()));
+    m_odometry = new DifferentialDriveOdometry(new Rotation2d(m_pigeon.getYaw()));
 
   }  
   
   @Override
   public void periodic() {
-    m_yaw = getYaw();
+    m_yaw = m_pigeon.getYaw();
 
     m_pose = m_odometry.update(new Rotation2d(m_yaw), getLeftEncoders(), getRightEncoders());
     
@@ -125,11 +127,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
     return m_rightMaster.getSelectedSensorPosition();
   }
 
-  public double getYaw(){
-    double ypr[] = {0, 0, 0};
-    m_pigeon.getYawPitchRoll(ypr);
-    return ypr[0];
-  }
 
   public void resetEncoders(){
     m_leftMaster.setSelectedSensorPosition(0);
