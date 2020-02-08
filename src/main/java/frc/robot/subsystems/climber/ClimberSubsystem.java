@@ -27,7 +27,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   //Statemachine for overall climber state
   public enum ClimberState{
-    STOWED, READY_TO_LATCH, LATCHED, LOWERING, INTERRUPTED,DEPLOYING, ASSENT_COMPLETE;
+    STOWED, READY_TO_LATCH, LATCHED, LOW, MID, HIGH, LOWERING, INTERRUPTED,DEPLOYING, ASSENT_COMPLETE;
   }
 
   //Statemachine for pneumatic brake in the gearbox
@@ -94,12 +94,26 @@ public class ClimberSubsystem extends SubsystemBase {
       case STOWED:
         setpoint = PIDConstants.kStowedPositionSetpoint - currentPosition;
         break;
+    //new
+      case LOW:
+        setpoint = PIDConstants.kLowPositionSetpoint - currentPosition;       
+      break;
+
+      case MID:
+        setpoint = PIDConstants.kMidPositionSetpoint - currentPosition;
+      break;
+
+      case HIGH:
+        setpoint = PIDConstants.kHighPositionSetpoint - currentPosition;
+      break;
+    //end new
 
       case LOWERING:
         setpoint = PIDConstants.kLowerPositionSetpoint - currentPosition;       
         break;
 
       case  DEPLOYING:
+        //Push to the top to release hooks 
         setpoint = PIDConstants.kDeployPositionSetpoint - currentPosition;
         break;
 
