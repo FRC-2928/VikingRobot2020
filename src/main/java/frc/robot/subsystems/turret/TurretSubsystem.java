@@ -45,9 +45,12 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public enum TurretRangeState {
-    LEFT_LIMIT, CORRECTING_LEFT, CORRECTING_RIGHT, RIGHT_LIMIT, NORMAL;
+    NORMAL, LEFT_LIMIT, RIGHT_LIMIT, CORRECTING_LEFT, CORRECTING_RIGHT;
   }
 
+  // -----------------------------------------------------------
+  // Initialization
+  // -----------------------------------------------------------
   public TurretSubsystem() {
     m_turretMotor = new CANSparkMax(RobotMap.kTurretSparkMax, MotorType.kBrushless);
 
@@ -76,9 +79,12 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Turret kD", kD);
   }
 
+  // -----------------------------------------------------------
+  // Process Logic
+  // -----------------------------------------------------------
+
   @Override
   public void periodic() {
-    // should this be getTurretDegrees????
     configTurretFeedbackGains();
     SmartDashboard.putNumber("Turret position degrees", getTurretDegrees());
     SmartDashboard.putNumber("Turret Amp Draw", m_turretMotor.getOutputCurrent());
@@ -89,116 +95,36 @@ public class TurretSubsystem extends SubsystemBase {
 
     SmartDashboard.putString("Turret range", m_turretRangeState.toString());
   }
-
-  public void setPower(double power) {
-    m_turretPID.setReference(power, ControlType.kDutyCycle);
-  }
-
-  public void setPosition(double degrees) {
-    kF = SmartDashboard.getNumber("Turret kF", kF);
-
-    if (degrees <= 0) {
-      kF = -kF;
-    }
-
-    m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition, 0, kF);
-  }
-
-  public void stopMotor() {
-    setPower(0);
-  }
-
-  public void resetTurretEncoder() {
-    m_turretEncoder.setPosition(0);
-  }
-
-  public double getTurretNativeEncoder() {
-    return m_turretEncoder.getPosition();
-  }
-
-  public double getTurretPosition() {
-    return getTurretNativeEncoder() / ConversionConstants.kTurretGearRatio;
-  }
-
-  public double getTurretDegrees() {
-    return maxToDegrees(getTurretNativeEncoder());
-  }
-
-  /**
-   * Returns the angle of the turret relative to the field. 0 degrees is facing
-   * opponent's alliance stations.
-   */
-  public double getTurretFieldDegrees() {
-    return 420; // Placeholder
-  }
-
-  public TurretRangeState getTurretRange() {
+ 
+  //Checks if turret is out of bounds, and corrects it
+  public void correctTurretRange() {
     double degrees = getTurretDegrees();
 
+    //Checks if turret is beyond limits, and corrects 360 degrees the opposite way
     if (m_turretRangeState == TurretRangeState.NORMAL) {
       if (degrees > rightMaxLimit) {
-        m_turretRangeState = TurretRangeState.RIGHT_LIMIT;
-        return TurretRangeState.RIGHT_LIMIT;
+        m_turretRangeState = TurretRangeState.CORRECTING_RIGHT;
+        m_correctionReference = rightMaxLimit - 360;
+        correctTurretCommand = new RunCommand(() -> this.setPosition(m_correctionReference), this);
+        correctTurretCommand.schedule();
       }
 
       else if (degrees < leftMaxLimit) {
-        m_turretRangeState = TurretRangeState.LEFT_LIMIT;
-        return TurretRangeState.LEFT_LIMIT;
+        m_turretRangeState = TurretRangeState.CORRECTING_LEFT;
+        m_correctionReference = leftMaxLimit + 360;
+        correctTurretCommand = new RunCommand(() -> this.setPosition(m_correctionReference), this);
+        correctTurretCommand.schedule();
       }
     }
 
-    return TurretRangeState.NORMAL;
-  }
-
-  public void correctTurretRange() {
-    getTurretRange();
-
-    switch (m_turretRangeState) {
-    case RIGHT_LIMIT:
-      m_turretRangeState = TurretRangeState.CORRECTING_RIGHT;
-      correctTurretCommand = new RunCommand(() -> this.setPosition(rightMaxLimit - 360), this);
-      break;
-
-    case LEFT_LIMIT:
-      m_turretRangeState = TurretRangeState.CORRECTING_LEFT;
-      correctTurretCommand = new RunCommand(() -> this.setPosition(leftMaxLimit + 360), this);
-      break;
-
-    case CORRECTING_RIGHT:
-      if (Math.abs(getTurretDegrees() - m_correctionReference) <= 5) {
+    //Checks if we've finished correcting
+    if (m_turretRangeState == TurretRangeState.CORRECTING_LEFT
+        || m_turretRangeState == TurretRangeState.CORRECTING_RIGHT) {
+      if (Math.abs(degrees - m_correctionReference) <= 5) {
         m_turretRangeState = TurretRangeState.NORMAL;
         correctTurretCommand.cancel();
-        break;
       }
-      m_correctionReference = rightMaxLimit - 360;
-      correctTurretCommand.schedule();
-      break;
-
-    case CORRECTING_LEFT:
-      if (Math.abs(getTurretDegrees() - m_correctionReference) <= 5) {
-        m_turretRangeState = TurretRangeState.NORMAL;
-        correctTurretCommand.cancel();
-        break;
-      }
-      m_correctionReference = leftMaxLimit + 360;
-      correctTurretCommand.schedule();
-      break;
-
-    case NORMAL:
-      break;
     }
-  }
-
-  // Grabs the PIDF values from Smartdashboard/Shuffboard
-  public void configTurretFeedbackGains() {
-    kP = SmartDashboard.getNumber("Turret kP", kP);
-    kD = SmartDashboard.getNumber("Turret kD", kD);
-
-    m_turretPID.setP(kP, 0);
-    m_turretPID.setI(0, 0);
-    m_turretPID.setIZone(0, 0);
-    m_turretPID.setD(kD, 0);
-
   }
 
   public void searchForTarget() {
@@ -230,6 +156,76 @@ public class TurretSubsystem extends SubsystemBase {
   public TurretState getTurretState() {
     return m_turretState;
   }
+
+  // -----------------------------------------------------------
+  // Actuator Output
+  // -----------------------------------------------------------
+
+  public void setPower(double power) {
+    m_turretPID.setReference(power, ControlType.kDutyCycle);
+  }
+
+  public void setPosition(double degrees) {
+    kF = SmartDashboard.getNumber("Turret kF", kF);
+
+    if (degrees <= 0) {
+      kF = -kF;
+    }
+
+    m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition, 0, kF);
+  }
+
+  public void stopMotor() {
+    setPower(0);
+  }
+
+
+  // -----------------------------------------------------------
+  // Sensor I/O
+  // -----------------------------------------------------------
+
+  public void resetTurretEncoder() {
+    m_turretEncoder.setPosition(0);
+  }
+
+  public double getTurretNativeEncoder() {
+    return m_turretEncoder.getPosition();
+  }
+
+  public double getTurretPosition() {
+    return getTurretNativeEncoder() / ConversionConstants.kTurretGearRatio;
+  }
+
+  public double getTurretDegrees() {
+    return maxToDegrees(getTurretNativeEncoder());
+  }
+
+  /**
+   * Returns the angle of the turret relative to the field. 0 degrees is facing
+   * opponent's alliance stations.
+   */
+  public double getTurretFieldDegrees() {
+    return 420; // Placeholder
+  }
+
+  // -----------------------------------------------------------
+  // Testing/config methods
+  // -----------------------------------------------------------
+
+  // Grabs the PIDF values from Smartdashboard/Shuffboard
+  public void configTurretFeedbackGains() {
+    kP = SmartDashboard.getNumber("Turret kP", kP);
+    kD = SmartDashboard.getNumber("Turret kD", kD);
+
+    m_turretPID.setP(kP, 0);
+    m_turretPID.setI(0, 0);
+    m_turretPID.setIZone(0, 0);
+    m_turretPID.setD(kD, 0);
+  }
+
+  // -----------------------------------------------------------
+  // Conversion methods
+  // -----------------------------------------------------------
 
   // Used to convert native encoder units to turret degrees
   private double degreesToMax(double degrees) {
