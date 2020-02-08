@@ -49,6 +49,10 @@ public class Intake extends SubsystemBase {
 
   private IntakeState currentState;
 
+   // -----------------------------------------------------------
+  // Initialization
+  // -----------------------------------------------------------
+
    public Intake() {
     kIntakeSolenoidRightBase = new Solenoid(RobotMap.kIntakeSoleniodRightOne);
     kIntakeSolenoidRightArm = new Solenoid(RobotMap.kIntakeSoleniodRightTwo);
@@ -71,7 +75,17 @@ public class Intake extends SubsystemBase {
     // m_intakeMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
   }
 
+  // -----------------------------------------------------------
+  // Process Logic
+  // -----------------------------------------------------------
 
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+    double current = m_intakeMotor.getSupplyCurrent(); 
+    SmartDashboard.putNumber("intake current", current);
+
+  }
 
   public void groundPickup () {
     moveIntake(IntakeState.GROUND_PICKUP);
@@ -116,6 +130,11 @@ public class Intake extends SubsystemBase {
       currentState = state;
     }
 
+  // -----------------------------------------------------------
+  // Actuator Output
+  // -----------------------------------------------------------
+
+
   public void setPower (double power) {
     m_intakeMotor.set(ControlMode.PercentOutput, power);
   }
@@ -128,11 +147,9 @@ public class Intake extends SubsystemBase {
     setPower(0);
   }
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    double current = m_intakeMotor.getSupplyCurrent(); 
-    SmartDashboard.putNumber("intake current", current);
+  // -----------------------------------------------------------
+  // Testing/config methods
+  // -----------------------------------------------------------
 
-  }
+ 
 }
