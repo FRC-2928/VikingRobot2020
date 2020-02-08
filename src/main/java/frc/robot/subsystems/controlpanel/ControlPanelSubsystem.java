@@ -26,6 +26,8 @@ import frc.robot.utilities.ColorMatcher;
  * ControlPanelSubsystem handles the control panel manipulator and sensor.
  */
 public class ControlPanelSubsystem extends SubsystemBase {
+
+
   private final ColorSensorV3 m_colorSensor;
   private final ColorMatcher m_colorMatcher;
   private ControlPanelColor m_matchedColor;
@@ -33,6 +35,9 @@ public class ControlPanelSubsystem extends SubsystemBase {
   private final WPI_TalonSRX m_motor;
   private CANPIDController m_pidController;
  
+  //----------------------------------------------------
+  //Initization
+  //----------------------------------------------------
 
   public ControlPanelSubsystem() {
     m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
@@ -53,6 +58,11 @@ public class ControlPanelSubsystem extends SubsystemBase {
 
 
   } 
+  // -----------------------------------------------------------
+  // Process Logic
+  // -----------------------------------------------------------
+
+
   public void configTurretFeedbackGains() {
 
     // kP = SmartDashboard.getNumber("Turret kP", kP);
@@ -75,18 +85,6 @@ public class ControlPanelSubsystem extends SubsystemBase {
     //  m_pidController.setFF(RobotMap.kPanelFF);
     //  m_pidController.setOutputRange(RobotMap.kMinOutput, RobotMap.kMaxOutput);
 
-  @Override
-  public void periodic() {
-    Color detectedColor = m_colorSensor.getColor();
-    m_matchedColor = m_colorMatcher.getMatchedColor(detectedColor);
-    SmartDashboard.putString("Matched Color", m_matchedColor.name());
-    SmartDashboard.putNumber("Red", detectedColor.red);
-    SmartDashboard.putNumber("Green", detectedColor.green);
-    SmartDashboard.putNumber("Blue", detectedColor.blue);
-
-    
-  }
-
  
 
   // Rotate the control panel the number of specified segments
@@ -98,10 +96,7 @@ public class ControlPanelSubsystem extends SubsystemBase {
 
   }
 
-    // Convenience method for running inline command
-    public void rotateHalfSegment() {
-      rotateSegments(0.5);
-    }
+  
 
   // Gets the detected and target color and rotates to target color
   public void rotateToColor() {
@@ -116,9 +111,7 @@ public class ControlPanelSubsystem extends SubsystemBase {
     rotateSegments(segments);
   }
 
-  public ControlPanelColor getMatchedColor() {
-    return m_matchedColor;
-  }
+  
   
    // Get the target color from the game field
 
@@ -158,10 +151,9 @@ public class ControlPanelSubsystem extends SubsystemBase {
     SmartDashboard.putString("Target Color ", targetColor.name());
     return targetColor;
   }
-
-  // Returns whether a color is known
-
-  public BooleanSupplier unknownColor() {
+  
+   // Returns whether a color is known
+   public BooleanSupplier unknownColor() {
 
     BooleanSupplier sup = () -> false;
     if (m_matchedColor == ControlPanelColor.UNKNOWN) {
@@ -175,4 +167,37 @@ public class ControlPanelSubsystem extends SubsystemBase {
    public void runPositionLoop(double rotations) {
     m_pidController.setReference(rotations, ControlType.kPosition);
   }
+
+  // -----------------------------------------------------------
+  // Actuator Output
+  // -----------------------------------------------------------
+  
+    // Convenience method for running inline command
+    public void rotateHalfSegment() {
+      rotateSegments(0.5);
+    }
+    
+    //--------------------------------------------------------------
+    // Sensor I/O
+    //--------------------------------------------------------------
+    public ControlPanelColor getMatchedColor() {
+      return m_matchedColor;
+    }
+    
+    
+    //--------------------------------------------------------------
+    //Testing/config methods
+    //--------------------------------------------------------------
+  @Override
+  public void periodic() {
+    Color detectedColor = m_colorSensor.getColor();
+    m_matchedColor = m_colorMatcher.getMatchedColor(detectedColor);
+    SmartDashboard.putString("Matched Color", m_matchedColor.name());
+    SmartDashboard.putNumber("Red", detectedColor.red);
+    SmartDashboard.putNumber("Green", detectedColor.green);
+    SmartDashboard.putNumber("Blue", detectedColor.blue);
+
+    
+  }
+
 }
