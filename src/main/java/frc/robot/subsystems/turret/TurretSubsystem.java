@@ -26,8 +26,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   private TurretState m_turretState;
   private TurretRangeState m_turretRangeState;
-  private boolean correctionFinished = true;
-  private double oldDegrees;
+  private double m_correctionReference;
 
   private RunCommand correctTurretCommand;
 
@@ -64,8 +63,8 @@ public class TurretSubsystem extends SubsystemBase {
 
     m_turretPID = m_turretMotor.getPIDController();
 
-    m_turretEncoder.setPosition(0);
-    oldDegrees = 0;
+    resetTurretEncoder();
+    m_correctionReference = 0;
     m_turretRangeState = TurretRangeState.NORMAL;
 
     setDefaultCommand(new RunCommand(this::stopMotor, this));
@@ -83,24 +82,22 @@ public class TurretSubsystem extends SubsystemBase {
     configTurretFeedbackGains();
     SmartDashboard.putNumber("Turret position degrees", getTurretDegrees());
     SmartDashboard.putNumber("Turret Amp Draw", m_turretMotor.getOutputCurrent());
-    SmartDashboard.putNumber("Turret Voltage Draw", m_turretMotor.getAppliedOutput()*12);
-
+    SmartDashboard.putNumber("Turret Voltage Draw", m_turretMotor.getAppliedOutput() * 12);
 
     // Report reaching limits
     correctTurretRange();
-    
+
     SmartDashboard.putString("Turret range", m_turretRangeState.toString());
   }
 
   public void setPower(double power) {
     m_turretPID.setReference(power, ControlType.kDutyCycle);
-    SmartDashboard.putNumber("Turret power", power);
   }
 
   public void setPosition(double degrees) {
     kF = SmartDashboard.getNumber("Turret kF", kF);
 
-    if(degrees <= 0){
+    if (degrees <= 0) {
       kF = -kF;
     }
 
@@ -109,6 +106,10 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void stopMotor() {
     setPower(0);
+  }
+
+  public void resetTurretEncoder() {
+    m_turretEncoder.setPosition(0);
   }
 
   public double getTurretNativeEncoder() {
@@ -134,53 +135,57 @@ public class TurretSubsystem extends SubsystemBase {
   public TurretRangeState getTurretRange() {
     double degrees = getTurretDegrees();
 
-    if(m_turretRangeState == TurretRangeState.NORMAL){
+    if (m_turretRangeState == TurretRangeState.NORMAL) {
       if (degrees > rightMaxLimit) {
         m_turretRangeState = TurretRangeState.RIGHT_LIMIT;
         return TurretRangeState.RIGHT_LIMIT;
-      } 
+      }
 
       else if (degrees < leftMaxLimit) {
         m_turretRangeState = TurretRangeState.LEFT_LIMIT;
         return TurretRangeState.LEFT_LIMIT;
-      } 
+      }
     }
 
-  return TurretRangeState.NORMAL;
-}
+    return TurretRangeState.NORMAL;
+  }
 
-  public void correctTurretRange() {    
+  public void correctTurretRange() {
     getTurretRange();
-    double reference = 0;
 
-    if (m_turretRangeState == TurretRangeState.RIGHT_LIMIT) {
+    switch (m_turretRangeState) {
+    case RIGHT_LIMIT:
       m_turretRangeState = TurretRangeState.CORRECTING_RIGHT;
       correctTurretCommand = new RunCommand(() -> this.setPosition(rightMaxLimit - 360), this);
-    } 
-    
-    else if (m_turretRangeState == TurretRangeState.LEFT_LIMIT) {
+      break;
+
+    case LEFT_LIMIT:
       m_turretRangeState = TurretRangeState.CORRECTING_LEFT;
       correctTurretCommand = new RunCommand(() -> this.setPosition(leftMaxLimit + 360), this);
-    }
+      break;
 
-    if(m_turretRangeState == TurretRangeState.CORRECTING_RIGHT){
-      reference = rightMaxLimit - 360;
-      correctTurretCommand.schedule();
-      SmartDashboard.putNumber("Turret Correction Reference", reference);
-    }
-
-    else if(m_turretRangeState == TurretRangeState.CORRECTING_LEFT){
-      reference = leftMaxLimit + 360;
-      correctTurretCommand.schedule();
-      SmartDashboard.putNumber("Turret Correction Reference", reference);
-    }
-
-    if(m_turretRangeState == TurretRangeState.CORRECTING_LEFT || m_turretRangeState == TurretRangeState.CORRECTING_RIGHT){
-      if(Math.abs(getTurretDegrees() - reference) <= 5){
+    case CORRECTING_RIGHT:
+      if (Math.abs(getTurretDegrees() - m_correctionReference) <= 5) {
         m_turretRangeState = TurretRangeState.NORMAL;
         correctTurretCommand.cancel();
-        System.out.println("Turret returned to normal");
+        break;
       }
+      m_correctionReference = rightMaxLimit - 360;
+      correctTurretCommand.schedule();
+      break;
+
+    case CORRECTING_LEFT:
+      if (Math.abs(getTurretDegrees() - m_correctionReference) <= 5) {
+        m_turretRangeState = TurretRangeState.NORMAL;
+        correctTurretCommand.cancel();
+        break;
+      }
+      m_correctionReference = leftMaxLimit + 360;
+      correctTurretCommand.schedule();
+      break;
+
+    case NORMAL:
+      break;
     }
   }
 
@@ -188,7 +193,6 @@ public class TurretSubsystem extends SubsystemBase {
   public void configTurretFeedbackGains() {
     kP = SmartDashboard.getNumber("Turret kP", kP);
     kD = SmartDashboard.getNumber("Turret kD", kD);
-    
 
     m_turretPID.setP(kP, 0);
     m_turretPID.setI(0, 0);
