@@ -54,7 +54,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     m_turretMotor.restoreFactoryDefaults();
 
-    m_turretMotor.enableVoltageCompensation(8);
+    m_turretMotor.enableVoltageCompensation(12);
     m_turretMotor.setIdleMode(IdleMode.kBrake);
     m_turretMotor.setSmartCurrentLimit(35, 45, 0);
 
@@ -94,6 +94,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void setPower(double power) {
     m_turretPID.setReference(power, ControlType.kDutyCycle);
+    SmartDashboard.putNumber("Turret power", power);
   }
 
   public void setPosition(double degrees) {
@@ -178,6 +179,7 @@ public class TurretSubsystem extends SubsystemBase {
       if(Math.abs(getTurretDegrees() - reference) <= 5){
         m_turretRangeState = TurretRangeState.NORMAL;
         correctTurretCommand.cancel();
+        System.out.println("Turret returned to normal");
       }
     }
   }
@@ -193,7 +195,6 @@ public class TurretSubsystem extends SubsystemBase {
     m_turretPID.setIZone(0, 0);
     m_turretPID.setD(kD, 0);
 
-    System.out.println("Turret gains configed: kP " + kP + "kF " + kF);
   }
 
   public void searchForTarget() {

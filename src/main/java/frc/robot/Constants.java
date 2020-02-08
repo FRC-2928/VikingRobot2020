@@ -83,9 +83,9 @@ public final class Constants {
         public static double kMaxOutput = 1;
         public static double kMinOutput = -1;
 
-        public static double kPTurret = 0.035;
-        public static double kDTurret = 0.3;
-        public static double kFTurret = 0.3;
+        public static double kPTurret = 0.055;
+        public static double kDTurret = 0.5;
+        public static double kFTurret = 0.4;
 
     }
 
