@@ -5,7 +5,7 @@ import com.ctre.phoenix.sensors.PigeonIMU;
 import frc.robot.Constants;
 
 /**
- * Add your docs here.
+ * Utility class responsible for the gyro
  */
 public class Pigeon{
     private PigeonIMU m_pigeon;
