@@ -105,5 +105,15 @@ public final class Constants {
     public static final class DrivetrainConstants{
         public static final double kTrackWidthMeters = 69; //Placeholder
     }
+
+    public static final class LimelightConstants{
+        //Pipelines
+        public static final int kLowLimelightTrackingPipeline = 0;
+        public static final int kLowLimelightDrivePipeline = 1;
+        public static final int kHighLimelightTrackingPipeline = 0;
+        public static final int kHighLimelightDrivePipeline = 1;
+
+        
+    }
 }
 

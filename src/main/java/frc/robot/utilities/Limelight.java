@@ -6,7 +6,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
- * Limelight takes readings from the two limelight cameras and feeds it to the turret and shooter
+ * Limelight utility is responsible for I/O with both Limelight 2+
+ * Feeds turret limelight to flywheel/hood/turret and operator shuffleboard
+ * Feeds base limelight to intake vision tracking and driver shuffleboard
  */
 public class Limelight extends SubsystemBase {
 
@@ -18,9 +20,11 @@ public class Limelight extends SubsystemBase {
   NetworkTableEntry ta = table.getEntry("ta");
 
   //Creates variables to assign
-  double x;
-  double y;
-  double area;
+  private double horizontalOffset;
+  private double verticalOffset;
+  private double area;
+
+  private boolean targetFound;
 
   public Limelight() {
 
@@ -28,12 +32,34 @@ public class Limelight extends SubsystemBase {
 
   @Override
   public void periodic() {
-    updateReadings();
+    // updateReadings();
   }
 
   public void updateReadings(){
-    x = tx.getDouble(0.0);
-    y = ty.getDouble(0.0);
+    horizontalOffset = tx.getDouble(0.0);
+    verticalOffset = ty.getDouble(0.0);
     area = ta.getDouble(0.0);
+  }
+
+  public double getHorizontalOffset(){
+    return horizontalOffset;
+  }
+
+  public double getVerticalOffset(){
+    return verticalOffset;
+  }
+
+  public double getArea(){
+    return area;
+  }
+
+  public boolean isTargetFound(){
+    if(area > 0){
+      targetFound = true;
+    }
+    else{
+      targetFound = false;
+    }
+    return targetFound;
   }
 }

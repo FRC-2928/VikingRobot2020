@@ -17,9 +17,11 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.utilities.Limelight;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.RobotMap;
 import frc.robot.commands.controlpanel.RotateToColor;
+import frc.robot.commands.turret.TurretLimelightSetPosition;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.intake.Intake;
@@ -39,12 +41,14 @@ public class RobotContainer {
   private final FlywheelSubsystem flywheelsubsystem = new FlywheelSubsystem();
   private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
   private final Intake m_intake = new Intake();
+  private final Limelight m_limelight = new Limelight();
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
   private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem();
 
   private final XboxController driveController = new XboxController(0);
 
   private final JoystickButton turretPositionControl = new JoystickButton(driveController, 1);
+  private final JoystickButton turretVisionControl = new JoystickButton(driveController, 2);
   private final JoystickButton turretOpenLoopLeft = new JoystickButton(driveController, 5);
   private final JoystickButton turretOpenLoopRight = new JoystickButton(driveController, 6);
 
@@ -88,6 +92,8 @@ public class RobotContainer {
       },
       m_turretSubsystem)
     );
+
+    turretVisionControl.whileHeld(new TurretLimelightSetPosition(m_turretSubsystem, m_limelight));
 
     turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.5)));
     turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.5)));

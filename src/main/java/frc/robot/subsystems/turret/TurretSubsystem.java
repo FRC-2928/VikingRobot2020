@@ -37,15 +37,15 @@ public class TurretSubsystem extends SubsystemBase {
   private double kF = PIDConstants.kFTurret;
 
   // Turrent working limits
-  private final double leftMaxLimit = -225;
-  private final double rightMaxLimit = 225;
+  private final double leftMaxLimit = -360;
+  private final double rightMaxLimit = 360;
 
   public enum TurretState {
     IDLE, SEARCHING, FOUND, LOCKED;
   }
 
   public enum TurretRangeState {
-    NORMAL, LEFT_LIMIT, RIGHT_LIMIT, CORRECTING_LEFT, CORRECTING_RIGHT;
+    NORMAL, CORRECTING_LEFT, CORRECTING_RIGHT;
   }
 
   // -----------------------------------------------------------
@@ -155,6 +155,10 @@ public class TurretSubsystem extends SubsystemBase {
 
   public TurretState getTurretState() {
     return m_turretState;
+  }
+
+  public TurretRangeState getTurretRangeState(){
+    return m_turretRangeState;
   }
 
   // -----------------------------------------------------------
