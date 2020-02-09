@@ -196,6 +196,7 @@ public class FeederSubsystem extends SubsystemBase {
     }
   }
 
+  // Use this to reverse all balls out of the feeder
   public void reverseFeeder() {
     reverseHopper();
     WaitCommand waitCommand = new WaitCommand(0.5);
@@ -203,15 +204,18 @@ public class FeederSubsystem extends SubsystemBase {
     reverseIndex();
   }
 
+  // Used to feed balls while shooting
   public void fastForwardFeeder() {
     setIndexPower(Constants.FeederConstants.kFastForwardPower);
     setHopperPower(Constants.FeederConstants.kFastForwardPower);
   }
 
+  // Public assess to the IndexState
   public void setIndexState(IndexState state) {
     m_indexState = state;
   }
 
+  // Public assess to the HopperState
   public void setHopperState(HopperState state) {
     m_hopperState = state;
   }
@@ -231,6 +235,7 @@ public class FeederSubsystem extends SubsystemBase {
     return m_topSensor.get();
   }
 
+  // Returns true if the tower is clear of balls
   public boolean allSensorsCleared() {
     if (!bottomSensorTripped() && !middleSensorTripped() && !topSensorTripped()) {
       return true;
