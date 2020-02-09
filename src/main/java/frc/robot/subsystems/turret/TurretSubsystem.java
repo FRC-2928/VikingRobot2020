@@ -8,25 +8,32 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
+import frc.robot.utilities.Limelight;
+import frc.robot.utilities.Pigeon;
 
 /**
  * TurretSubsystem is responsible for subsystem level logic with the turret.
- * Positive power/encoder values is right, negative is left
+ * Positive power/encoder values is left, negative is right
  */
 public class TurretSubsystem extends SubsystemBase {
   private CANSparkMax m_turretMotor;
   private CANEncoder m_turretEncoder;
   private CANPIDController m_turretPID;
 
+  private Pigeon m_pigeon;
+  private Limelight m_limelight;
+
   private TurretState m_turretState;
   private TurretRangeState m_turretRangeState;
+
   private double m_correctionReference;
+  private double m_setpointReference;
 
   private RunCommand correctTurretCommand;
 
@@ -37,11 +44,16 @@ public class TurretSubsystem extends SubsystemBase {
   private double kF = PIDConstants.kFTurret;
 
   // Turrent working limits
-  private final double leftMaxLimit = -360;
-  private final double rightMaxLimit = 360;
+  private final double leftMaxLimit = 360;
+  private final double rightMaxLimit = -360;
+
+  // Gyro
+  private double m_robotYaw;
+  // Start angle relative to the goal (left is positive right is negative)
+  private double m_robotStartAngle;
 
   public enum TurretState {
-    IDLE, SEARCHING, FOUND, LOCKED;
+    IDLE, SETPOINT, SEARCHING_FIELD, CORRECTING_RANGE, TRACKING_TARGET, TARGET_TRACKED;
   }
 
   public enum TurretRangeState {
@@ -60,23 +72,28 @@ public class TurretSubsystem extends SubsystemBase {
     m_turretMotor.setIdleMode(IdleMode.kBrake);
     m_turretMotor.setSmartCurrentLimit(35, 45, 0);
 
-    m_turretMotor.setInverted(true);
+    m_turretMotor.setInverted(false);
 
     m_turretEncoder = m_turretMotor.getEncoder();
-
     m_turretPID = m_turretMotor.getPIDController();
+    m_pigeon = new Pigeon();
+    m_limelight = new Limelight();
 
     resetTurretEncoder();
     m_correctionReference = 0;
     m_turretRangeState = TurretRangeState.NORMAL;
 
-    setDefaultCommand(new RunCommand(this::stopMotor, this));
+    setDefaultCommand(new RunCommand(() -> {
+      this.stopMotor();
+      this.m_turretState = TurretState.IDLE;
+    }, this));
 
     // Used to config PIDF gains
     SmartDashboard.putNumber("Turret Reference", 0);
     SmartDashboard.putNumber("Turret kP", kP);
     SmartDashboard.putNumber("Turret kF", kF);
     SmartDashboard.putNumber("Turret kD", kD);
+    SmartDashboard.putNumber("Robot Start Angle", 0);
   }
 
   // -----------------------------------------------------------
@@ -86,38 +103,40 @@ public class TurretSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     configTurretFeedbackGains();
+    m_robotYaw = m_pigeon.getYaw();
+    m_robotStartAngle = SmartDashboard.getNumber("Robot Start Angle", 0);
+    m_setpointReference = SmartDashboard.getNumber("Turret Reference", 0);
+
     SmartDashboard.putNumber("Turret position degrees", getTurretDegrees());
     SmartDashboard.putNumber("Turret Amp Draw", m_turretMotor.getOutputCurrent());
     SmartDashboard.putNumber("Turret Voltage Draw", m_turretMotor.getAppliedOutput() * 12);
-
-    // Report reaching limits
-    correctTurretRange();
-
     SmartDashboard.putString("Turret range", m_turretRangeState.toString());
   }
- 
-  //Checks if turret is out of bounds, and corrects it
+
+  // Checks if turret is out of bounds, and corrects it
   public void correctTurretRange() {
     double degrees = getTurretDegrees();
 
-    //Checks if turret is beyond limits, and corrects 360 degrees the opposite way
+    // Checks if turret is beyond limits, and corrects 360 degrees the opposite way
     if (m_turretRangeState == TurretRangeState.NORMAL) {
       if (degrees > rightMaxLimit) {
         m_turretRangeState = TurretRangeState.CORRECTING_RIGHT;
-        m_correctionReference = rightMaxLimit - 360;
+        m_turretState = TurretState.CORRECTING_RANGE;
+        m_correctionReference = rightMaxLimit + 360;
         correctTurretCommand = new RunCommand(() -> this.setPosition(m_correctionReference), this);
         correctTurretCommand.schedule();
       }
 
       else if (degrees < leftMaxLimit) {
         m_turretRangeState = TurretRangeState.CORRECTING_LEFT;
-        m_correctionReference = leftMaxLimit + 360;
+        m_turretState = TurretState.CORRECTING_RANGE;
+        m_correctionReference = leftMaxLimit - 360;
         correctTurretCommand = new RunCommand(() -> this.setPosition(m_correctionReference), this);
         correctTurretCommand.schedule();
       }
     }
 
-    //Checks if we've finished correcting
+    // Checks if we've finished correcting
     if (m_turretRangeState == TurretRangeState.CORRECTING_LEFT
         || m_turretRangeState == TurretRangeState.CORRECTING_RIGHT) {
       if (Math.abs(degrees - m_correctionReference) <= 5) {
@@ -127,29 +146,63 @@ public class TurretSubsystem extends SubsystemBase {
     }
   }
 
+  // Field relative turret tracking, depends on starting position
   public void searchForTarget() {
-
+    double reference = -m_robotYaw - m_robotStartAngle;
+    setPosition(reference);
   }
 
-  public void setTurretState(TurretState state) {
-    m_turretState = state;
+  public void setTurretState(TurretState desiredState) {
+    double visionReference = m_limelight.getHorizontalOffset();
 
-    switch (state) {
-    case IDLE:
-      stopMotor();
-      break;
+    correctTurretRange();
 
-    case SEARCHING:
-      break;
+    if (m_turretState != TurretState.CORRECTING_RANGE) {
+      switch (desiredState) {
+      case IDLE:
+        stopMotor();
+        m_turretState = desiredState;
+        break;
 
-    case FOUND:
-      break;
+      case SETPOINT:
+        setPosition(m_setpointReference);
+        m_turretState = desiredState;
+        break;
 
-    case LOCKED:
-      break;
+      case SEARCHING_FIELD:
+        searchForTarget();
+        m_turretState = desiredState;
+        break;
 
-    default:
-      break;
+      case CORRECTING_RANGE:
+        break;
+
+      case TRACKING_TARGET:
+        if (!m_limelight.isTargetFound()) {
+          searchForTarget();
+          m_turretState = TurretState.SEARCHING_FIELD;
+        } else if (Math.abs(visionReference) < Constants.kTurretLockedThreshold) {
+          setPosition(visionReference);
+          m_turretState = TurretState.TARGET_TRACKED;
+        } else {
+          setPosition(visionReference);
+          m_turretState = TurretState.TRACKING_TARGET;
+        }
+        break;
+
+      case TARGET_TRACKED:
+        if (!m_limelight.isTargetFound()) {
+          searchForTarget();
+          m_turretState = TurretState.SEARCHING_FIELD;
+        } else if (Math.abs(visionReference) < Constants.kTurretLockedThreshold) {
+          setPosition(visionReference);
+          m_turretState = TurretState.TARGET_TRACKED;
+        } else {
+          setPosition(visionReference);
+          m_turretState = TurretState.TRACKING_TARGET;
+        }
+        break;
+      }
     }
   }
 
@@ -157,7 +210,7 @@ public class TurretSubsystem extends SubsystemBase {
     return m_turretState;
   }
 
-  public TurretRangeState getTurretRangeState(){
+  public TurretRangeState getTurretRangeState() {
     return m_turretRangeState;
   }
 
@@ -182,7 +235,6 @@ public class TurretSubsystem extends SubsystemBase {
   public void stopMotor() {
     setPower(0);
   }
-
 
   // -----------------------------------------------------------
   // Sensor I/O

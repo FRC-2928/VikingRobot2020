@@ -40,6 +40,9 @@ public final class Constants {
     
     public static double threeTurns = 26.0; // Rotate 26 segments 
 
+    //Turret
+    public static final double kTurretLockedThreshold = 1;
+
     public static final class RobotMap{
 
         //Drivetrain
@@ -112,7 +115,6 @@ public final class Constants {
         public static final int kLowLimelightDrivePipeline = 1;
         public static final int kHighLimelightTrackingPipeline = 0;
         public static final int kHighLimelightDrivePipeline = 1;
-
         
     }
 }

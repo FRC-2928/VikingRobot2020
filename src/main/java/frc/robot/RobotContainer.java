@@ -17,11 +17,13 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.utilities.Limelight;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.RobotMap;
 import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.commands.turret.TurretLimelightSetPosition;
+import frc.robot.commands.turret.TurretSetStateCommand;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.intake.Intake;
@@ -48,7 +50,8 @@ public class RobotContainer {
   private final XboxController driveController = new XboxController(0);
 
   private final JoystickButton turretPositionControl = new JoystickButton(driveController, 1);
-  private final JoystickButton turretVisionControl = new JoystickButton(driveController, 2);
+  private final JoystickButton turretFieldCentricControl = new JoystickButton(driveController, 2);
+  private final JoystickButton turretVisionControl = new JoystickButton(driveController, 3);
   private final JoystickButton turretOpenLoopLeft = new JoystickButton(driveController, 5);
   private final JoystickButton turretOpenLoopRight = new JoystickButton(driveController, 6);
 
@@ -85,24 +88,19 @@ public class RobotContainer {
       flywheelsubsystem)
     );
 
-    turretPositionControl.whileHeld(
-      new RunCommand(() -> {
-        double reference = SmartDashboard.getNumber("Turret Reference", 0);
-        m_turretSubsystem.setPosition(reference);
-      },
-      m_turretSubsystem)
-    );
+    ConfigureControlButtons(); 
+    configureTurretButtons();
 
-    turretVisionControl.whileHeld(new TurretLimelightSetPosition(m_turretSubsystem, m_limelight));
+    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.75),flywheelsubsystem));
+  }
+
+  public void configureTurretButtons(){
+    turretPositionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.SETPOINT));
+    turretFieldCentricControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.SEARCHING_FIELD));
+    turretVisionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.TRACKING_TARGET));
 
     turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.5)));
     turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.5)));
-
-    ConfigureControlButtons(); 
-
-    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.75),flywheelsubsystem));
-
-  
   }
 
   public void ConfigureControlButtons () {
