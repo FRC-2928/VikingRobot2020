@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.climber.ClimbHigh;
 import frc.robot.commands.climber.ClimbMid;
+import frc.robot.commands.climber.DeployClimber;
 import frc.robot.commands.climber.ClimbLow;
 
 
@@ -146,7 +147,19 @@ public class RobotContainer {
       new WaitCommand(1),
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
-    ));
+    )); }
+
+
+    private void configureLowClimberButtons() {
+      // Pickup balls from the ground
+      new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
+       // run deploy
+      new RunCommand(m_intake::startMotor, m_intake),
+         // run deploy- fix isFinished lower command
+      new RunCommand(m_intake::startMotor, m_intake)
+      )); 
+  
+  
 
 
     // Stow the intake
