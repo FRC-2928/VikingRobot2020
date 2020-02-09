@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -7,7 +8,6 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.sensors.ctre.WPI_PigeonIMU;
 import frc.org.ballardrobotics.sensors.fakes.FakeGyro;
@@ -39,17 +39,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
     if (Robot.isReal()) {
       return createReal();
     }
-    return createSimulation();
+    return createFake();
   }
 
-  private static DrivetrainSubsystem createReal() {
+  public static DrivetrainSubsystem createReal() {
     var leftController = new SmartTalonFX(DriveConstants.kLeftMasterDeviceID);
     var rightController = new SmartTalonFX(DriveConstants.kRightMasterDeviceID);
     var gyro = new WPI_PigeonIMU(DriveConstants.kPigeonDeviceID);
     return new DrivetrainSubsystem(leftController, rightController, gyro);
   }
 
-  private static DrivetrainSubsystem createSimulation() {
+  public static DrivetrainSubsystem createFake() {
     var leftController = new FakeSmartSpeedController();
     var rightController = new FakeSmartSpeedController();
     var gyro = new FakeGyro();
@@ -57,7 +57,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
   
   public DrivetrainSubsystem(SmartSpeedController leftController, SmartSpeedController rightController, Gyro gyro) {
-    // default command is set in RobotContainer.
+    // NOTE: Default command is set in RobotContainer to avoid having to inject joystick data.
 
     m_leftController = leftController;
     m_rightController = rightController;

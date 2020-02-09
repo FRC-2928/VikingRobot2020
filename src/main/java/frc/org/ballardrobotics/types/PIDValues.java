@@ -38,40 +38,46 @@ public class PIDValues {
         m_iZone = iZone;
     }
 
-    public void displayOnShuffleboard(String name) {
-        displayOnShuffleboard(name, (newValue) -> {});
+    public PIDValues(PIDValues other) {
+        this(other.getP(), other.getI(), other.getD(), other.getF(), other.getIZone());
     }
 
-    public void displayOnShuffleboard(String name, final Consumer<PIDValues> onValueChanged) {        
+    public static void displayOnShuffleboard(final PIDValues values, String name) {
+        displayOnShuffleboard(values, name, (newValue) -> {});
+    }
+
+    public static void displayOnShuffleboard(final PIDValues values, String name, final Consumer<PIDValues> onValueChanged) {
+        var copy = new PIDValues(values);
+
         int flags = EntryListenerFlags.kNew | EntryListenerFlags.kUpdate;
         var layout = Shuffleboard.getTab("PIDValues").getLayout(name, BuiltInLayouts.kList);
 
-        layout.add("P", this.getP()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            this.setP(notif.value.getDouble());
-            onValueChanged.accept(this);
+        layout.add("P", copy.getP()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            copy.setP(notif.value.getDouble());
+            onValueChanged.accept(copy);
         }, flags);
 
-        layout.add("I", this.getI()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            this.setI(notif.value.getDouble());
-            onValueChanged.accept(this);
+        layout.add("I", copy.getI()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            copy.setI(notif.value.getDouble());
+            onValueChanged.accept(copy);
         }, flags);
 
-        layout.add("D", this.getD()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            this.setD(notif.value.getDouble());
-            onValueChanged.accept(this);
+        layout.add("D", copy.getD()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            copy.setD(notif.value.getDouble());
+            onValueChanged.accept(copy);
         }, flags);
 
-        layout.add("F", this.getF()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            this.setF(notif.value.getDouble());
-            onValueChanged.accept(this);
+        layout.add("F", copy.getF()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            copy.setF(notif.value.getDouble());
+            onValueChanged.accept(copy);
         }, flags);
 
-        layout.add("iZone", this.getIZone()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
-            this.setIZone(notif.value.getDouble());
-            onValueChanged.accept(this);
+        layout.add("iZone", copy.getIZone()).withWidget(BuiltInWidgets.kTextView).getEntry().addListener((notif) -> {
+            copy.setIZone(notif.value.getDouble());
+            onValueChanged.accept(copy);
         }, flags);
 
-        onValueChanged.accept(this);
+        onValueChanged.accept(copy);
     }
 
     private synchronized void setP(double p) {

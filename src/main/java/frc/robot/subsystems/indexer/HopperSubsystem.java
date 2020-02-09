@@ -16,21 +16,23 @@ public class HopperSubsystem extends SubsystemBase {
     if (Robot.isReal()) {
       return createReal();
     }
-    return createSimulation();
+    return createFake();
   }
 
-  private static HopperSubsystem createReal() {
+  public static HopperSubsystem createReal() {
     var controller = new SmartVictorSPX(HopperConstants.kControllerDeviceID);
     return new HopperSubsystem(controller);
   }
 
-  private static HopperSubsystem createSimulation() {
+  public static HopperSubsystem createFake() {
     var controller = new FakeSmartSpeedController();
     return new HopperSubsystem(controller);
   }
 
   public HopperSubsystem(SmartSpeedController controller) {
-    setDefaultCommand(new RunCommand(this::stop, this));
+    var defaultCommand = new RunCommand(this::stop, this);
+    defaultCommand.setName("HopperStopCommand");
+    setDefaultCommand(defaultCommand);
 
     m_controller = controller;
   }

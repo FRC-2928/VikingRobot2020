@@ -11,16 +11,16 @@ import frc.robot.commands.shooter.TurretSetPositionCommand;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.TurretSubsystem;
-import frc.robot.utilities.LimeliteUtility.LimeliteData;
+import frc.robot.utilities.LimelightUtility.LimelightData;
 
 public class AutoTargetCommand extends ScheduleCommand {
   public AutoTargetCommand(HoodSubsystem hood, TurretSubsystem turret, FlywheelSubsystem flywheel,
-      Supplier<LimeliteData> limeliteDataSupplier, DoubleSupplier gyroAngleSupplier) {
+      Supplier<LimelightData> limeliteDataSupplier, DoubleSupplier gyroAngleSupplier) {
     this(hood, turret, flywheel, limeliteDataSupplier, gyroAngleSupplier, new Trigger(() -> true));
   }
 
   public AutoTargetCommand(HoodSubsystem hood, TurretSubsystem turret, FlywheelSubsystem flywheel,
-      Supplier<LimeliteData> limeliteDataSupplier, DoubleSupplier gyroAngleSupplier, Trigger flywheelTrigger) {
+      Supplier<LimelightData> limeliteDataSupplier, DoubleSupplier gyroAngleSupplier, Trigger flywheelTrigger) {
     super(
       new HoodSetPositionCommand(hood, () -> {
         return 0.0;

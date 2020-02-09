@@ -2,6 +2,7 @@ package frc.robot.subsystems.indexer;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
@@ -21,10 +22,10 @@ public class FeederSubsystem extends SubsystemBase {
     if (Robot.isReal()) {
       return createReal();
     }
-    return createSimulation();
+    return createFake();
   }
 
-  private static FeederSubsystem createReal() {
+  public static FeederSubsystem createReal() {
     var controller = new SmartVictorSPX(FeederConstants.kControllerDeviceID);
     var topSensor = new DigitalInput(FeederConstants.kTopSensorChannel);
     var middleSensor = new DigitalInput(FeederConstants.kMiddleSensorChannel);
@@ -32,7 +33,7 @@ public class FeederSubsystem extends SubsystemBase {
     return new FeederSubsystem(controller, topSensor, middleSensor, bottomSensor);
   }
 
-  private static FeederSubsystem createSimulation() {
+  public static FeederSubsystem createFake() {
     var controller = new FakeSmartSpeedController();
     var topSensor = new DigitalInput(FeederConstants.kTopSensorChannel);
     var middleSensor = new DigitalInput(FeederConstants.kMiddleSensorChannel);
@@ -41,7 +42,9 @@ public class FeederSubsystem extends SubsystemBase {
   }
   
   public FeederSubsystem(SmartSpeedController controller, DigitalInput topSensor, DigitalInput middleSensor, DigitalInput bottomSensor) {
-    setDefaultCommand(new RunCommand(this::stop, this));
+    var defaultCommand = new RunCommand(this::stop, this);
+    defaultCommand.setName("FeederStopCommand");
+    setDefaultCommand(defaultCommand);
 
     m_controller = controller;
     m_topSensor = topSensor;

@@ -1,12 +1,11 @@
 package frc.org.ballardrobotics.speedcontrollers.rev;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
+import com.revrobotics.CANPIDController.ArbFFUnits;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.EncoderType;
-import com.revrobotics.CANPIDController.ArbFFUnits;
 
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 
@@ -27,7 +26,11 @@ public class SmartSparkMax extends CANSparkMax implements SmartSpeedController {
     private CANPIDController m_pidController;
 
     public SmartSparkMax(int deviceID, MotorType type) {
-        this(deviceID, type, EncoderType.kHallSensor, 0, 1.0);
+        this(deviceID, type, 1.0);
+    }
+
+    public SmartSparkMax(int deviceID, MotorType type, double gearRatio) {
+        this(deviceID, type, EncoderType.kHallSensor, 0, gearRatio);
     }
 
     public SmartSparkMax(int deviceID, MotorType type, EncoderType encoderType, double unitsPerRevolution, double gearRatio) {
@@ -35,7 +38,7 @@ public class SmartSparkMax extends CANSparkMax implements SmartSpeedController {
         enableVoltageCompensation(kNominalVoltageVolts);
 
         m_encoder = new CANEncoder(this, encoderType, (int)unitsPerRevolution);
-        m_pidController = getPIDController();
+        m_pidController = super.getPIDController();
 
         m_encoder.setPositionConversionFactor(1.0 / gearRatio);
         m_encoder.setVelocityConversionFactor(1.0 / gearRatio);
@@ -118,5 +121,10 @@ public class SmartSparkMax extends CANSparkMax implements SmartSpeedController {
     @Override
     public void resetEncoder() {
         m_encoder.setPosition(0.0);
+    }
+
+    @Override
+    public CANPIDController getPIDController() {
+        return m_pidController;
     }
 }

@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Constants.TransmissionConstants;
 import frc.robot.commands.drive.TransmissionSetHighGearCommand;
 
@@ -11,6 +12,18 @@ public class TransmissionSubsystem extends SubsystemBase {
   private boolean m_isHighGear;
 
   public static TransmissionSubsystem create() {
+    if (Robot.isReal()) {
+      return createReal();
+    }
+    return createFake();
+  }
+
+  public static TransmissionSubsystem createReal() {
+    var solenoid = new Solenoid(TransmissionConstants.kSolenoidChannel);
+    return new TransmissionSubsystem(solenoid);
+  }
+
+  public static TransmissionSubsystem createFake() {
     var solenoid = new Solenoid(TransmissionConstants.kSolenoidChannel);
     return new TransmissionSubsystem(solenoid);
   }

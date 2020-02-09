@@ -1,16 +1,15 @@
 package frc.robot.utilities;
 
-public class LimeliteUtility {
+public class LimelightUtility {
 
-    public class LimeliteData {
+    public class LimelightData {
         public boolean targetFound;
 
         public double horizontalOffsetDeg;
         public double verticalOffsetDeg;
     }
 
-    public static LimeliteData getData() {
+    public static LimelightData getData() {
         return null;
     }
-
 }

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.shooter;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.ctre.SmartTalonSRX;
@@ -20,20 +21,24 @@ public class HoodSubsystem extends SubsystemBase {
     if (Robot.isReal()) {
       return createReal();
     }
-    return createSimulation();
+    return createFake();
   }
 
-  private static HoodSubsystem createReal() {
+  public static HoodSubsystem createReal() {
     var controller = new SmartTalonSRX(HoodConstants.kControllerDeviceID);
     return new HoodSubsystem(controller);
   }
 
-  private static HoodSubsystem createSimulation() {
+  public static HoodSubsystem createFake() {
     var controller = new FakeSmartSpeedController();
     return new HoodSubsystem(controller);
   }
 
   public HoodSubsystem(SmartSpeedController controller) {
+    var defaultCommand = new RunCommand(this::stop, this);
+    defaultCommand.setName("HoodStopCommand");
+    setDefaultCommand(defaultCommand);
+    
     m_controller = controller;
   }
 

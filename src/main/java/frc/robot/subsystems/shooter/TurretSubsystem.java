@@ -1,5 +1,6 @@
 package frc.robot.subsystems.shooter;
 
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.EncoderType;
 
@@ -9,8 +10,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.rev.SmartSparkMax;
-import frc.robot.Constants.TurretConstants;
+import frc.org.ballardrobotics.types.PIDValues;
 import frc.robot.Robot;
+import frc.robot.Constants.TurretConstants;
 
 public class TurretSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;
@@ -24,22 +26,37 @@ public class TurretSubsystem extends SubsystemBase {
     if (Robot.isReal()) {
       return createReal();
     }
-    return createSimulation();
+    return createFake();
   }
 
   public static TurretSubsystem createReal() {
     var controller = new SmartSparkMax(TurretConstants.kControllerDeviceID, MotorType.kBrushless, EncoderType.kHallSensor,
         TurretConstants.kUnitsPerRev, TurretConstants.kGearRatio);
+
+    controller.setSoftLimit(SoftLimitDirection.kForward, (float)TurretConstants.kMaxAngle);
+    controller.setSoftLimit(SoftLimitDirection.kReverse, (float)-TurretConstants.kMaxAngle);
+
+    PIDValues.displayOnShuffleboard(TurretConstants.kPID, "Turret", (values) -> {
+      var pid = controller.getPIDController();
+      pid.setP(TurretConstants.kPID.getP(), SmartSparkMax.kPositionSlotIdx);
+      pid.setI(TurretConstants.kPID.getI(), SmartSparkMax.kPositionSlotIdx);
+      pid.setIZone(TurretConstants.kPID.getIZone(), SmartSparkMax.kPositionSlotIdx);
+      pid.setD(TurretConstants.kPID.getD(), SmartSparkMax.kPositionSlotIdx);
+      pid.setFF(TurretConstants.kPID.getF(), SmartSparkMax.kPositionSlotIdx);
+    });
+
     return new TurretSubsystem(controller);
   }
 
-  public static TurretSubsystem createSimulation() {
+  public static TurretSubsystem createFake() {
     var controller = new FakeSmartSpeedController();
     return new TurretSubsystem(controller);
   }
 
   public TurretSubsystem(SmartSpeedController controller) {
-    setDefaultCommand(new RunCommand(this::stop, this));
+    var defaultCommand = new RunCommand(this::stop, this);
+    defaultCommand.setName("TurretStopCommand");
+    setDefaultCommand(defaultCommand);
 
     m_controller = controller;
   }
@@ -79,6 +96,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setPosition(double degrees) {
+    degrees = Math.IEEEremainder(degrees, TurretConstants.kMaxAngle);
     m_controller.setPosition(degrees / 360.0);
   }
 

@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import frc.org.ballardrobotics.types.PIDValues;
 import frc.robot.types.ShooterSetpoint;
 
 /**
@@ -39,7 +40,7 @@ public final class Constants {
     }
 
     public static final class FlywheelConstants {
-        public static final int kControllerDeviceID = 0;
+        public static final int kControllerDeviceID = 4;
         
         public static final double kGearRatio = 1.0;
         public static final double kUnitsPerRev = 1.0;
@@ -48,7 +49,7 @@ public final class Constants {
     }
 
     public static final class HoodConstants {
-        public static final int kControllerDeviceID = 1;
+        public static final int kControllerDeviceID = 5;
 
         public static final double kGearRatio = 1.0;
         public static final double kUnitsPerRev = 1.0;
@@ -58,13 +59,19 @@ public final class Constants {
     }
 
     public static final class TurretConstants {
-        public static final int kControllerDeviceID = 1;
+        public static final int kControllerDeviceID = 4;
 
         public static final double kGearRatio = 236.11;
         public static final double kUnitsPerRev = 42.0;
 
+        public static final double kMaxAngle = 225.0;
+
         public static final double kAcceptablePositionErrorDeg = 2.0;
         public static final double kAcceptableVelocityErrorDegPerSec = 0.5;
+
+        public static final PIDValues kPID = new PIDValues()
+            .withP(0.05)
+            .withD(0);
     }
 
     public static final class FeederConstants {

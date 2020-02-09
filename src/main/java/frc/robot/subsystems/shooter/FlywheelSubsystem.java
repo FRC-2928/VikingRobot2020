@@ -1,24 +1,20 @@
 package frc.robot.subsystems.shooter;
 
-import java.util.function.Consumer;
-
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.ctre.SmartTalonSRX;
 import frc.org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
-import frc.org.ballardrobotics.types.PIDValues;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Robot;
 
 public class FlywheelSubsystem extends SubsystemBase {
-  private static Consumer<PIDValues> m_onPIDValueChanged = PIDValues.kDefaultConsumer;
-
   private SmartSpeedController m_controller;
 
   private double m_targetVoltage, m_measuredVoltage;
@@ -29,10 +25,10 @@ public class FlywheelSubsystem extends SubsystemBase {
     if (Robot.isReal()) {
       return createReal();
     }
-    return createSimulation();
+    return createFake();
   }
 
-  private static FlywheelSubsystem createReal() {
+  public static FlywheelSubsystem createReal() {
     var controller = new SmartTalonSRX(FlywheelConstants.kControllerDeviceID);
     controller.configFactoryDefault();
 
@@ -51,28 +47,20 @@ public class FlywheelSubsystem extends SubsystemBase {
     controller.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_1Ms);
     controller.configVelocityMeasurementWindow(64);
 
-    m_onPIDValueChanged = (values) -> {
-      controller.config_kP(0, values.getP());
-      controller.config_kI(0, values.getI());
-      controller.config_IntegralZone(0, (int)values.getIZone());
-      controller.config_kD(0, values.getD());
-      controller.config_kF(0, values.getF());
-    };
     return new FlywheelSubsystem(controller);
   }
 
-  private static FlywheelSubsystem createSimulation() {
+  public static FlywheelSubsystem createFake() {
     var controller = new FakeSmartSpeedController();
     return new FlywheelSubsystem(controller);
   }
 
   public FlywheelSubsystem(SmartSpeedController controller) {
+    var defaultCommand = new RunCommand(this::stop, this);
+    defaultCommand.setName("FlywheelStopCommand");
+    setDefaultCommand(defaultCommand);
+    
     m_controller = controller;
-
-    new PIDValues()
-      .withP(18.0)
-      .withF(0.0)
-      .displayOnShuffleboard("Flywheel PID", m_onPIDValueChanged);
   }
 
   @Override
