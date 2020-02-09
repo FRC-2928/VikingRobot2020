@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
@@ -61,9 +62,17 @@ public class ClimberSubsystem extends SubsystemBase {
     setClimberState(ClimberState.STOWED);
     setBrakeState(BrakeState.ON);
 
+    /** How much smoothing [0,8] to use during MotionMagic */
+	int _smoothing = 0;
+
     // Put PID gains onto the Dashboard
     SmartDashboard.putNumber("Climber kP", PIDConstants.kClimberP);
     SmartDashboard.putNumber("Climber kF", PIDConstants.kClimberFF);
+
+           /* Set acceleration and vcruise velocity - see documentation */
+    //motion magic 
+		m_climberMotor.configMotionCruiseVelocity(15000, PIDConstants.kClimberTimeout);
+		m_climberMotor.configMotionAcceleration(6000, PIDConstants.kClimberIzone);//place holders
 
     //Default command will enable brake and stop elevator
     setDefaultCommand(
@@ -198,6 +207,9 @@ public class ClimberSubsystem extends SubsystemBase {
     double kP = SmartDashboard.getNumber("Climber kP", 0);
     double kF = SmartDashboard.getNumber("Climber kF", 0);
 
+    //may want to adjust the smoothing
+    int curveStrength = (int)SmartDashboard.getNumber("curveStrength", 0);
+
     m_climberMotor.config_kP(0, kP);
     m_climberMotor.config_kI(0, PIDConstants.kClimberI);
     m_climberMotor.config_kD(0, PIDConstants.kClimberD);
@@ -205,5 +217,10 @@ public class ClimberSubsystem extends SubsystemBase {
     m_climberMotor.config_kF(0, kF);
 
     System.out.println("Climber gains configured: kP " + kP + "kF " + kF);
+
+    //may want to adjust the smoothing
+    m_climberMotor.configMotionSCurveStrength(curveStrength);
+
+ 
   }
 }
