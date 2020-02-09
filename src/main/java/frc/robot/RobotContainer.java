@@ -99,8 +99,8 @@ public class RobotContainer {
     turretFieldCentricControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.SEARCHING_FIELD));
     turretVisionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.TRACKING_TARGET));
 
-    turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.5)));
-    turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.5)));
+    turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.4)));
+    turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.4)));
   }
 
   public void ConfigureControlButtons () {

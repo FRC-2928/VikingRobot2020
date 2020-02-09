@@ -53,7 +53,7 @@ public class TurretSubsystem extends SubsystemBase {
   private double m_robotStartAngle;
 
   public enum TurretState {
-    IDLE, SETPOINT, SEARCHING_FIELD, CORRECTING_RANGE, TRACKING_TARGET, TARGET_TRACKED;
+    IDLE, SETPOINT, SEARCHING_FIELD, CORRECTING_RANGE, TRACKING_TARGET, TARGET_LOCKED;
   }
 
   public enum TurretRangeState {
@@ -82,6 +82,7 @@ public class TurretSubsystem extends SubsystemBase {
     resetTurretEncoder();
     m_correctionReference = 0;
     m_turretRangeState = TurretRangeState.NORMAL;
+    m_turretState = TurretState.IDLE;
 
     setDefaultCommand(new RunCommand(() -> {
       this.stopMotor();
@@ -107,10 +108,13 @@ public class TurretSubsystem extends SubsystemBase {
     m_robotStartAngle = SmartDashboard.getNumber("Robot Start Angle", 0);
     m_setpointReference = SmartDashboard.getNumber("Turret Reference", 0);
 
+    SmartDashboard.putNumber("Robot yaw", m_robotYaw);
     SmartDashboard.putNumber("Turret position degrees", getTurretDegrees());
     SmartDashboard.putNumber("Turret Amp Draw", m_turretMotor.getOutputCurrent());
     SmartDashboard.putNumber("Turret Voltage Draw", m_turretMotor.getAppliedOutput() * 12);
-    SmartDashboard.putString("Turret range", m_turretRangeState.toString());
+    SmartDashboard.putString("Turret State", m_turretState.toString());
+    SmartDashboard.putBoolean("Limelight valid target", m_limelight.isTargetFound());
+    SmartDashboard.putNumber("Target distance", m_limelight.getTargetDistance());
   }
 
   // Checks if turret is out of bounds, and corrects it
@@ -119,27 +123,25 @@ public class TurretSubsystem extends SubsystemBase {
 
     // Checks if turret is beyond limits, and corrects 360 degrees the opposite way
     if (m_turretRangeState == TurretRangeState.NORMAL) {
-      if (degrees > rightMaxLimit) {
+      if (degrees < rightMaxLimit) {
         m_turretRangeState = TurretRangeState.CORRECTING_RIGHT;
         m_turretState = TurretState.CORRECTING_RANGE;
         m_correctionReference = rightMaxLimit + 360;
-        correctTurretCommand = new RunCommand(() -> this.setPosition(m_correctionReference), this);
-        correctTurretCommand.schedule();
+        setPosition(m_correctionReference);
       }
 
-      else if (degrees < leftMaxLimit) {
+      else if (degrees > leftMaxLimit) {
         m_turretRangeState = TurretRangeState.CORRECTING_LEFT;
         m_turretState = TurretState.CORRECTING_RANGE;
         m_correctionReference = leftMaxLimit - 360;
-        correctTurretCommand = new RunCommand(() -> this.setPosition(m_correctionReference), this);
-        correctTurretCommand.schedule();
+        setPosition(m_correctionReference);
       }
     }
 
     // Checks if we've finished correcting
     if (m_turretRangeState == TurretRangeState.CORRECTING_LEFT
         || m_turretRangeState == TurretRangeState.CORRECTING_RIGHT) {
-      if (Math.abs(degrees - m_correctionReference) <= 5) {
+      if (Math.abs(degrees - m_correctionReference) <= 10) {
         m_turretRangeState = TurretRangeState.NORMAL;
         correctTurretCommand.cancel();
       }
@@ -153,7 +155,8 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setTurretState(TurretState desiredState) {
-    double visionReference = m_limelight.getHorizontalOffset();
+    double visionReference = getTurretDegrees() - m_limelight.getHorizontalOffset();
+    SmartDashboard.putString("Turret Desired State", desiredState.toString());
 
     correctTurretRange();
 
@@ -183,21 +186,21 @@ public class TurretSubsystem extends SubsystemBase {
           m_turretState = TurretState.SEARCHING_FIELD;
         } else if (Math.abs(visionReference) < Constants.kTurretLockedThreshold) {
           setPosition(visionReference);
-          m_turretState = TurretState.TARGET_TRACKED;
-        } else {
+          m_turretState = TurretState.TARGET_LOCKED;
+        } else if(m_limelight.isTargetFound()){
           setPosition(visionReference);
           m_turretState = TurretState.TRACKING_TARGET;
         }
         break;
 
-      case TARGET_TRACKED:
+      case TARGET_LOCKED:
         if (!m_limelight.isTargetFound()) {
           searchForTarget();
           m_turretState = TurretState.SEARCHING_FIELD;
         } else if (Math.abs(visionReference) < Constants.kTurretLockedThreshold) {
           setPosition(visionReference);
-          m_turretState = TurretState.TARGET_TRACKED;
-        } else {
+          m_turretState = TurretState.TARGET_LOCKED;
+        } else if(m_limelight.isTargetFound()) {
           setPosition(visionReference);
           m_turretState = TurretState.TRACKING_TARGET;
         }

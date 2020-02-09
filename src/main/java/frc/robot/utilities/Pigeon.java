@@ -12,6 +12,8 @@ public class Pigeon{
 
     public Pigeon(){
         m_pigeon = new PigeonIMU(Constants.RobotMap.kPigeonIMU);
+
+        resetGyro();
     }
 
     public double getYaw(){

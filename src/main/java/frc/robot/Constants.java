@@ -117,6 +117,10 @@ public final class Constants {
         public static final int kLowLimelightDrivePipeline = 1;
         public static final int kHighLimelightTrackingPipeline = 0;
         public static final int kHighLimelightDrivePipeline = 1;
+
+        public static final double kHighLimelightHeight = 37.5;
+        public static final double kHighGoalHeight = 90;
+         
         
     }
 }
