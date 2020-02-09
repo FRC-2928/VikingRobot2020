@@ -21,20 +21,7 @@ public class HoodSetPositionCommand extends CommandBase {
   }
 
   @Override
-  public void initialize() {
-  }
-
-  @Override
   public void execute() {
     m_hood.setPosition(m_positionSupplier.getAsDouble());
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  @Override
-  public boolean isFinished() {
-    return false;
   }
 }

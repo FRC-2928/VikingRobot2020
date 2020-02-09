@@ -35,6 +35,14 @@ public final class Constants {
         public static final double kTrackWidthMeters = 0.5;
     }
 
+    public static final class ElevatorConstants {
+        public static final int kControllerDeviceID = 0;
+        public static final int kSolenoidChannel = 1;
+
+        public static final double kAcceptablePositionErrorMeters = 0.02;
+        public static final double kAcceptableVelocityErrorMetersPerSecond = 0.01;
+    }
+
     public static final class TransmissionConstants {
         public static final int kSolenoidChannel = 1;
     }

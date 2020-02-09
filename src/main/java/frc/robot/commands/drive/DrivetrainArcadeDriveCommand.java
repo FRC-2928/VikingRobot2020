@@ -18,22 +18,9 @@ public class DrivetrainArcadeDriveCommand extends CommandBase {
   }
 
   @Override
-  public void initialize() {
-  }
-
-  @Override
   public void execute() {
     double move = m_moveSupplier.getAsDouble();
     double rotate = m_rotateSupplier.getAsDouble();
     m_drivetrain.arcadeDrive(move, rotate);
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  @Override
-  public boolean isFinished() {
-    return false;
   }
 }

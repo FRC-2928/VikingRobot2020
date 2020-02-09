@@ -19,20 +19,7 @@ public class HopperSetVoltageCommand extends CommandBase {
   }
 
   @Override
-  public void initialize() {
-  }
-
-  @Override
   public void execute() {
     m_hopper.setVoltage(m_voltageSupplier.getAsDouble());
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  @Override
-  public boolean isFinished() {
-    return false;
   }
 }

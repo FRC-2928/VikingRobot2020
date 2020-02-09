@@ -4,7 +4,7 @@ import frc.robot.types.ControlPanelColor;
 
 public class ColorUtility {
 
-    public ControlPanelColor getClosestColor(double r, double g, double b) {
+    public static ControlPanelColor getClosestColor(double r, double g, double b) {
         return ControlPanelColor.UNKNOWN;
     }
     

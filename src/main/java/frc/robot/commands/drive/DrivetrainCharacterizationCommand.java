@@ -49,16 +49,4 @@ public class DrivetrainCharacterizationCommand extends CommandBase {
     m_numberArray[8] = m_drivetrain.getRightVelocity();
     m_telemetryEntry.setNumberArray(m_numberArray);
   }
-
-
-  // Called once the command ends or is interrupted.
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
 }

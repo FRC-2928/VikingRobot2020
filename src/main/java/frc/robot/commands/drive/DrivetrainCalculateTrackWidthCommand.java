@@ -53,13 +53,4 @@ public class DrivetrainCalculateTrackWidthCommand extends CommandBase {
     }
     SmartDashboard.putNumber("TrackWidth", trackWidth);
   }
-
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
 }

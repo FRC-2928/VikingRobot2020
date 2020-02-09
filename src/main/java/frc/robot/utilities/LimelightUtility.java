@@ -1,15 +1,12 @@
 package frc.robot.utilities;
 
-public class LimelightUtility {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.types.LimelightData;
 
-    public class LimelightData {
-        public boolean targetFound;
+public class LimelightUtility extends SubsystemBase {
 
-        public double horizontalOffsetDeg;
-        public double verticalOffsetDeg;
+    public static double getEstimatedDistance(LimelightData data) {
+        return 0.0;
     }
-
-    public static LimelightData getData() {
-        return null;
-    }
+    
 }

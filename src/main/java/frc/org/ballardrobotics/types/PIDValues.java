@@ -120,23 +120,23 @@ public class PIDValues {
         return m_iZone;
     }
 
-    public synchronized PIDValues withP(double p) {
+    public PIDValues withP(double p) {
         return new PIDValues(p, m_i, m_d, m_f, m_iZone);
     }
 
-    public synchronized PIDValues withI(double i) {
+    public PIDValues withI(double i) {
         return new PIDValues(m_p, i, m_d, m_f, m_iZone);
     }
 
-    public synchronized PIDValues withD(double d) {
+    public PIDValues withD(double d) {
         return new PIDValues(m_p, m_i, d, m_f, m_iZone);
     }
 
-    public synchronized PIDValues withF(double f) {
+    public PIDValues withF(double f) {
         return new PIDValues(m_p, m_i, m_d, f, m_iZone);
     }
 
-    public synchronized PIDValues withIZone(double iZone) {
+    public PIDValues withIZone(double iZone) {
         return new PIDValues(m_p, m_i, m_d, m_f, iZone);
     }
 }

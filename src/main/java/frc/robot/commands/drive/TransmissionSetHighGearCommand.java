@@ -16,17 +16,4 @@ public class TransmissionSetHighGearCommand extends CommandBase {
   public void initialize() {
     m_transmission.setHighGear();
   }
-
-  @Override
-  public void execute() {
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
 }

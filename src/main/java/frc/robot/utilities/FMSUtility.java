@@ -4,7 +4,7 @@ import frc.robot.types.ControlPanelColor;
 
 public class FMSUtility {
     
-    public ControlPanelColor getTargetColor() {
+    public static ControlPanelColor getTargetColor() {
         return ControlPanelColor.UNKNOWN;
     }
 

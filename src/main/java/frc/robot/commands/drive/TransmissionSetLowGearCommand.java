@@ -16,17 +16,4 @@ public class TransmissionSetLowGearCommand extends CommandBase {
   public void initialize() {
     m_transmission.setLowGear();
   }
-
-  @Override
-  public void execute() {
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-  }
-
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
 }
