@@ -44,8 +44,8 @@ public class TurretSubsystem extends SubsystemBase {
   private double kF = PIDConstants.kFTurret;
 
   // Turrent working limits
-  private final double leftMaxLimit = 360;
-  private final double rightMaxLimit = -360;
+  private final double leftMaxLimit = Constants.kTurretLeftLimit;
+  private final double rightMaxLimit = Constants.kTurretRightLimit;
 
   // Gyro
   private double m_robotYaw;

@@ -42,6 +42,8 @@ public final class Constants {
 
     //Turret
     public static final double kTurretLockedThreshold = 1;
+    public static final double kTurretLeftLimit = 360;
+    public static final double kTurretRightLimit = -360;
 
     public static final class RobotMap{
 
