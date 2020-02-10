@@ -19,11 +19,16 @@ import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.RobotMap;
 import frc.robot.commands.controlpanel.RotateToColor;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.commands.climber.ClimbHigh;
+import frc.robot.commands.climber.ClimbMid;
+import frc.robot.commands.climber.DeployClimber;
+import frc.robot.commands.climber.ClimbLow;
 
 
 /**
@@ -41,6 +46,7 @@ public class RobotContainer {
   private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
   private final Intake m_intake = new Intake();
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
+  private final ClimberSubsystem m_climber = new ClimberSubsystem();
 
   XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
   XboxController m_operatorController = new XboxController(Constants.OIConstants.kOperatorControllerPort);
@@ -80,7 +86,21 @@ public class RobotContainer {
   }
 
   public void ConfigureControlButtons () {
-      // Spin the control panel three times
+      
+//for climber
+      new JoystickButton(m_operatorController, Button.kA.value)
+      .whenPressed(new ClimbHigh(m_climber));
+      //placeholder will put in other buttons 
+      
+      new JoystickButton(m_operatorController, Button.kX.value)
+      .whenPressed(new ClimbMid(m_climber));
+      //placeholder will put in other buttons 
+
+      new JoystickButton(m_operatorController, Button.kY.value)
+      .whenPressed(new ClimbLow(m_climber));
+      //placeholder will put in other buttons 
+
+// Spin the control panel three times
       new JoystickButton(m_operatorController, Button.kY.value)
       .whenPressed(() -> m_controlPanel.rotateSegments(RobotMap.threeTurns));
 
@@ -99,10 +119,16 @@ public class RobotContainer {
 
        // CONDITION - is the color unknown?
        m_controlPanel.unknownColor()
-     )
+
+       )
+
+     
 
  );
-    
+ 
+
+
+
   }
 
   public void onInitialize(){
@@ -121,7 +147,19 @@ public class RobotContainer {
       new WaitCommand(1),
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
-    ));
+    )); }
+
+
+    private void configureLowClimberButtons() {
+      // Pickup balls from the ground
+      new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
+       // run deploy
+      new RunCommand(m_intake::startMotor, m_intake),
+         // run deploy- fix isFinished lower command
+      new RunCommand(m_intake::startMotor, m_intake)
+      )); 
+  
+  
 
 
     // Stow the intake
