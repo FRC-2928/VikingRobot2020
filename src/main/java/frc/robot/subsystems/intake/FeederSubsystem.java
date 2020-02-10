@@ -99,73 +99,14 @@ public class FeederSubsystem extends SubsystemBase {
     setHopperState(HopperState.HALTED);
   }
 
-  /**
-   * Moves the ball up the tower.  There are two options for doing this
-   * so we can test which one works best.
-   * Comment out the one that you are not going to use.  
-  */
-  public void startIndex() {
-
-    // Set state to INDEXING. This will get cleared in checkIndexState()
-    m_indexState = IndexState.INDEXING;
-
-    // Move until index sensor is tripped. This happens in checkIndexState()
-    setIndexPower(m_indexPower);
-
-    // OR
-
-    // Run a PID loop within the Talon controller.
-    //m_towerMotor.set(ControlMode.Position, m_indexSetpoint);
-
-  }
-
-  // Handles the indexing of balls in the tower
+  
+  // Check the state of the index to determine what action should be taken next.
   public void runFeeder() {
-
-    // Check if we should take any action on the index
-    checkIndexState();
-
-    // Still indexing so we're out of here
-    if (m_indexState == IndexState.INDEXING) {
-      return;
-    }
-
-    // Ball at the top but empty on the bottom - states 5 & 6
-    if (m_indexState == IndexState.FULL_BUT_RECEIVING) {
-      stopIndex();     
-      startHopper(); // The bottom slot is empty so start the hopper
-      return;
-    }  
-
-    // Ball at the top and bottom so stop the index - states 7 & 8
-    if (m_indexState == IndexState.FULL) {  
-      stopIndex();
-      return; 
-    }
-
-    // Got a ball in the bottom so index - states 3 & 4
-    if (m_indexState == IndexState.READY_TO_INDEX) {
-      stopHopper(); // Prevent more balls from coming in
-      startIndex(); // Move the ball up the tower
-      return;
-    } 
-
-    // Bottom slot is empty so waiting for a ball - states 1 & 2
-    if (m_indexState == IndexState.WAITING_TO_INDEX) {
-      stopIndex(); // Index should be stopped
-      startHopper(); // Get more balls in
-    }
-
-  }
-
-  /**
-   * Check the state of the index to determine what action should be taken next.
-   */
-  public void checkIndexState() {
 
     // The bottom sensor will remain tripped until the ball clears the
     // sensor, so stay in the INDEXING state.
     if (m_indexState == IndexState.INDEXING && bottomSensorTripped()) {
+      indexingAction(); // no action taken
       return;
     }
 
@@ -173,8 +114,10 @@ public class FeederSubsystem extends SubsystemBase {
     if (m_indexState == IndexState.INDEXING) {
       if (topSensorTripped()) {
         m_indexState = IndexState.FULL_BUT_RECEIVING; // States 5 & 6
+        fullButReceivingAction(); // stop indexer, start hopper
       } else if (middleSensorTripped()) {
         m_indexState = IndexState.WAITING_TO_INDEX;
+        waitingToIndexAction(); // stop indexer, start hopper
       }
       return;
     }
@@ -185,16 +128,50 @@ public class FeederSubsystem extends SubsystemBase {
     if (bottomSensorTripped()) {
       if (topSensorTripped()) {
         m_indexState = IndexState.FULL;  // states 7 & 8
-      } else {
+        fullAction(); // stop hopper and indexer
+      } 
+      else {
         m_indexState = IndexState.READY_TO_INDEX; // states 3 & 4
+        readyToIndexAction(); // stop hopper, start indexer
+        m_indexState = IndexState.INDEXING;
       }
     } 
-
-    // No new ball
+    // The index is completely empty
     if (allSensorsCleared()) {
       m_indexState = IndexState.WAITING_TO_INDEX;
+      waitingToIndexAction(); // start hopper
     }
   }
+
+  // ----- Actions taken depending on the state -----
+
+  public void fullButReceivingAction() {
+    stopIndex();     
+    startHopper(); // The bottom slot is empty so start the hopper
+  }
+
+  public void waitingToIndexAction() {
+    stopIndex(); // Index should be stopped
+    startHopper(); // Get more balls in
+  }
+
+  public void readyToIndexAction() {
+    stopHopper(); // Prevent more balls from coming in
+
+    // Move until index sensor is tripped. This happens in runFeeder()
+    setIndexPower(m_indexPower);
+  }
+
+  public void fullAction() {
+    stopIndex();
+    stopHopper();
+  }
+
+  public void indexingAction() {
+    // Nothing to do
+  }
+
+  // ---------- End of actions  ---------------
 
   // Use this to reverse all balls out of the feeder
   public void reverseFeeder() {
@@ -218,34 +195,6 @@ public class FeederSubsystem extends SubsystemBase {
   // Public assess to the HopperState
   public void setHopperState(HopperState state) {
     m_hopperState = state;
-  }
-
-  // -----------------------------------------------------------
-  // Sensor Input
-  // -----------------------------------------------------------
-  public boolean bottomSensorTripped(){
-    return m_bottomSensor.get();
-  }
-
-  public boolean middleSensorTripped(){
-    return m_middleSensor.get();
-  }
-
-  public boolean topSensorTripped(){
-    return m_topSensor.get();
-  }
-
-  // Returns true if the tower is clear of balls
-  public boolean allSensorsCleared() {
-    if (!bottomSensorTripped() && !middleSensorTripped() && !topSensorTripped()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  public void resetIndexEncoder(){
-    m_towerMotor.setSelectedSensorPosition(0);
   }
 
   // -----------------------------------------------------------
@@ -310,7 +259,35 @@ public class FeederSubsystem extends SubsystemBase {
   }
 
   // -----------------------------------------------------------
-  // Testing
+  // Sensor Input
+  // -----------------------------------------------------------
+  public boolean bottomSensorTripped(){
+    return m_bottomSensor.get();
+  }
+
+  public boolean middleSensorTripped(){
+    return m_middleSensor.get();
+  }
+
+  public boolean topSensorTripped(){
+    return m_topSensor.get();
+  }
+
+  // Returns true if the tower is clear of balls
+  public boolean allSensorsCleared() {
+    if (!bottomSensorTripped() && !middleSensorTripped() && !topSensorTripped()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public void resetIndexEncoder(){
+    m_towerMotor.setSelectedSensorPosition(0);
+  }
+
+  // -----------------------------------------------------------
+  // Testing and Configuration
   // -----------------------------------------------------------
 
   // These are for calibrating the index 
