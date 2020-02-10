@@ -67,7 +67,7 @@ public class TurretSubsystem extends SubsystemBase {
     m_measuredVoltage = m_controller.getMeasuredVoltage();
     m_targetPosition = m_controller.getTargetPostion() * 360.0;
     m_measuredPosition = m_controller.getMeasuredPosition() * 360.0;
-    m_measuredVelocity = m_controller.getMeasuredVelocity() * 360.0 / 60.0;
+    m_measuredVelocity = m_controller.getMeasuredVelocity() * 360.0;
     m_onTarget = Math.abs(m_targetPosition - m_measuredPosition) < TurretConstants.kAcceptablePositionErrorDeg &&
                  Math.abs(m_measuredVelocity) < TurretConstants.kAcceptableVelocityErrorDegPerSec;
 
@@ -96,7 +96,12 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setPosition(double degrees) {
-    degrees = Math.IEEEremainder(degrees, TurretConstants.kMaxAngle);
+    if (degrees < -TurretConstants.kMaxAngle) {
+      degrees = -TurretConstants.kMaxAngle;
+    }
+    if (degrees > TurretConstants.kMaxAngle) {
+      degrees = TurretConstants.kMaxAngle;
+    }
     m_controller.setPosition(degrees / 360.0);
   }
 

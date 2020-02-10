@@ -2,6 +2,7 @@ package frc.org.ballardrobotics.speedcontrollers.rev;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
+import com.revrobotics.CANPIDController.AccelStrategy;
 import com.revrobotics.CANPIDController.ArbFFUnits;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
@@ -72,8 +73,19 @@ public class SmartSparkMax extends CANSparkMax implements SmartSpeedController {
 
     @Override
     public void setPosition(double positionRotations) {
+        setPosition(positionRotations, 0.0);
+    }
+
+    @Override
+    public void setPosition(double positionRotations, double feedforwardVolts) {
         m_targetPositionRevolutions = positionRotations;
-        m_pidController.setReference(positionRotations, ControlType.kPosition, kPositionSlotIdx);
+        m_pidController.setReference(positionRotations, ControlType.kPosition, kPositionSlotIdx, feedforwardVolts, ArbFFUnits.kVoltage);
+    }
+
+    @Override
+    public void setProfiledPosition(double positionRotations) {
+        m_targetPositionRevolutions = positionRotations;
+        m_pidController.setReference(positionRotations, ControlType.kSmartMotion);
     }
 
     @Override
@@ -119,8 +131,13 @@ public class SmartSparkMax extends CANSparkMax implements SmartSpeedController {
     }
 
     @Override
+    public void setEncoderPosition(double positionRotations) {
+        m_encoder.setPosition(positionRotations);
+    }
+
+    @Override
     public void resetEncoder() {
-        m_encoder.setPosition(0.0);
+        setEncoderPosition(0.0);
     }
 
     @Override

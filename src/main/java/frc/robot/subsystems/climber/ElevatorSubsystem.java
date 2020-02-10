@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import frc.org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
 import frc.org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
+import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
@@ -19,7 +20,10 @@ public class ElevatorSubsystem extends SubsystemBase {
   private boolean m_onTarget;
 
   public static ElevatorSubsystem create() {
-    return null;
+    if (Robot.isReal()) {
+      return createReal();
+    }
+    return createFake();
   }
 
   public static ElevatorSubsystem createReal() {

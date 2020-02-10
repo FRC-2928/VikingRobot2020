@@ -67,8 +67,8 @@ public class FlywheelSubsystem extends SubsystemBase {
   public void periodic() {
     m_targetVoltage = m_controller.getTargetVoltage();
     m_measuredVoltage = m_controller.getMeasuredVoltage();
-    m_targetVelocity = m_controller.getTargetVelocity();
-    m_measuredVelocity = m_controller.getMeasuredVelocity();
+    m_targetVelocity = m_controller.getTargetVelocity() * 60.0;
+    m_measuredVelocity = m_controller.getMeasuredVelocity() * 60.0;
     m_onTarget = Math.abs(m_targetVelocity - m_measuredVelocity) < FlywheelConstants.kAcceptableVelocityErrorRPM;
 
     SmartDashboard.putNumber("flywheel_target_voltage", m_targetVoltage);

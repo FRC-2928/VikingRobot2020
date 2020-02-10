@@ -1,5 +1,6 @@
 package frc.org.ballardrobotics.speedcontrollers.fakes;
 
+import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
 import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
@@ -17,6 +18,7 @@ public class FakeSmartSpeedController implements SmartSpeedController {
     public final DoubleSupplier kDefaultMeasuredCurrentSupplier = () -> m_current;
     public final DoubleSupplier kDefaultMeasuredPositionSupplier = () -> m_position;
     public final DoubleSupplier kDefaultMeasuredVelocitySupplier = () -> m_velocity;
+    public final DoubleConsumer kDefaultEncoderPositionConsumer = (value) -> {};
     
     private DoubleSupplier m_measuredVoltageSupplier = kDefaultMeasuredVoltageSupplier;
     private DoubleSupplier m_measuredCurrentSupplier = kDefaultMeasuredCurrentSupplier;
@@ -85,7 +87,19 @@ public class FakeSmartSpeedController implements SmartSpeedController {
 
     @Override
     public void setPosition(double positionRotations) {
+        setPosition(positionRotations, 0.0);
+    }
+
+    @Override
+    public void setPosition(double positionRotations, double feedwordwardVolts) {
         m_position = positionRotations;
+        m_feedforward = feedwordwardVolts;
+    }
+
+    @Override
+    public void setProfiledPosition(double positionRotations) {
+        m_position = positionRotations;
+        m_feedforward = 0.0;
     }
 
     @Override
@@ -129,8 +143,13 @@ public class FakeSmartSpeedController implements SmartSpeedController {
     }
 
     @Override
+    public void setEncoderPosition(double positionRotations) {
+        m_position = positionRotations;
+    }
+
+    @Override
     public void resetEncoder() {
-        m_position = 0;
+        setEncoderPosition(0.0);
     }
 
     public double getFeedforward() {

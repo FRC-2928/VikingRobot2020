@@ -25,6 +25,6 @@ public class ElevatorSetPositionCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return m_elevator.atTargetPosition();
+    return m_elevator.atTargetPosition();       
   }
 }

@@ -4,10 +4,15 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.drive.DrivetrainArcadeDriveCommand;
 import frc.robot.commands.drive.TransmissionSetHighGearCommand;
 import frc.robot.commands.drive.TransmissionSetLowGearCommand;
+import frc.robot.commands.indexer.IndexerAutoFeedCommand;
+import frc.robot.commands.shooter.FlywheelAutoSetCommand;
+import frc.robot.commands.shooter.HoodAutoSetCommand;
+import frc.robot.commands.shooter.TurretAutoSetCommand;
 import frc.robot.oi.DriverOI;
 import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.vision.Limelight;
@@ -63,11 +68,19 @@ public class RobotContainer {
   }
 
   private void configureIndexerBindings() {
-
+    
   }
 
   private void configureShooterBindings() {
+    m_driverOI.getEnableAutoTargetButton().whenPressed(new ScheduleCommand(
+      new TurretAutoSetCommand(m_turret, m_shooterLimelight::getData, m_drivetrain::getHeading),
+      new HoodAutoSetCommand(m_hood, m_shooterLimelight::getData),
+      new FlywheelAutoSetCommand(m_flywheel, m_shooterLimelight::getData, m_driverOI.getShootButton())
+    ));
 
+    m_driverOI.getShootButton().whileHeld(new IndexerAutoFeedCommand(m_feeder, m_hopper, () -> {
+      return m_turret.atTargetPosition() && m_hood.atTargetPosition() && m_flywheel.atTargetVelocity();
+    }));
   }
 
   public Command getAutonomousCommand() {

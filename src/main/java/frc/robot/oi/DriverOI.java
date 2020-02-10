@@ -13,7 +13,7 @@ public interface DriverOI {
 
     DoubleSupplier getRotateSupplier();
 
-    Button getFlywheelButton();
+    Button getShootButton();
 
     Button getDisableAutoTargetButton();
 

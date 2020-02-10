@@ -10,7 +10,7 @@ import frc.robot.oi.DriverOI;
 
 public class JettDriverOI implements DriverOI {
     private XboxController m_controller;
-
+    
     public JettDriverOI(XboxController controller) {
         m_controller = controller;
     }
@@ -36,7 +36,7 @@ public class JettDriverOI implements DriverOI {
     }
 
     @Override
-    public Button getFlywheelButton() {
+    public Button getShootButton() {
         return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
     }
 

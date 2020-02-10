@@ -20,7 +20,7 @@ public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController 
     private DemandType m_lastDemand1Type = DemandType.Neutral;
     private double m_lastDemand0, m_lastDemand1;
 
-    private double m_targetVelocityRPM;
+    private double m_targetVelocityRotationsPerSecond;
     private double m_targetPositionRevolutions;
     private double m_targetVoltageVolts;
     private double m_targetCurrentAmps;
@@ -42,31 +42,42 @@ public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController 
     }
 
     @Override
-    public void setVelocity(double velocityRPM) {
-        setVelocity(velocityRPM, 0.0);
+    public void setVelocity(double velocityRotationsPerSecond) {
+        setVelocity(velocityRotationsPerSecond, 0.0);
     }
 
     @Override
-    public void setVelocity(double velocityRPM, double feedforwardVolts) {
-        m_targetVelocityRPM = velocityRPM;
-        set(ControlMode.Velocity, (velocityRPM * kUnitsPerRevolution) / (60.0 * 10.0), DemandType.ArbitraryFeedForward,
+    public void setVelocity(double velocityRotationsPerSecond, double feedforwardVolts) {
+        m_targetVelocityRotationsPerSecond = velocityRotationsPerSecond;
+        set(ControlMode.Velocity, (velocityRotationsPerSecond * kUnitsPerRevolution) /  10.0, DemandType.ArbitraryFeedForward,
                 feedforwardVolts / kNominalVoltageVolts);
     }
 
     @Override
     public double getMeasuredVelocity() {
-        return (getSelectedSensorVelocity() / kUnitsPerRevolution) * (60.0 * 10.0);
+        return (getSelectedSensorVelocity() / kUnitsPerRevolution) * 10.0;
     }
 
     @Override
     public double getTargetVelocity() {
-        return m_targetVelocityRPM;
+        return m_targetVelocityRotationsPerSecond;
     }
 
     @Override
-    public void setPosition(double position) {
-        m_targetPositionRevolutions = position;
-        set(ControlMode.Position, position * kUnitsPerRevolution);
+    public void setPosition(double positionRotations) {
+        setPosition(positionRotations, 0.0);
+    }
+
+    @Override
+    public void setPosition(double positionRotations, double feedforwardVolts) {
+        m_targetPositionRevolutions = positionRotations;
+        set(ControlMode.Position, positionRotations * kUnitsPerRevolution, DemandType.ArbitraryFeedForward, feedforwardVolts);
+    }
+
+    @Override
+    public void setProfiledPosition(double positionRotations) {
+        m_targetPositionRevolutions = positionRotations;
+        set(ControlMode.MotionMagic, positionRotations * kUnitsPerRevolution);
     }
 
     @Override
@@ -125,6 +136,11 @@ public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController 
             // Always feed the watchdog.
             feed();
         }
+    }
+
+    @Override
+    public void setEncoderPosition(double positionRotations) {
+        setSelectedSensorPosition((int)(positionRotations * kUnitsPerRevolution));
     }
 
     @Override

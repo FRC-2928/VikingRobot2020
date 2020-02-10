@@ -8,14 +8,6 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 
 public class PIDValues {
-    public static final Consumer<PIDValues> kDefaultConsumer = (values) -> {
-        System.out.println("p = " + values.getP());
-        System.out.println("i = " + values.getI());
-        System.out.println("d = " + values.getD());
-        System.out.println("f = " + values.getF());
-        System.out.println("iZone = " + values.getIZone());
-    };
-
     private double m_p, m_i, m_d, m_f, m_iZone;
 
     public PIDValues() {
@@ -40,10 +32,6 @@ public class PIDValues {
 
     public PIDValues(PIDValues other) {
         this(other.getP(), other.getI(), other.getD(), other.getF(), other.getIZone());
-    }
-
-    public static void displayOnShuffleboard(final PIDValues values, String name) {
-        displayOnShuffleboard(values, name, (newValue) -> {});
     }
 
     public static void displayOnShuffleboard(final PIDValues values, String name, final Consumer<PIDValues> onValueChanged) {
