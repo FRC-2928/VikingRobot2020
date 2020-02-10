@@ -16,13 +16,33 @@ public class JettDriverOI implements DriverOI {
     }
 
     @Override
-    public Button getShiftLowButton() {
+    public Button getGroundIntakeButton() {
+        return new JoystickButton(m_controller, XboxController.Axis.kLeftTrigger.value);
+    }
+
+    @Override
+    public Button getStationIntakeButton() {
         return new JoystickButton(m_controller, XboxController.Button.kBumperLeft.value);
     }
 
     @Override
-    public Button getShiftHighButton() {
+    public Button getClimbTrigger() {
+        return new JoystickButton(m_controller, XboxController.Axis.kRightTrigger.value);
+    }
+
+    @Override
+    public Button getAutoShootingButton() {
         return new JoystickButton(m_controller, XboxController.Button.kBumperRight.value);
+    }
+
+    @Override
+    public Button getShiftLowButton() {
+        return new JoystickButton(m_controller, XboxController.Button.kBack.value);
+    }
+
+    @Override
+    public Button getShiftHighButton() {
+        return new JoystickButton(m_controller, XboxController.Button.kStart.value);
     }
 
     @Override
@@ -33,25 +53,5 @@ public class JettDriverOI implements DriverOI {
     @Override
     public DoubleSupplier getRotateSupplier() {
         return () -> m_controller.getX(Hand.kLeft);
-    }
-
-    @Override
-    public Button getFlywheelButton() {
-        return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
-    }
-
-    @Override
-    public Button getDisableAutoTargetButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kBack.value);
-    }
-
-    @Override
-    public Button getEnableAutoTargetButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kStart.value);
-    }
-
-    @Override
-    public Button getToggleIntakeButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kA.value);
     }
 }

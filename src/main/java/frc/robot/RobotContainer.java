@@ -9,16 +9,17 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.intake.FastForwardFeeder;
+import frc.robot.commands.intake.StartFeeder;
+import frc.robot.commands.intake.StopFeeder;
+import frc.robot.oi.DriverOI;
+import frc.robot.oi.OperatorOI;
+import frc.robot.oi.impl.AbbyOperatorOI;
+import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.intake.FeederSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
-//import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-//import frc.robot.subsystems.intake.FeederSubsystem;
 
 
 /**
@@ -34,15 +35,17 @@ public class RobotContainer {
 
   private final ExampleCommand m_autoCommand = new ExampleCommand(m_feeder);
  
-  XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
-
-  
-
+  private final DriverOI m_driverOI;
+  private final OperatorOI m_operatorOI;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+
+    m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriverControllerPort));
+    m_operatorOI = new AbbyOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
+
     // Configure the button bindings
     configureButtonBindings();
 
@@ -55,25 +58,18 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
+
+    configureFeederButtons();
     
-    new JoystickButton(m_driverController, Button.kX.value)
-      .whenPressed(new InstantCommand(m_feeder::toggleFeedingHopper, m_feeder)
-    ); 
+  }
 
-    //set button values later
-    new JoystickButton(m_driverController, Button.kY.value)
-      .whenPressed(new InstantCommand(m_feeder::toggleReversedHopper, m_feeder)
-    ); 
+  public void configureFeederButtons() {
+    // Also need to pass in the flywheel
+    m_driverOI.getAutoShootingButton().whenPressed(new FastForwardFeeder(m_feeder));
 
-    // Start the feeder
-    new JoystickButton(m_driverController, Button.kA.value) 
-      .whenPressed(new RunCommand(m_feeder::runFeeder, m_feeder)
-    );
+    m_operatorOI.getEnableFeederButton().whenPressed(new StartFeeder(m_feeder));
 
-    // Stop the feeder
-    new JoystickButton(m_driverController, Button.kB.value) 
-      .whenPressed(new InstantCommand(m_feeder::stopFeeder, m_feeder)
-    );
+    m_operatorOI.getDisableFeederButton().whenPressed(new StopFeeder(m_feeder));
   }
 
   /**
