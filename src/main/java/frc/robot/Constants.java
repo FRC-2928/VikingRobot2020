@@ -88,8 +88,7 @@ public final class Constants {
         public static int kClimberTimeout = 0; // place holders
     
         public static final double kStowedPositionSetpoint = 0.0; // Meters
-        public static final double kLowerPositionSetpoint = 1.0; // Meters
-        public static final double kDeployPositionSetpoint = 1.6; // Meters
+        public static final double kDeployedPositionSetpoint = 1.6; // Meters
         public static final double kLowPositionSetpoint = 1.0; //placeholder
         public static final double kMidPositionSetpoint = 1.2;
         public static final double kHighPositionSetpoint = 1.4;

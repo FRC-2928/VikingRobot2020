@@ -14,17 +14,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
-import edu.wpi.first.wpilibj.XboxController.Button;
-import frc.robot.Constants.RobotMap;
-import frc.robot.commands.controlpanel.RotateToColor;
-import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
-import frc.robot.subsystems.intake.Intake;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj.XboxController.Button;
+import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.commands.climber.ClimbHigh;
 import frc.robot.commands.climber.ClimbMid;
 import frc.robot.commands.climber.DeployClimber;
@@ -39,13 +32,7 @@ import frc.robot.commands.climber.ClimbLow;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final FlywheelSubsystem flywheelsubsystem = new FlywheelSubsystem();
-
   private final XboxController driveController = new XboxController(0);
-  private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
-  private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
-  private final Intake m_intake = new Intake();
-  private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
   private final ClimberSubsystem m_climber = new ClimberSubsystem();
 
   XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
@@ -56,8 +43,6 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-
-    m_intake.setDefaultCommand( new InstantCommand(m_intake::stopMotor, m_intake));
   }
 
   /**
@@ -70,119 +55,35 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    velocityControlFlywheel.whileHeld(
-      new RunCommand(() -> {
-        double targetRPM = SmartDashboard.getNumber("Target RPM", 0);
-        flywheelsubsystem.setFlywheelRPM(targetRPM);
-      }, 
-      flywheelsubsystem)
-    );
-
-    ConfigureControlButtons(); 
-
-    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.75),flywheelsubsystem));
-
+    ConfigureClimberButtons();
   
   }
 
-  public void ConfigureControlButtons () {
+  public void ConfigureClimberButtons() {
       
-//for climber
-      new JoystickButton(m_operatorController, Button.kA.value)
-      .whenPressed(new ClimbHigh(m_climber));
-      //placeholder will put in other buttons 
-      
-      new JoystickButton(m_operatorController, Button.kX.value)
-      .whenPressed(new ClimbMid(m_climber));
-      //placeholder will put in other buttons 
+    // Deploy to top
+    new JoystickButton(m_operatorController, Button.kA.value)
+        .whenPressed(new DeployClimber(m_climber));
 
-      new JoystickButton(m_operatorController, Button.kY.value)
-      .whenPressed(new ClimbLow(m_climber));
-      //placeholder will put in other buttons 
-
-// Spin the control panel three times
-      new JoystickButton(m_operatorController, Button.kY.value)
-      .whenPressed(() -> m_controlPanel.rotateSegments(RobotMap.threeTurns));
-
-        // Spin the control panel to target color
-        //may switch to have one button control all.
-    new JoystickButton(m_operatorController, Button.kX.value)
-    .whenPressed(new ConditionalCommand(
-
-       // TRUE - the detected color is unknown
-       new RotateToColor(m_controlPanel)
-         // so rotate half a segment before rotating to color
-         .beforeStarting(m_controlPanel::rotateHalfSegment),
-
-       // FALSE - the color is known so rotate to target color
-       new RotateToColor(m_controlPanel),
-
-       // CONDITION - is the color unknown?
-       m_controlPanel.unknownColor()
-
-       )
-
+    // Deploy to high point
+    new JoystickButton(m_operatorController, Button.kB.value)
+        .whenPressed(new DeployClimber(m_climber)
+          .andThen(new ClimbHigh(m_climber)));
      
-
- );
- 
-
-
-
+    // Deploy to Mid point
+    new JoystickButton(m_operatorController, Button.kX.value)
+        .whenPressed(new DeployClimber(m_climber)
+          .andThen(new ClimbMid(m_climber)));
+      
+    // Deploy to low point
+    new JoystickButton(m_operatorController, Button.kY.value)
+        .whenPressed(new DeployClimber(m_climber)
+          .andThen(new ClimbLow(m_climber)));      
   }
 
-  public void onInitialize(){
-    flywheelsubsystem.configFeedbackGains();
-    //buttons for the intake
-    configureIntakeButtons();
-    
+  public void onInitialize(){   
   }
 
-  private void configureIntakeButtons() {
-    // Pickup balls from the ground
-    new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
-      //extend intake
-      new InstantCommand(m_intake::groundPickup, m_intake ),
-      //wait until intake deploys
-      new WaitCommand(1),
-      // run motors
-      new RunCommand(m_intake::startMotor, m_intake)
-    )); }
-
-
-    private void configureLowClimberButtons() {
-      // Pickup balls from the ground
-      new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
-       // run deploy
-      new RunCommand(m_intake::startMotor, m_intake),
-         // run deploy- fix isFinished lower command
-      new RunCommand(m_intake::startMotor, m_intake)
-      )); 
-  
-  
-
-
-    // Stow the intake
-    new JoystickButton(m_driverController, Button.kB.value).whenReleased(new SequentialCommandGroup(
-      //stop motors
-      new InstantCommand(m_intake::stopMotor, m_intake),
-      //retract intake
-      new InstantCommand(m_intake::Stowed, m_intake )
-    ));
-
-
-
-    // Pickup balls from the Player Station
-    new JoystickButton(m_driverController, Button.kX.value).whenPressed(new SequentialCommandGroup(
-      //extend intake
-      new InstantCommand(m_intake::StationPickup, m_intake ),
-      //wait until intake deploys
-      new WaitCommand(1),
-      // run motors
-      new RunCommand(m_intake::startMotor, m_intake)
-    ));
-
-  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -190,6 +91,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return new PrintCommand("screw u ");
+    return new PrintCommand("Default autonomous command");
   }
 }

@@ -25,10 +25,11 @@ public class ClimberSubsystem extends SubsystemBase {
 
   private BrakeState m_brakeState;
   private ClimberState m_climberState;
+  private double m_setpointTarget;
 
   //Statemachine for overall climber state
   public enum ClimberState{
-    STOWED, READY_TO_LATCH, LATCHED, LOW, MID, HIGH, LOWERING, INTERRUPTED,DEPLOYING, ASSENT_COMPLETE;
+    STOWED, READY_TO_LATCH, LATCHED, LOW, MID, HIGH, LOWERING, INTERRUPTED,DEPLOYING, ASSENT_COMPLETE, DEPLOYED;
   }
 
   //Statemachine for pneumatic brake in the gearbox
@@ -63,13 +64,13 @@ public class ClimberSubsystem extends SubsystemBase {
     setBrakeState(BrakeState.ON);
 
     /** How much smoothing [0,8] to use during MotionMagic */
-	int _smoothing = 0;
+	  int _smoothing = 0;
 
     // Put PID gains onto the Dashboard
     SmartDashboard.putNumber("Climber kP", PIDConstants.kClimberP);
     SmartDashboard.putNumber("Climber kF", PIDConstants.kClimberFF);
 
-           /* Set acceleration and vcruise velocity - see documentation */
+    /* Set acceleration and vcruise velocity - see documentation */
     //motion magic 
 		m_climberMotor.configMotionCruiseVelocity(15000, PIDConstants.kClimberTimeout);
 		m_climberMotor.configMotionAcceleration(6000, PIDConstants.kClimberIzone);//place holders
@@ -92,44 +93,38 @@ public class ClimberSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Elevator Position", getElevatorPosition());
   }
 
-  // Calculates the new setpoint based on the current position of the climber
-  public double calculateSetpoint(){
-
-    double setpoint = 0;
+  public void deployToTop() {
     double currentPosition = getElevatorPosition();
+    m_setpointTarget = PIDConstants.kDeployedPositionSetpoint;
 
-    switch (m_climberState) {
-
-      case STOWED:
-        setpoint = PIDConstants.kStowedPositionSetpoint - currentPosition;
-        break;
-    //new
-      case LOW:
-        setpoint = PIDConstants.kLowPositionSetpoint - currentPosition;       
-      break;
-
-      case MID:
-        setpoint = PIDConstants.kMidPositionSetpoint - currentPosition;
-      break;
-
-      case HIGH:
-        setpoint = PIDConstants.kHighPositionSetpoint - currentPosition;
-      break;
-    //end new
-
-      case LOWERING:
-        setpoint = PIDConstants.kLowerPositionSetpoint - currentPosition;       
-        break;
-
-      case  DEPLOYING:
-        //Push to the top to release hooks 
-        setpoint = PIDConstants.kDeployPositionSetpoint - currentPosition;
-        break;
-
-      default:
-        break;
+    // If not deployed to top then go there, otherwise command isFinished
+    if (!atSetpoint()) {
+      double setpoint = m_setpointTarget - currentPosition;
+      setElevatorPosition(setpoint);
     }
-    return setpoint;
+  }
+
+  public void deployToLow() {
+    double currentPosition = getElevatorPosition();
+    m_setpointTarget = PIDConstants.kLowPositionSetpoint;
+    if (!atSetpoint()) {
+      double setpoint = m_setpointTarget - currentPosition;
+      setElevatorPosition(setpoint);
+    }
+  }
+
+  public void deployToMid() {
+  }  
+
+  public void deployToHigh() {
+  } 
+
+  public boolean atSetpoint() {
+    if (m_setpointTarget - getElevatorPosition() <= 0.1) {
+      return true;
+    } else {
+      return false;
+    }  
   }
   
   public void setClimberState(ClimberState state) {
@@ -142,21 +137,6 @@ public class ClimberSubsystem extends SubsystemBase {
 
   public void setBrakeState(BrakeState state) {
     m_brakeState = state;
-  }
-  
-  // -----------------------------------------------------------
-  // Sensor Input
-  // -----------------------------------------------------------
-  public double getElevatorNativeEncoder(){
-    return m_climberMotor.getSelectedSensorPosition();
-  }
-
-  // Returns position in (meters/inches?). Need value for kDistancePerPullyRotation
-  public double getElevatorPosition(){
-    double position = getElevatorNativeEncoder() / ConversionConstants.kClimberEncoderTicksPerRotation;
-    position /= ConversionConstants.kClimberGearRatio;
-    position *= ConversionConstants.kDistancePerPullyRotation;
-    return position;
   }
 
   // -----------------------------------------------------------
@@ -197,7 +177,22 @@ public class ClimberSubsystem extends SubsystemBase {
   }
   
   // -----------------------------------------------------------
-  // Testing
+  // Sensor Input
+  // -----------------------------------------------------------
+  public double getElevatorNativeEncoder(){
+    return m_climberMotor.getSelectedSensorPosition();
+  }
+
+  // Returns position in (meters/inches?). Need value for kDistancePerPullyRotation
+  public double getElevatorPosition(){
+    double position = getElevatorNativeEncoder() / ConversionConstants.kClimberEncoderTicksPerRotation;
+    position /= ConversionConstants.kClimberGearRatio;
+    position *= ConversionConstants.kDistancePerPullyRotation;
+    return position;
+  }
+
+  // -----------------------------------------------------------
+  // Testing and Configuration
   // -----------------------------------------------------------
 
   //Grabs the PIDF values from Smartdashboard/Shuffboard
