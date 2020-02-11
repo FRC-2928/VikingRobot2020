@@ -114,9 +114,21 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public void deployToMid() {
+    double currentPosition = getElevatorPosition();
+    m_setpointTarget = PIDConstants.kMidPositionSetpoint;
+    if (!atSetpoint()) {
+      double setpoint = m_setpointTarget - currentPosition;
+      setElevatorPosition(setpoint);
+    }  
   }  
 
   public void deployToHigh() {
+    double currentPosition = getElevatorPosition();
+    m_setpointTarget = PIDConstants.kHighPositionSetpoint;
+    if (!atSetpoint()) {
+      double setpoint = m_setpointTarget - currentPosition;
+      setElevatorPosition(setpoint);
+    }
   } 
 
   public boolean atSetpoint() {
@@ -147,7 +159,7 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public void setElevatorPosition(double position){
-    m_climberMotor.set(ControlMode.Position, position);
+    m_climberMotor.set(ControlMode.MotionMagic, position);
   }
 
   public void setBrakePosition(BrakeState state){
@@ -183,7 +195,7 @@ public class ClimberSubsystem extends SubsystemBase {
     return m_climberMotor.getSelectedSensorPosition();
   }
 
-  // Returns position in (meters/inches?). Need value for kDistancePerPullyRotation
+  // Returns position in meters.
   public double getElevatorPosition(){
     double position = getElevatorNativeEncoder() / ConversionConstants.kClimberEncoderTicksPerRotation;
     position /= ConversionConstants.kClimberGearRatio;

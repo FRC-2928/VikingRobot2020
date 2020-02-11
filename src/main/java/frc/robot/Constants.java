@@ -100,9 +100,12 @@ public final class Constants {
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final int kFlywheelTalonFX = 0;
 
-        public static final double kClimberEncoderTicksPerRotation = 2048; 
-        public static final double kClimberGearRatio = 54 / 1;
-        public static final double kDistancePerPullyRotation = 420; //Placeholder
+        // TODO figure number of clicks per meter (assuming meters are used in above Setpoints)
+
+        public static final double kClimberEncoderTicksPerRotation = 2048; // correct!
+        public static final double kClimberGearRatio = 54 / 1; // moter to intermediate pulley,correct!
+        // meters climber movement per intermediate pulley rev,correct!
+        public static final double kDistancePerPullyRotation = .18; // 18 cm
     }
 
     public static final class Conversions{
