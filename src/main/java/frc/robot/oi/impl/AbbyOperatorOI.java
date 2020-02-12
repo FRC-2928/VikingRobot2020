@@ -25,4 +25,9 @@ public class AbbyOperatorOI implements OperatorOI {
         return new JoystickButton(m_controller, XboxController.Button.kB.value);
     }
 
+    @Override
+    public Button getReverseFeederButton() {
+        return new JoystickButton(m_controller, XboxController.Button.kX.value);
+    }
+
 }

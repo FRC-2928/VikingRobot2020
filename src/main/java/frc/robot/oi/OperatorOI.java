@@ -10,6 +10,8 @@ public interface OperatorOI {
 
     Button getDisableFeederButton();
 
+    Button getReverseFeederButton();
+
     // Button getEnableAutoTargetButton();
 
     // Button getDisableAutoTargetButton();

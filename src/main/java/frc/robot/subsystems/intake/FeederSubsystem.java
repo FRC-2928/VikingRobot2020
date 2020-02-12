@@ -15,8 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.Constants;
-import frc.robot.Constants.PIDConstants;
+import frc.robot.Constants.FeederConstants;
 import frc.robot.Constants.RobotMap;;
 
 /**
@@ -36,9 +35,7 @@ public class FeederSubsystem extends SubsystemBase {
   private DigitalOutput m_middleSensor;
   private DigitalOutput m_topSensor;
 
-  private final double m_indexPowerInitial = PIDConstants.indexPower;
-  private final double m_indexSetpointInitial = PIDConstants.indexSetpoint;
-  private double m_indexPower = m_indexPowerInitial;
+  private double m_indexPower = FeederConstants.kIndexPower;
 
   public enum HopperState{
     STOPPED, FEEDING, REVERSED, HALTED;
@@ -89,9 +86,8 @@ public class FeederSubsystem extends SubsystemBase {
     setDefaultCommand(new RunCommand(this::stopFeeder, this));    
 
     //Placing the indexing values on ShuffleBoard
-    SmartDashboard.putNumber("Index Power", m_indexPowerInitial);
-    SmartDashboard.putNumber("Index Setpoint", m_indexSetpointInitial);
-    SmartDashboard.putString("Index State", m_indexState.name());
+    SmartDashboard.putNumber("Index Power", FeederConstants.kIndexPower);
+    SmartDashboard.putString("Indexer State", m_indexState.name());
    
   }
 
@@ -103,6 +99,10 @@ public class FeederSubsystem extends SubsystemBase {
     // Moves incoming ball up the tower. 
     // This method will be called once per scheduler
     // runFeeder();
+
+    //configIndexPower();
+
+    writeStateToDashboard();
   }
 
   public void stopFeeder() {
@@ -116,19 +116,19 @@ public class FeederSubsystem extends SubsystemBase {
   public void runFeeder() {
 
     // The bottom sensor will remain tripped until the ball clears the
-    // sensor, so stay in the INDEXING state.
+    // sensor, so stay in the INDEXING state.  States 3, 6
     if (m_indexState == IndexState.INDEXING && bottomSensorTripped()) {
       indexingAction(); // no action taken
       return;
     }
 
-    // INDEXING with bottom sensor now cleared.
+    // INDEXING with bottom sensor now cleared. 
     if (m_indexState == IndexState.INDEXING) {
       if (topSensorTripped()) {
-        m_indexState = IndexState.FULL_BUT_RECEIVING; // States 5 & 6
+        m_indexState = IndexState.FULL_BUT_RECEIVING; // States 7 & 9
         fullButReceivingAction(); // stop indexer, start hopper
       } else if (middleSensorTripped()) {
-        m_indexState = IndexState.WAITING_TO_INDEX;
+        m_indexState = IndexState.WAITING_TO_INDEX; // State 4
         waitingToIndexAction(); // stop indexer, start hopper
       }
       return;
@@ -139,18 +139,18 @@ public class FeederSubsystem extends SubsystemBase {
     // Got a new ball
     if (bottomSensorTripped()) {
       if (topSensorTripped()) {
-        m_indexState = IndexState.FULL;  // states 7 & 8
+        m_indexState = IndexState.FULL;  // States 8 & 10
         fullAction(); // stop hopper and indexer
       } 
       else {
-        m_indexState = IndexState.READY_TO_INDEX; // states 3 & 4
+        m_indexState = IndexState.READY_TO_INDEX; // States 2 & 5
         readyToIndexAction(); // stop hopper, start indexer
-        m_indexState = IndexState.INDEXING;
+        m_indexState = IndexState.INDEXING;  // States 3 & 6
       }
     } 
     // The index is completely empty
     if (allSensorsCleared()) {
-      m_indexState = IndexState.WAITING_TO_INDEX;
+      m_indexState = IndexState.WAITING_TO_INDEX; // State 1
       waitingToIndexAction(); // start hopper
     }
   }
@@ -171,7 +171,7 @@ public class FeederSubsystem extends SubsystemBase {
     stopHopper(); // Prevent more balls from coming in
 
     // Move until index sensor is tripped. This happens in runFeeder()
-    setIndexPower(m_indexPower);
+    startIndex();
   }
 
   public void fullAction() {
@@ -195,8 +195,8 @@ public class FeederSubsystem extends SubsystemBase {
 
   // Used to feed balls while shooting
   public void fastForwardFeeder() {
-    setIndexPower(Constants.FeederConstants.kFastForwardPower);
-    setHopperPower(Constants.FeederConstants.kFastForwardPower);
+    setIndexPower(FeederConstants.kIndexFastForwardPower);
+    setHopperPower(FeederConstants.kHopperFastForwardPower);
   }
 
   // Public assess to the IndexState
@@ -225,7 +225,7 @@ public class FeederSubsystem extends SubsystemBase {
   // Start the hopper
   public void startHopper() {
     m_hopperState = HopperState.FEEDING;
-    setHopperPower(0.4);
+    setHopperPower(FeederConstants.kHopperPower);
   }
 
   // Stop the hopper
@@ -237,13 +237,18 @@ public class FeederSubsystem extends SubsystemBase {
   // Reverse the hopper
   public void reverseHopper() {
     m_hopperState = HopperState.REVERSED;
-    setHopperPower(-0.4);
+    setHopperPower(FeederConstants.kHopperReversePower);
   }
 
   // Reverse the indexer
   public void reverseIndex() {
     m_indexState = IndexState.REVERSED;
-    setIndexPower(-0.4);
+    setIndexPower(FeederConstants.kIndexReversePower);
+  }
+
+  // Start the indexer
+  public void startIndex() {
+    setIndexPower(m_indexPower);
   }
 
   // Stop the indexer
@@ -303,7 +308,15 @@ public class FeederSubsystem extends SubsystemBase {
 
   // These are for calibrating the index 
   public void configIndexPower() {
-    m_indexPower = SmartDashboard.getNumber("Index Power", m_indexPowerInitial);
+    m_indexPower = SmartDashboard.getNumber("Index Power", m_indexPower);
+  }
+
+  public void writeStateToDashboard() {
+    SmartDashboard.putString("Indexer State", m_indexState.toString());
+    SmartDashboard.putString("Hopper State", m_hopperState.toString());
+    SmartDashboard.putBoolean("Bottom sensor", bottomSensorTripped());
+    SmartDashboard.putBoolean("Middle sensor", middleSensorTripped());
+    SmartDashboard.putBoolean("Top sensor", topSensorTripped());
   }
 
 }

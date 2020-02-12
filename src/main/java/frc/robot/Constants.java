@@ -45,19 +45,21 @@ public final class Constants {
     
   public static final class FeederConstants {
 
-    public static final int kHopperVictorSPX = 420; //Placeholder
-    public static final int kTowerVictorSPX = 987; //Placerholder
     public static final int kIRSensorBottom = 0;
     public static final int kIRSensorMiddle = 1;
     public static final int kIRSensorTop = 2;
 
-    public static final double kFastForwardPower = 0.6;
+    public static final double kIndexFastForwardPower = 0.6;
+    public static final double kIndexPower = 0.4;
+    public static final double kIndexReversePower = -0.4;
+    public static final double kHopperFastForwardPower = 0.6;
+    public static final double kHopperPower = 0.4;
+    public static final double kHopperReversePower = -0.4;
     
   }
 
   public static final class PIDConstants{
-    public static final double indexPower = 0.4;
-    public static final double indexSetpoint = 100;
+    
   }
 
   public static final class ConversionConstants{

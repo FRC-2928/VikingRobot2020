@@ -13,6 +13,7 @@ import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.intake.FeederSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 
 /**
@@ -56,11 +57,11 @@ public class RobotContainer {
 
   public void configureFeederButtons() {
     // Also need to pass in the flywheel
-    m_driverOI.getAutoShootingButton().whenPressed(new FastForwardFeeder(m_feeder));
+    //m_driverOI.getAutoShootingButton().whenPressed(new FastForwardFeeder(m_feeder));
 
     m_operatorOI.getEnableFeederButton().whenPressed(new StartFeeder(m_feeder));
-
     m_operatorOI.getDisableFeederButton().whenPressed(new StopFeeder(m_feeder));
+    m_operatorOI.getReverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
   }
 
   /**
