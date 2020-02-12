@@ -1,18 +1,19 @@
 package frc.robot.commands.controlpanel;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.ConversionConstants;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 
 /*
  * Rotates the control panel the specified number of segments
  */
 
-public class RotateToColor extends CommandBase {
+public class RotateSegments extends CommandBase {
 
-  // The subsystem the command runs on
-  private final ControlPanelSubsystem m_controlPanel;
+    // The subsystem the command runs on
+    private final ControlPanelSubsystem m_controlPanel;
 
-  public RotateToColor(ControlPanelSubsystem subsystem) {
+    public RotateSegments(ControlPanelSubsystem subsystem, double segments) {
     m_controlPanel = subsystem;
     addRequirements(m_controlPanel);
   }
@@ -23,7 +24,7 @@ public class RotateToColor extends CommandBase {
 
   @Override
   public void execute() {
-    m_controlPanel.rotateToColor();
+    m_controlPanel.rotateSegments(ConversionConstants.threeTurns);
   }
 
   @Override

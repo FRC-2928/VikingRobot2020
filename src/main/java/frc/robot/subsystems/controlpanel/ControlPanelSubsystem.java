@@ -2,22 +2,19 @@ package frc.robot.subsystems.controlpanel;
 
 import java.util.function.BooleanSupplier;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.revrobotics.CANEncoder;
-import com.revrobotics.CANPIDController;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ColorSensorV3;
-import com.revrobotics.ControlType;
-import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ConversionConstants;
+import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 import frc.robot.types.ControlPanelColor;
 import frc.robot.utilities.ColorMatcher;
@@ -33,12 +30,11 @@ public class ControlPanelSubsystem extends SubsystemBase {
   private ControlPanelColor m_matchedColor;
 
   private final WPI_TalonSRX m_motor;
-  private CANPIDController m_pidController;
+  private double m_targetRotations;
  
   //----------------------------------------------------
   //Initization
   //----------------------------------------------------
-
   public ControlPanelSubsystem() {
     m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
     m_colorMatcher = new ColorMatcher();
@@ -52,51 +48,30 @@ public class ControlPanelSubsystem extends SubsystemBase {
     m_motor.configNominalOutputReverse(0);
     m_motor.configNeutralDeadband(0.01);
     m_motor.setNeutralMode(NeutralMode.Coast);
+
+    //motion magic 
+		m_motor.configMotionCruiseVelocity(15000, PIDConstants.kTimeoutMs);
+    m_motor.configMotionAcceleration(6000, PIDConstants.kTimeoutMs);
+    // How much smoothing [0,8] to use during MotionMagic
+	  int m_smoothing = 0;
  
     m_motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 35, 0.04));
-   
-
-
   } 
+
   // -----------------------------------------------------------
   // Process Logic
   // -----------------------------------------------------------
+  @Override
+  public void periodic() {
+    Color detectedColor = m_colorSensor.getColor();
+    m_matchedColor = m_colorMatcher.getMatchedColor(detectedColor);
+    SmartDashboard.putString("Matched Color", m_matchedColor.name());
+    SmartDashboard.putNumber("Red", detectedColor.red);
+    SmartDashboard.putNumber("Green", detectedColor.green);
+    SmartDashboard.putNumber("Blue", detectedColor.blue); 
 
-
-  public void configTurretFeedbackGains() {
-
-    // kP = SmartDashboard.getNumber("Turret kP", kP);
-    // kF = SmartDashboard.getNumber("Turret kF", kF);
-
-    m_motor.config_kP(0, RobotMap.kPanelP);
-    m_motor.config_kI(0, RobotMap.kPanelI);
-    m_motor.config_kD(0, RobotMap.kPanelD);
-    m_motor.config_IntegralZone(0, RobotMap.kPanelIzone);
-    m_motor.config_kF(0, RobotMap.kPanelFF);
-   // m_motor.setOutputRange(RobotMap.kMinOutput, RobotMap.kMaxOutput);
+    // configPanelFeedbackGains();
   }
- 
-     // set PID coefficients
- 
-    //  m_pidController.setP(RobotMap.kPanelP);
-    //  m_pidController.setI(RobotMap.kPanelI);
-    //  m_pidController.setD(RobotMap.kPanelD);
-    //  m_pidController.setIZone(RobotMap.kPanelIzone);
-    //  m_pidController.setFF(RobotMap.kPanelFF);
-    //  m_pidController.setOutputRange(RobotMap.kMinOutput, RobotMap.kMaxOutput);
-
- 
-
-  // Rotate the control panel the number of specified segments
-  public void rotateSegments(double segments) {
-    // Calculate the number of manipulator wheel rotations
-    double rotations = (segments * RobotMap.kColorArcLength) / RobotMap.kManipulatorCircumference;
-
-    runPositionLoop(rotations);
-
-  }
-
-  
 
   // Gets the detected and target color and rotates to target color
   public void rotateToColor() {
@@ -109,13 +84,10 @@ public class ControlPanelSubsystem extends SubsystemBase {
     // Rotate the control panel to the computed number of segment
     SmartDashboard.putNumber("Segment rotation ", segments);
     rotateSegments(segments);
-  }
-
+  } 
   
-  
-   // Get the target color from the game field
-
-   public ControlPanelColor getTargetColor() {
+  // Get the target color from the game field
+  public ControlPanelColor getTargetColor() {
 
     String gameData;
     ControlPanelColor targetColor = ControlPanelColor.UNKNOWN;
@@ -152,8 +124,8 @@ public class ControlPanelSubsystem extends SubsystemBase {
     return targetColor;
   }
   
-   // Returns whether a color is known
-   public BooleanSupplier unknownColor() {
+  // Returns whether a color is known
+  public BooleanSupplier unknownColor() {
 
     BooleanSupplier sup = () -> false;
     if (m_matchedColor == ControlPanelColor.UNKNOWN) {
@@ -162,42 +134,86 @@ public class ControlPanelSubsystem extends SubsystemBase {
     return sup;
   }
 
-
-   // Closed position loop using number of rotations as the setpoint
-   public void runPositionLoop(double rotations) {
-    m_pidController.setReference(rotations, ControlType.kPosition);
+  // Return true if we're within 5 degrees
+  public boolean atSetpoint() {
+    double currentRotations = getMotorRotations();
+    double degrees = 1/72; // 5 degrees
+    if (m_targetRotations - currentRotations <= degrees) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // -----------------------------------------------------------
   // Actuator Output
   // -----------------------------------------------------------
   
-    // Convenience method for running inline command
-    public void rotateHalfSegment() {
-      rotateSegments(0.5);
-    }
-    
-    //--------------------------------------------------------------
-    // Sensor I/O
-    //--------------------------------------------------------------
-    public ControlPanelColor getMatchedColor() {
-      return m_matchedColor;
-    }
-    
-    
-    //--------------------------------------------------------------
-    //Testing/config methods
-    //--------------------------------------------------------------
-  @Override
-  public void periodic() {
-    Color detectedColor = m_colorSensor.getColor();
-    m_matchedColor = m_colorMatcher.getMatchedColor(detectedColor);
-    SmartDashboard.putString("Matched Color", m_matchedColor.name());
-    SmartDashboard.putNumber("Red", detectedColor.red);
-    SmartDashboard.putNumber("Green", detectedColor.green);
-    SmartDashboard.putNumber("Blue", detectedColor.blue);
+  // Closed position loop using number of rotations as the setpoint
+  public void runRotationLoop(double rotations) {
 
+    // Zero the sensors so that the math is easier
+    zeroSensors();
+
+    // MotionMagic wants the setpoint in encoder ticks
+    double setpoint = rotations * ConversionConstants.kPanelEncoderTicksPerRotation;
     
+    m_motor.set(ControlMode.MotionMagic, setpoint);
+  }
+
+  // Rotate the control panel the number of specified segments
+  public void rotateSegments(double segments) {
+    // Calculate the number of manipulator wheel rotations
+    m_targetRotations = (segments * ConversionConstants.kColorArcLength) / ConversionConstants.kManipulatorCircumference;
+
+    runRotationLoop(m_targetRotations);
+  }
+
+  // Convenience method for running inline command
+  public void rotateHalfSegment() {
+    rotateSegments(0.5);
+  }
+    
+  //--------------------------------------------------------------
+  // Sensor I/O
+  //--------------------------------------------------------------
+
+  // Get the color detected by the color sensor
+  public ControlPanelColor getMatchedColor() {
+    return m_matchedColor;
+  }
+
+  // Get raw encoder ticks
+  public double getNativeEncoderTicks(){
+    return m_motor.getSelectedSensorPosition();
+  }
+
+  // Converts encode ticks back into rotations
+  public double getMotorRotations(){
+    double rotations = getNativeEncoderTicks() / ConversionConstants.kPanelEncoderTicksPerRotation;
+    return rotations;
+  }
+
+  // Set encoders to zero
+  void zeroSensors() {
+    m_motor.getSensorCollection().setQuadraturePosition(0, PIDConstants.kTimeoutMs);
+  }  
+    
+  //--------------------------------------------------------------
+  //Testing/config methods
+  //--------------------------------------------------------------
+  public void configPanelFeedbackGains() {
+
+    // double kP = SmartDashboard.getNumber("Turret kP", kP);
+    // double kF = SmartDashboard.getNumber("Turret kF", kF);
+
+    m_motor.config_kP(0, PIDConstants.kPanelP);
+    m_motor.config_kI(0, PIDConstants.kPanelI);
+    m_motor.config_kD(0, PIDConstants.kPanelD);
+    m_motor.config_IntegralZone(0, PIDConstants.kPanelIzone);
+    m_motor.config_kF(0, PIDConstants.kPanelFF);
+
+   // m_motor.setOutputRange(PIDConstants.kMinOutput, PIDConstants.kMaxOutput);
   }
 
 }

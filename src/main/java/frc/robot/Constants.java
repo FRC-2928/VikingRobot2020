@@ -32,29 +32,11 @@ package frc.robot;
  */
 public final class Constants {
     public static final class RobotMap{
-         // PID constants
-
-     public static double kPanelP = 0.1;
-     public static double kPanelI = 1e-4;
-     public static double kPanelD = 1;
-     public static int kPanelIzone = 0;
-     public static double kPanelFF = 0;
-     public static double kMaxOutput = 1;
-     public static double kMinOutput = -1;
-
-            // Control Panel
-        public static final double kControlPanelCircumference = 0.81 * Math.PI;
-
-        public static final double kColorArcLength = kControlPanelCircumference / 8;
-
-        public static final double kManipulatorCircumference = 0.0508 * Math.PI;
-
-        public static double threeTurns = 26.0; // Rotate 26 segments 
+           
         //Drivetrain
 
         //Shooter
         public static final int kFlywheelTalonFX = 0;
-        //Climber
 
         //Control Panel
         public static final int kControlPanelTalonWPI = 69; //Placeholder
@@ -68,17 +50,27 @@ public final class Constants {
     }
 
     public static final class PIDConstants{
-
+        public static final double kPanelP = 0.1;
+        public static final double kPanelI = 1e-4;
+        public static final double kPanelD = 1;
+        public static final int kPanelIzone = 0;
+        public static final double kPanelFF = 0;
+        public static final double kMaxOutput = 1;
+        public static final double kMinOutput = -1;
+        public static final int kTimeoutMs = 30;
     }
 
     public static final class ConversionConstants{
+    
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final int kFlywheelTalonFX = 0;
-        
-    }
 
-    public static final class Conversions{
-        public static final int kFlywheelEncoderTicksPerRotation = 2048;
+        // Control Panel
+        public static final double kPanelEncoderTicksPerRotation = 4096;
+        public static final double kControlPanelCircumference = 0.81 * Math.PI;
+        public static final double kColorArcLength = kControlPanelCircumference / 8;
+        public static final double kManipulatorCircumference = 0.0508 * Math.PI;
+        public static final double threeTurns = 26.0; // Rotate 26 segments 
     }
 
     public static final class OIConstants {
