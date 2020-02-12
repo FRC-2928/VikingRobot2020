@@ -4,6 +4,11 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,7 +27,8 @@ import frc.robot.Constants.RobotMap;;
 
 public class FeederSubsystem extends SubsystemBase {
 
-  private WPI_VictorSPX m_hopperMotor;
+  private CANSparkMax m_hopperMotor;
+  private CANPIDController m_hopperPID;
   private WPI_VictorSPX m_towerMotor;
 
   //IR sensors to detect ball positions
@@ -50,25 +56,32 @@ public class FeederSubsystem extends SubsystemBase {
   // -----------------------------------------------------------
   public FeederSubsystem() {
 
-    m_hopperMotor = new WPI_VictorSPX(RobotMap.kHopperVictorSPX);
     m_towerMotor = new WPI_VictorSPX(RobotMap.kTowerVictorSPX);
+    m_hopperMotor = new CANSparkMax(RobotMap.kFeederSparkMax, MotorType.kBrushless);
+    m_hopperPID = m_hopperMotor.getPIDController();
+
+    // Config hopper motor
+    m_hopperMotor.restoreFactoryDefaults();
+    m_hopperMotor.enableVoltageCompensation(12);
+    m_hopperMotor.setIdleMode(IdleMode.kBrake);
+    m_hopperMotor.setSmartCurrentLimit(35, 45, 0);
+    m_hopperMotor.setInverted(false);
+
+    // Config tower motor
+    m_towerMotor.configFactoryDefault();
+    m_towerMotor.configVoltageCompSaturation(12);
+    m_towerMotor.enableVoltageCompensation(true);
+    m_towerMotor.configNominalOutputForward(0);
+    m_towerMotor.configNominalOutputReverse(0);
+    m_towerMotor.configNeutralDeadband(0.01);
+    m_towerMotor.setNeutralMode(NeutralMode.Coast);
+
+    m_towerMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+    m_towerMotor.configAllowableClosedloopError(0, 5);
 
     m_bottomSensor = new DigitalOutput(RobotMap.kIRSensorBottom);
     m_middleSensor = new DigitalOutput(RobotMap.kIRSensorMiddle);
     m_topSensor = new DigitalOutput(RobotMap.kIRSensorTop);
-
-    for(WPI_VictorSPX feederMotors: new WPI_VictorSPX[]{m_hopperMotor, m_towerMotor}){
-      feederMotors.configFactoryDefault();
-      feederMotors.configVoltageCompSaturation(12);
-      feederMotors.enableVoltageCompensation(true);
-      feederMotors.configNominalOutputForward(0);
-      feederMotors.configNominalOutputReverse(0);
-      feederMotors.configNeutralDeadband(0.01);
-      feederMotors.setNeutralMode(NeutralMode.Coast);
-    }
-    
-    m_towerMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-    m_towerMotor.configAllowableClosedloopError(0, 5);
 
     resetIndexEncoder();
 
@@ -98,8 +111,7 @@ public class FeederSubsystem extends SubsystemBase {
     stopHopper();
     setHopperState(HopperState.HALTED);
   }
-
-  
+ 
   // Check the state of the index to determine what action should be taken next.
   public void runFeeder() {
 
@@ -201,9 +213,8 @@ public class FeederSubsystem extends SubsystemBase {
   // Actuator Output
   // -----------------------------------------------------------
 
-  // Set power to the hopper motor
-  public void setHopperPower(double power){
-    m_hopperMotor.set(ControlMode.PercentOutput, power);
+  public void setHopperPower(double power) {
+    m_hopperPID.setReference(power, ControlType.kDutyCycle);
   }
 
   // Set power to the tower motor

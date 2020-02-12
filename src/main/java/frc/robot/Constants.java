@@ -20,8 +20,8 @@ public final class Constants {
     public static final class RobotMap{
         //Drivetrain
 
-        //Intake
-        public static final int kHopperVictorSPX = 420; //Placeholder
+        //Feeder
+        public static final int kFeederSparkMax = 4;
         public static final int kTowerVictorSPX = 987; //Placerholder
 
         public static final int kIRSensorBottom = 0;
