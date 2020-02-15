@@ -40,9 +40,6 @@ public class Intake extends SubsystemBase {
 
   private WPI_TalonSRX m_intakeMotor;
 
- 
- 
-
   public enum IntakeState {
     GROUND_PICKUP,STATION_PICKUP,STOWED;
   }
@@ -71,6 +68,7 @@ public class Intake extends SubsystemBase {
     // m_intakeMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
   }
 
+  
 
 
   public void groundPickup () {

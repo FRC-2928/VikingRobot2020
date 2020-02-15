@@ -21,7 +21,10 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.ControlPanelConstants;
@@ -50,6 +53,12 @@ import frc.robot.subsystems.intake.FeederSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj.XboxController.Button;
+import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.commands.climber.ClimbHigh;
+import frc.robot.commands.climber.ClimbMid;
+import frc.robot.commands.climber.DeployClimber;
+import frc.robot.commands.climber.ClimbLow;
 
 
 /**
@@ -69,6 +78,7 @@ public class RobotContainer {
   private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
   private final Intake m_intake = new Intake();
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
+  private final ClimberSubsystem m_climber = new ClimberSubsystem();
   
   XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
   XboxController m_operatorController = new XboxController(Constants.OIConstants.kOperatorControllerPort);
@@ -179,6 +189,30 @@ public class RobotContainer {
     m_operatorOI.getEnableFeederButton().whenPressed(new StartFeeder(m_feeder));
     m_operatorOI.getDisableFeederButton().whenPressed(new StopFeeder(m_feeder));
     m_operatorOI.getReverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
+    ConfigureClimberButtons();
+  
+  }
+
+  public void ConfigureClimberButtons() {
+      
+    // Deploy to top
+    new JoystickButton(m_operatorController, Button.kA.value)
+        .whenPressed(new DeployClimber(m_climber));
+
+    // Deploy to high point
+    new JoystickButton(m_operatorController, Button.kB.value)
+        .whenPressed(new DeployClimber(m_climber)
+          .andThen(new ClimbHigh(m_climber)));
+     
+    // Deploy to Mid point
+    new JoystickButton(m_operatorController, Button.kX.value)
+        .whenPressed(new DeployClimber(m_climber)
+          .andThen(new ClimbMid(m_climber)));
+      
+    // Deploy to low point
+    new JoystickButton(m_operatorController, Button.kY.value)
+        .whenPressed(new DeployClimber(m_climber)
+          .andThen(new ClimbLow(m_climber)));      
   }
 
   /**
