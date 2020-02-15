@@ -13,15 +13,15 @@ import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 /**
-   * Creates a new ShooterHoodSubsystem.
+   * Creates a new HoodSubsystem.
    */
-public class ShooterHoodSubsystem extends SubsystemBase {
+public class HoodSubsystem extends SubsystemBase {
   private WPI_TalonSRX m_hoodMotor;
 
   private final double kP = PIDConstants.kHoodkP;
   private final double kD = PIDConstants.kHoodkD;
   
-  public ShooterHoodSubsystem() {
+  public HoodSubsystem() {
     m_hoodMotor = new WPI_TalonSRX(RobotMap.kHoodTalonSRX);
 
     m_hoodMotor.configFactoryDefault();

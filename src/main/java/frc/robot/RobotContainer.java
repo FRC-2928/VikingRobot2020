@@ -18,13 +18,11 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
-import frc.robot.subsystems.shooter.ShooterHoodSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import frc.robot.Constants.RobotMap;
 import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.Intake;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
@@ -37,8 +35,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final FlywheelSubsystem flywheelsubsystem = new FlywheelSubsystem();
-  private final ShooterHoodSubsystem shooterhoodsubsystem = new ShooterHoodSubsystem();
+  private final FlywheelSubsystem m_flywheelsubsystem = new FlywheelSubsystem();
+  private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
   private final Intake m_intake = new Intake();
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
   
@@ -69,28 +67,19 @@ public class RobotContainer {
    * 
    */
   private void configureButtonBindings() {
-
-    // shooterhoodsubsystem.setDefaultCommand(
-    //   new RunCommand(() -> {
-    //       double speed = -driveController.getY(Hand.kRight);
-    //       shooterhoodsubsystem.setPower(speed);
-    //   }, 
-    //   shooterhoodsubsystem)
-    // );
-
     velocityControlFlywheel.whileHeld(
       new RunCommand(() -> {
         double targetRPM = SmartDashboard.getNumber("Target RPM", 0);
-        flywheelsubsystem.setFlywheelRPM(targetRPM);
+        m_flywheelsubsystem.setFlywheelRPM(targetRPM);
       }, 
-      flywheelsubsystem)
+      m_flywheelsubsystem)
     );
 
     ConfigureControlButtons(); 
 
-    openLoopFlywheel.whileHeld(new RunCommand(() -> flywheelsubsystem.setPower(0.75),flywheelsubsystem));
+    openLoopFlywheel.whileHeld(new RunCommand(() -> m_flywheelsubsystem.setPower(0.75),m_flywheelsubsystem));
 
-    positionControlHood.whileHeld(new RunCommand(() -> shooterhoodsubsystem.setHoodDegrees(), shooterhoodsubsystem));  
+    positionControlHood.whileHeld(new RunCommand(() -> m_hoodsubsystem.setHoodDegrees(), m_hoodsubsystem));  
   }
 
   public void ConfigureControlButtons () {
@@ -119,8 +108,8 @@ public class RobotContainer {
   }
 
   public void onInitialize(){
-    flywheelsubsystem.configFeedbackGains();
-    shooterhoodsubsystem.configPIDGains();
+    m_flywheelsubsystem.configFeedbackGains();
+    m_hoodsubsystem.configPIDGains();
     //buttons for the intake
     configureIntakeButtons();
     
