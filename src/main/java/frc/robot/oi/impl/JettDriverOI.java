@@ -37,12 +37,12 @@ public class JettDriverOI implements DriverOI {
 
     @Override
     public Button getShiftLowButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kBack.value);
+        return new JoystickButton(m_controller, XboxController.Button.kStickLeft.value);
     }
 
     @Override
     public Button getShiftHighButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kStart.value);
+        return new JoystickButton(m_controller, XboxController.Button.kStickRight.value);
     }
 
     @Override
