@@ -1,19 +1,14 @@
 package frc.robot.subsystems.drivetrain;
 
-import java.util.function.BiConsumer;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -23,7 +18,6 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.RobotMap;
@@ -39,7 +33,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     private Pigeon m_pigeon;
 
-    private double m_yaw, m_pitch, m_roll;
+    private double m_yaw;
 
     private DifferentialDrive m_differentialDrive;
     private SpeedControllerGroup m_leftMotors;
@@ -54,6 +48,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     private Pose2d m_pose;
 
     public static final double kNominalVoltageVolts = 12.0;
+    private double m_targetVelocityRotationsPerSecond;
 
     // -----------------------------------------------------------
     // Initialization
@@ -109,10 +104,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
             fx.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
         }
 
-        // Setup speed controller groups
-        m_leftMotors = new SpeedControllerGroup(m_leftMaster, m_leftSlave);
-        m_rightMotors = new SpeedControllerGroup(m_rightMaster, m_rightSlave);
-        m_differentialDrive = new DifferentialDrive(m_leftMotors, m_rightMotors);
+        // Setup speed controller groups, or not.
+        // m_leftMotors = new SpeedControllerGroup(m_leftMaster, m_leftSlave);
+        // m_rightMotors = new SpeedControllerGroup(m_rightMaster, m_rightSlave);
+        m_differentialDrive = new DifferentialDrive(m_leftMaster, m_rightMaster);
         m_differentialDrive.setRightSideInverted(false);
 
         // Setup kinematics
@@ -155,9 +150,25 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public void driveTrainVoltage(double leftVolts, double rightVolts) {
-        m_leftMotors.setVoltage(leftVolts);
-        m_rightMotors.setVoltage(-rightVolts);
+        m_leftMaster.setVoltage(leftVolts);
+        m_rightMaster.setVoltage(-rightVolts);
         m_differentialDrive.feed();
+    }
+
+    // Sets velocity for a single motor
+    public void setVelocity(double velocityRotationsPerSecond) {
+        setVelocity(velocityRotationsPerSecond, 0.0);
+    }
+
+    // Sets velocity and feedforward for a single motor
+    public void setVelocity(double velocityRotationsPerSecond, double feedforwardVolts) {
+        m_leftMaster.set(ControlMode.Velocity, (velocityRotationsPerSecond * DrivetrainConstants.kUnitsPerRevolution) / 10.0, DemandType.ArbitraryFeedForward,
+                feedforwardVolts / kNominalVoltageVolts);
+    }
+
+    public void driveTrainVelocity(double leftVelocityRotationsPerSecond, double rightVelocityRotationsPerSecond) {
+        // m_leftMaster.set(ControlMode.Velocity, (leftVelocityRotationsPerSecond * DrivetrainConstants.kUnitsPerRevolution) / 10.0, DemandType.ArbitraryFeedForward,
+        //         feedforwardVolts / kNominalVoltageVolts);
     }
 
     public void stopDrivetrain() {
@@ -165,7 +176,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public void outputMetersPerSecond(double leftMetersPerSecond, double rightMetersPerSecond) {
-        // TODO Feed these to the drivetrain...
+        // Feed these to the drivetrain...
+        double leftVelocityRotationsPerSecond = leftMetersPerSecond / (DrivetrainConstants.kWheelDiameterMeters * Math.PI);
+        double rightVelocityRotationsPerSecond = rightMetersPerSecond / (DrivetrainConstants.kWheelDiameterMeters * Math.PI);
+        setVelocity(leftVelocityRotationsPerSecond);
+
     }
 
     public void setMaxOutput(double maxOutput) {

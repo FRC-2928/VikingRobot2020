@@ -53,8 +53,9 @@ public final class Constants {
         public static final int kEncoderCPR = 1024;
         public static final double kWheelDiameterMeters = 0.15;
         public static final double kEncoderDistancePerPulse =
-        // Assumes the encoders are directly mounted on the wheel shafts
-        (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
+            // Assumes the encoders are directly mounted on the wheel shafts
+            (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
+        public static final double kUnitsPerRevolution = 1.0;
     }
 
     public static final class AutoConstants {
