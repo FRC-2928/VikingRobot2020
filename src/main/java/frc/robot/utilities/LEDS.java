@@ -8,7 +8,11 @@ public class LEDS {
 
     private AddressableLED m_led;
     private AddressableLEDBuffer m_ledBuffer;
-    private int m_rainbowFirstPixelHue;
+    private  int[] m_ledPatternHueBuffer;
+    private int bufStart = 0;
+    private int hueIndex;
+    private int m_rainbowFirstPixelHue = 0;
+    private int m_rainbowSecondFirstHue = 230;
 
     public LEDS (){
         m_led = new AddressableLED(9);
@@ -34,7 +38,7 @@ public class LEDS {
 
             case WHITE:
             for (var i = 0; i < m_ledBuffer.getLength(); i++) {
-                // Sets the specified LED to the RGB values for red
+                // Sets the specified LED to the RGB values for white
                 m_ledBuffer.setRGB(i, 255, 255, 255);
              }
              
@@ -43,7 +47,7 @@ public class LEDS {
 
             case GREEN:
             for (var i = 0; i < m_ledBuffer.getLength(); i++) {
-                // Sets the specified LED to the RGB values for red
+                // Sets the specified LED to the RGB values for green
                 m_ledBuffer.setRGB(i, 0, 255, 0);
              }
              
@@ -61,8 +65,8 @@ public class LEDS {
 
             case BLUE:
             for (var i = 0; i < m_ledBuffer.getLength(); i++) {
-                // Sets the specified LED to the RGB values for red
-                m_ledBuffer.setRGB(i, 225, 0, 0);
+                // Sets the specified LED to the RGB values for blue
+                m_ledBuffer.setRGB(i, 0, 0, 225);
              }
              
              m_led.setData(m_ledBuffer);
@@ -70,8 +74,8 @@ public class LEDS {
 
             case PURPLE:
             for (var i = 0; i < m_ledBuffer.getLength(); i++) {
-                // Sets the specified LED to the RGB values for red
-                m_ledBuffer.setRGB(i, 225, 0, 0);
+                // Sets the specified LED to the RGB values for purple
+                m_ledBuffer.setRGB(i, 102, 0, 102);
              }
              
              m_led.setData(m_ledBuffer);
@@ -97,6 +101,64 @@ public class LEDS {
         m_rainbowFirstPixelHue %= 180;
       }
  
+        //Sets LEDs to rainbow, repeated calls should "move" the rainbow
+      private void movingPattern(boolean reset) {
+        int m_rainbowLastPixelHue =0;
+
+        if (reset) {  // For every pixel setup initial pattern
+            m_ledPatternHueBuffer = new int[m_ledBuffer.getLength()];
+
+            // fill first secion of hue buffer
+            for (var i = 0; i < (m_ledBuffer.getLength()/4); i++) {
+                // Calculate the hue - hue is easier for rainbows because the color
+                // TBD how we make pattern
+                m_ledPatternHueBuffer[i] =
+                    (m_rainbowFirstPixelHue + (i * 180 / m_ledBuffer.getLength())) % 180;
+                    m_rainbowLastPixelHue = m_ledPatternHueBuffer[i];
+              }
+
+            // fill second secion of hue buffer
+            for (var i = (m_ledBuffer.getLength()/4); i < (m_ledBuffer.getLength()/2); i++) {
+                // Calculate the hue - hue is easier for rainbows because the color
+                // TBD how we make pattern
+                m_ledPatternHueBuffer[i] = 
+                    m_rainbowLastPixelHue - (m_rainbowFirstPixelHue + (i * 180 / m_ledBuffer.getLength())) % 180;
+                m_rainbowLastPixelHue = m_ledPatternHueBuffer[i];
+
+              }
+            // fill third secion of hue buffer
+            for (var i = (m_ledBuffer.getLength()/2); i < (m_ledBuffer.getLength()*3/4); i++) {
+                // Calculate the hue - hue is easier for rainbows because the color
+                // TBD how we make pattern
+                m_ledPatternHueBuffer[i] =
+                    (m_rainbowSecondFirstHue + (i * 180 / m_ledBuffer.getLength())) % 180;
+                m_rainbowLastPixelHue = m_ledPatternHueBuffer[i];
+              }
+
+            // fill forth secion of hue buffer
+            for (var i = (m_ledBuffer.getLength()*3/4); i < (m_ledBuffer.getLength()); i++) {
+                // Calculate the hue - hue is easier for rainbows because the color
+                // TBD how we make pattern
+                m_ledPatternHueBuffer[i] = 
+                    m_rainbowLastPixelHue - (m_rainbowSecondFirstHue + (i * 180 / m_ledBuffer.getLength())) % 180;
+              }
+
+        }
+      
+        //display pattern
+     for (var i = 0; i < m_ledBuffer.getLength(); i++) {
+          // Calculate the hue - hue is easier for rainbows because the color
+          // shape is a circle so only one value needs to precess
+        
+          hueIndex = m_ledPatternHueBuffer[ ( (i+bufStart) % m_ledBuffer.getLength() ) ];
+
+          m_ledBuffer.setHSV(i, hueIndex, 255, 128);
+        }
+
+        // move pattern one led
+        bufStart++;
+
+        }
   
 }
 
