@@ -3,6 +3,7 @@ package frc.robot.utilities;
 import com.ctre.phoenix.sensors.PigeonIMU;
 
 import frc.robot.Constants;
+import frc.robot.Constants.RobotMap;
 
 /**
  * Utility class responsible for the gyro
@@ -11,7 +12,7 @@ public class Pigeon{
     private PigeonIMU m_pigeon;
 
     public Pigeon(){
-        m_pigeon = new PigeonIMU(Constants.RobotMap.kPigeonIMU);
+        m_pigeon = new PigeonIMU(RobotMap.kPigeonIMU);
     }
 
     public double getYaw(){

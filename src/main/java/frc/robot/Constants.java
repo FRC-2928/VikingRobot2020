@@ -2,8 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 
-// import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
-
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This class should not be used for any other
@@ -15,7 +13,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
-
+  
     public static final class RobotMap{
 
         //Drivetrain
@@ -24,8 +22,13 @@ public final class Constants {
         public static final int kDrivetrainRightFrontTalonFX = 1;
         public static final int kDrivetrainRightBackTalonFX = 0;
 
-        //Sensors
-        public static final int kPigeonIMU = 3;
+        //Feeder
+        public static final int kFeederSparkMax = 4;
+        public static final int kTowerVictorSPX = 987; //Placerholder
+
+        public static final int kIRSensorBottom = 0;
+        public static final int kIRSensorMiddle = 1;
+        public static final int kIRSensorTop = 2;
 
         //Shooter
         public static final int kFlywheelTalonFX = 0;
@@ -41,6 +44,9 @@ public final class Constants {
         public static final int kIntakeSoleniodLeftTwo = 69;
         public static final int kIntakeWPI_TalonSRX = 6; //placeholder
         public static final int kDrivetrainShiftSolenoid = 0; //Placeholder
+
+        //Sensors
+        public static final int kPigeonIMU = 3;
     }
 
     public static final class OIConstants {
@@ -104,6 +110,21 @@ public final class Constants {
         public static final double kHoodkD = 15;
 
     }
+    
+    public static final class FeederConstants {
+
+        public static final int kIRSensorBottom = 0;
+        public static final int kIRSensorMiddle = 1;
+        public static final int kIRSensorTop = 2;
+
+        public static final double kIndexFastForwardPower = 0.6;
+        public static final double kIndexPower = 0.4;
+        public static final double kIndexReversePower = -0.4;
+        public static final double kHopperFastForwardPower = 0.6;
+        public static final double kHopperPower = 0.4;
+        public static final double kHopperReversePower = -0.4;
+
+    }
 
     public static final class ConversionConstants{
     
@@ -120,4 +141,5 @@ public final class Constants {
         public static final double kHoodEncoderTicksPerRotation = 4096;
         public static final double kHoodGearRatio = 60.0/24.0; 
     }
+  
 }
