@@ -1,10 +1,3 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2018-2019 FIRST. All Rights Reserved.                        */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
 package frc.robot;
 
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
@@ -38,6 +31,14 @@ public final class Constants {
         public static final int kOperatorControllerPort =2;
     }
 
+    public static final class ControlPanelConstants {
+        // Control Panel
+        public static final double kControlPanelCircumference = 0.81 * Math.PI;
+        public static final double kColorArcLength = kControlPanelCircumference / 8;
+        public static final double kManipulatorCircumference = 0.0508 * Math.PI;
+        public static final double threeTurns = 26.0; // Rotate 26 segments 
+    }
+
     public static final class DrivetrainConstants{
 
         public static final double ksVolts = 0.22;
@@ -56,6 +57,7 @@ public final class Constants {
             // Assumes the encoders are directly mounted on the wheel shafts
             (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
         public static final double kUnitsPerRevolution = 1.0;
+        
     }
 
     public static final class AutoConstants {
@@ -66,4 +68,33 @@ public final class Constants {
         public static final double kRamseteB = 2;
         public static final double kRamseteZeta = 0.7;
     }
+
+    public static final class PIDConstants{
+        //Control panel constants
+        public static double kPanelP = 0.1;
+        public static double kPanelI = 1e-4;
+        public static double kPanelD = 1;
+        public static double kPanelIzone = 0;
+        public static double kPanelFF = 0;
+        public static double kMaxOutput = 1;
+        public static double kMinOutput = -1;
+
+        //Shooter
+        public static final double kFlywheelkP = 0.075;
+        public static final double kFlywheelkF = (1023.0 * 0.75) / 16000.0;
+        public static final double kHoodkP = 2.5;
+        public static final double kHoodkD = 15;
+
+    }
+
+    public static final class ConversionConstants{
+        //Flywheel
+        public static final double kFlywheelEncoderTicksPerRotation = 2048;
+        public static final double kFlywheelGearRatio = 1;
+
+        //Hood
+        public static final double kHoodEncoderTicksPerRotation = 4096;
+        public static final double kHoodGearRatio = 60.0/24.0; 
+    }
+
 }
