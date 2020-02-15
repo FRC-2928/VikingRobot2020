@@ -8,14 +8,10 @@ import frc.robot.subsystems.shooter.ShooterHoodSubsystem;
 /**
  * This class will take a distance and generate an optimal trajectory for the ball
  */
-public class BallTrajectory extends SubsystemBase{
+public class BallTrajectory{
     final double gravity = 32.2; //feet
 
-    ShooterHoodSubsystem m_shooterhoodsubsystem;
-
     public BallTrajectory(){
-        m_shooterhoodsubsystem = new ShooterHoodSubsystem();
-
         SmartDashboard.putNumber("Ball distance", 0);
         SmartDashboard.putNumber("Ball time", 0);
     }
