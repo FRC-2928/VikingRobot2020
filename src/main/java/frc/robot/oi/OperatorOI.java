@@ -12,9 +12,19 @@ public interface OperatorOI {
 
     Button getReverseFeederButton();
 
-    // Button getEnableAutoTargetButton();
+    Button getEnableAutoTargetButton();
 
-    // Button getDisableAutoTargetButton();
+    Button getDisableAutoTargetButton();
 
-    // Button getDeployClimberButton();
+    DoubleSupplier ClimberAdjustmentButton();
+
+    Button spinColorWheelButton();
+
+    Button turnToColorButton();
+
+    Button enableFeederButton();
+
+    Button disableFeederButton();
+
+    Button reverseFeederButton();
 }
