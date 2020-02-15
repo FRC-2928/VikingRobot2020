@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.commands.controlpanel.RotateSegments;
 import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.Intake;
@@ -122,15 +123,18 @@ public class RobotContainer {
       new JoystickButton(m_operatorController, Button.kY.value)
       .whenPressed(() -> m_controlPanel.rotateSegments(ControlPanelConstants.threeTurns));
 
-        // Spin the control panel to target color
-        //may switch to have one button control all.
-    new JoystickButton(m_operatorController, Button.kX.value)
-    .whenPressed(new ConditionalCommand(
+    // Spin the control panel three times
+    new JoystickButton(m_operatorController, Button.kY.value)
+      .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.threeTurns));
 
-       // TRUE - the detected color is unknown
-       new RotateToColor(m_controlPanel)
-         // so rotate half a segment before rotating to color
-         .beforeStarting(m_controlPanel::rotateHalfSegment),
+    // Spin the control panel to target color
+    new JoystickButton(m_operatorController, Button.kX.value)
+      .whenPressed(new ConditionalCommand(
+
+       // TRUE - the detected color is unknown so rotate half a segment 
+       new RotateSegments(m_controlPanel, 0.5)
+         // and then rotate to color
+         .andThen(new RotateToColor(m_controlPanel)),
 
        // FALSE - the color is known so rotate to target color
        new RotateToColor(m_controlPanel),
@@ -146,43 +150,10 @@ public class RobotContainer {
     m_flywheelsubsystem.configFeedbackGains();
     m_hoodsubsystem.configPIDGains();
     //buttons for the intake
-    configureIntakeButtons();
+    // configureIntakeButtons();
     
   }
 
-  private void configureIntakeButtons() {
-    // Pickup balls from the ground
-    new JoystickButton(m_driverController, Button.kA.value).whenPressed(new SequentialCommandGroup(
-      //extend intake
-      new InstantCommand(m_intake::groundPickup, m_intake ),
-      //wait until intake deploys
-      new WaitCommand(1),
-      // run motors
-      new RunCommand(m_intake::startMotor, m_intake)
-    ));
-
-
-    // Stow the intake
-    new JoystickButton(m_driverController, Button.kB.value).whenReleased(new SequentialCommandGroup(
-      //stop motors
-      new InstantCommand(m_intake::stopMotor, m_intake),
-      //retract intake
-      new InstantCommand(m_intake::Stowed, m_intake )
-    ));
-
-
-
-    // Pickup balls from the Player Station
-    new JoystickButton(m_driverController, Button.kX.value).whenPressed(new SequentialCommandGroup(
-      //extend intake
-      new InstantCommand(m_intake::StationPickup, m_intake ),
-      //wait until intake deploys
-      new WaitCommand(1),
-      // run motors
-      new RunCommand(m_intake::startMotor, m_intake)
-    ));
-
-  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *

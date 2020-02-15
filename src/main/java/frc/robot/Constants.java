@@ -2,6 +2,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 
+// import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean constants. This class should not be used for any other
@@ -24,6 +26,21 @@ public final class Constants {
 
         //Sensors
         public static final int kPigeonIMU = 3;
+
+        //Shooter
+        public static final int kFlywheelTalonFX = 0;
+        public static final int kHoodTalonSRX = 5;
+
+        //Control Panel
+        public static final int kControlPanelTalonWPI = 69; //Placeholder
+
+        //Solenoids
+        public static final int kIntakeSoleniodRightOne = 69; //place holder
+        public static final int kIntakeSoleniodRightTwo = 69;
+        public static final int kIntakeSoleniodLeftOne = 69;
+        public static final int kIntakeSoleniodLeftTwo = 69;
+        public static final int kIntakeWPI_TalonSRX = 6; //placeholder
+        public static final int kDrivetrainShiftSolenoid = 0; //Placeholder
     }
 
     public static final class OIConstants {
@@ -78,6 +95,7 @@ public final class Constants {
         public static double kPanelFF = 0;
         public static double kMaxOutput = 1;
         public static double kMinOutput = -1;
+        public static final int kTimeoutMs = 30;
 
         //Shooter
         public static final double kFlywheelkP = 0.075;
@@ -88,13 +106,18 @@ public final class Constants {
     }
 
     public static final class ConversionConstants{
-        //Flywheel
+    
+        // Flywheel
         public static final double kFlywheelEncoderTicksPerRotation = 2048;
         public static final double kFlywheelGearRatio = 1;
 
-        //Hood
+        // Control Panel
+        public static final double kPanelEncoderTicksPerRotation = 4096;
+        public static final double kControlPanelCircumference = 0.81 * Math.PI;
+        public static final double kColorArcLength = kControlPanelCircumference / 8;
+        public static final double kManipulatorCircumference = 0.0508 * Math.PI;
+        public static final double threeTurns = 26.0; // Rotate 26 segments 
         public static final double kHoodEncoderTicksPerRotation = 4096;
         public static final double kHoodGearRatio = 60.0/24.0; 
     }
-
 }
