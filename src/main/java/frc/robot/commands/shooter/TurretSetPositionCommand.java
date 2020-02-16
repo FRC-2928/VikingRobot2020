@@ -23,13 +23,27 @@ public class TurretSetPositionCommand extends CommandBase {
 
   @Override
   public void execute() {
-    double targetPostion = m_positionSupplier.getAsDouble() % 360.0;
-    if (targetPostion < -TurretConstants.kMaxAngle) {
-      targetPostion += 360.0;
+    m_turret.setPosition(getTargetPosition(m_positionSupplier.getAsDouble(), m_turret.getMeasuredPosition()));
+  }
+
+  private double getTargetPosition(double angle, double current) {
+    angle %= 360.0;
+    double other = (angle > 0) ? angle - 360.0 : angle + 360.0;
+
+    if (!withinRange(angle)) {
+      return other;
     }
-    if (targetPostion > TurretConstants.kMaxAngle) {
-      targetPostion -= 360.0;
+    if (!withinRange(other)) {
+      return angle;
     }
-    m_turret.setPosition(targetPostion);
+
+    if (Math.abs(angle - current) < Math.abs(other - current)) {
+      return angle;
+    }
+    return other;
+  }
+
+  private boolean withinRange(double value) {
+    return value < TurretConstants.kMaxAngle && value > -TurretConstants.kMaxAngle;
   }
 }

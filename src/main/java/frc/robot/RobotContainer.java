@@ -16,6 +16,7 @@ import frc.robot.commands.shooter.TurretAutoSetCommand;
 import frc.robot.oi.DriverOI;
 import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.vision.Limelight;
+import frc.robot.subsystems.vision.TargetEstimator;
 import frc.robot.subsystems.climber.ElevatorSubsystem;
 import frc.robot.subsystems.drive.DrivetrainSubsystem;
 import frc.robot.subsystems.drive.TransmissionSubsystem;
@@ -36,6 +37,8 @@ public class RobotContainer {
   private final HopperSubsystem m_hopper;
 
   private final Limelight m_shooterLimelight;
+  private final TargetEstimator m_targetEstimator;
+
   private final DriverOI m_driverOI;
 
   public RobotContainer() {
@@ -49,6 +52,7 @@ public class RobotContainer {
     m_hopper = HopperSubsystem.create();
 
     m_shooterLimelight = new Limelight(NetworkTableInstance.getDefault().getTable("limelight"));
+    m_targetEstimator = new TargetEstimator(m_drivetrain::getPose, m_shooterLimelight::getData, m_turret::getMeasuredPosition);
     m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriveControllerPort));
 
     m_drivetrain.setDefaultCommand(
@@ -73,7 +77,7 @@ public class RobotContainer {
 
   private void configureShooterBindings() {
     m_driverOI.getEnableAutoTargetButton().whenPressed(new ScheduleCommand(
-      new TurretAutoSetCommand(m_turret, m_shooterLimelight::getData, m_drivetrain::getHeading),
+      new TurretAutoSetCommand(m_turret, m_drivetrain::getPose, m_shooterLimelight::getData, m_targetEstimator::getEstimate),
       new HoodAutoSetCommand(m_hood, m_shooterLimelight::getData),
       new FlywheelAutoSetCommand(m_flywheel, m_shooterLimelight::getData, m_driverOI.getShootButton())
     ));

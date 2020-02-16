@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drive;
 
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -26,6 +27,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private DifferentialDriveKinematics m_kinematics;
 
   private DifferentialDriveOdometry m_odometry;
+
+  private SimpleMotorFeedforward m_feedforward;
 
   private Pose2d m_pose;
 
@@ -55,9 +58,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     var gyro = new FakeGyro();
     return new DrivetrainSubsystem(leftController, rightController, gyro);
   }
-  
+
   public DrivetrainSubsystem(SmartSpeedController leftController, SmartSpeedController rightController, Gyro gyro) {
-    // NOTE: Default command is set in RobotContainer to avoid having to inject joystick data.
+    // NOTE: Default command is set in RobotContainer to avoid having to inject
+    // joystick data.
 
     m_leftController = leftController;
     m_rightController = rightController;
@@ -71,6 +75,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     resetEncoders();
 
     m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(gyro.getAngle()));
+    m_kinematics = new DifferentialDriveKinematics(DriveConstants.kTrackWidthMeters);
+    m_feedforward = new SimpleMotorFeedforward(DriveConstants.kS, DriveConstants.kV, DriveConstants.kA);
   }
 
   @Override
@@ -112,7 +118,32 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_drive.feed();
   }
 
-  public void setLeftRightVelocity(double leftVelocity, double leftFeedforward, double rightVelocity, double rightFeedforward) {
+  private double m_prevLeftVelocity, m_prevRightVelocity;
+  private double m_prevTime;
+  public void setLeftRightVelocity(double leftVelocity, double rightVelocity) {
+    double currentTime = Timer.getFPGATimestamp();
+    double dt = currentTime - m_prevTime;
+    double leftAcceleration = 0.0;
+    double rightAcceleration = 0.0;
+    if (dt > 0.0 && dt < 0.1) {
+      leftAcceleration = (leftVelocity - m_prevLeftVelocity) / dt;
+      rightAcceleration = (rightVelocity - m_prevRightVelocity) / dt;
+    }
+    
+    setLeftRightVelocity(
+      leftVelocity,
+      m_feedforward.calculate(leftVelocity, leftAcceleration),
+      rightVelocity,
+      m_feedforward.calculate(rightVelocity, rightAcceleration)
+    );
+
+    m_prevTime = currentTime;
+    m_prevLeftVelocity = leftVelocity;
+    m_prevRightVelocity = rightVelocity;
+  }
+
+  public void setLeftRightVelocity(double leftVelocity, double leftFeedforward, double rightVelocity,
+      double rightFeedforward) {
     m_leftController.setVelocity(leftVelocity, leftFeedforward);
     m_rightController.setVelocity(rightVelocity, rightFeedforward);
     m_drive.feed();
@@ -139,6 +170,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public Pose2d getPose() {
     return m_pose;
+  }
+
+  public DifferentialDriveKinematics getKinematics() {
+    return m_kinematics;
   }
 
   public double getHeading() {

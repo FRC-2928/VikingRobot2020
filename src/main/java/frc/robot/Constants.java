@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import frc.org.ballardrobotics.types.PIDValues;
 import frc.robot.types.ShooterSetpoint;
 
@@ -33,6 +34,10 @@ public final class Constants {
         public static final int kPigeonDeviceID = 4;
 
         public static final double kTrackWidthMeters = 0.5;
+
+        public static final double kS = 0.0;
+        public static final double kV = 0.0;
+        public static final double kA = 0.0;
     }
 
     public static final class ElevatorConstants {

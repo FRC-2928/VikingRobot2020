@@ -22,7 +22,6 @@ public class DrivetrainCharacterizationCommand extends CommandBase {
     m_numberArray = new Number[9];
   }
 
-  // Called just before this Command runs the first time
   @Override
   public void initialize() {
     NetworkTableInstance.getDefault().setUpdateRate(0.010);
@@ -30,7 +29,6 @@ public class DrivetrainCharacterizationCommand extends CommandBase {
     m_drivetrain.resetGyro();
   }
 
-  // Called repeatedly when this Command is scheduled to run
   @Override
   public void execute() {
     double autospeed = m_autoSpeedEntry.getDouble(0.0);
