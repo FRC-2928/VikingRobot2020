@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ControlPanelConstants;
-import frc.robot.Constants.ConversionConstants;
-import frc.robot.Constants.PIDConstants;
+import frc.robot.Constants.ControlPanelConstants;
+import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.RobotMap;
 import frc.robot.types.ControlPanelColor;
 import frc.robot.utilities.ColorMatcher;
@@ -54,8 +54,8 @@ public class ControlPanelSubsystem extends SubsystemBase {
     m_motor.setNeutralMode(NeutralMode.Coast);
 
     //motion magic 
-		m_motor.configMotionCruiseVelocity(15000, PIDConstants.kTimeoutMs);
-    m_motor.configMotionAcceleration(6000, PIDConstants.kTimeoutMs);
+		m_motor.configMotionCruiseVelocity(15000, ControlPanelConstants.kTimeoutMs);
+    m_motor.configMotionAcceleration(6000, ControlPanelConstants.kTimeoutMs);
     // How much smoothing [0,8] to use during MotionMagic
 	  int m_smoothing = 0;
  
@@ -161,7 +161,7 @@ public class ControlPanelSubsystem extends SubsystemBase {
     zeroSensors();
 
     // MotionMagic wants the setpoint in encoder ticks
-    double setpoint = rotations * ConversionConstants.kPanelEncoderTicksPerRotation;
+    double setpoint = rotations * ControlPanelConstants.kPanelEncoderTicksPerRotation;
     
     m_motor.set(ControlMode.MotionMagic, setpoint);
   }
@@ -169,7 +169,7 @@ public class ControlPanelSubsystem extends SubsystemBase {
   // Rotate the control panel the number of specified segments
   public void rotateSegments(double segments) {
     // Calculate the number of manipulator wheel rotations
-    m_targetRotations = (segments * ConversionConstants.kColorArcLength) / ConversionConstants.kManipulatorCircumference;
+    m_targetRotations = (segments * ControlPanelConstants.kColorArcLength) / ControlPanelConstants.kManipulatorCircumference;
 
     runRotationLoop(m_targetRotations);
   }
@@ -195,13 +195,13 @@ public class ControlPanelSubsystem extends SubsystemBase {
 
   // Converts encode ticks back into rotations
   public double getMotorRotations(){
-    double rotations = getNativeEncoderTicks() / ConversionConstants.kPanelEncoderTicksPerRotation;
+    double rotations = getNativeEncoderTicks() / ControlPanelConstants.kPanelEncoderTicksPerRotation;
     return rotations;
   }
 
   // Set encoders to zero
   void zeroSensors() {
-    m_motor.getSensorCollection().setQuadraturePosition(0, PIDConstants.kTimeoutMs);
+    m_motor.getSensorCollection().setQuadraturePosition(0, ControlPanelConstants.kTimeoutMs);
   }  
     
   //--------------------------------------------------------------
@@ -212,13 +212,13 @@ public class ControlPanelSubsystem extends SubsystemBase {
     // double kP = SmartDashboard.getNumber("Turret kP", kP);
     // double kF = SmartDashboard.getNumber("Turret kF", kF);
 
-    m_motor.config_kP(0, PIDConstants.kPanelP);
-    m_motor.config_kI(0, PIDConstants.kPanelI);
-    m_motor.config_kD(0, PIDConstants.kPanelD);
-    // m_motor.config_IntegralZone(0, PIDConstants.kPanelIzone);
-    m_motor.config_kF(0, PIDConstants.kPanelFF);
+    m_motor.config_kP(0, ControlPanelConstants.kPanelP);
+    m_motor.config_kI(0, ControlPanelConstants.kPanelI);
+    m_motor.config_kD(0, ControlPanelConstants.kPanelD);
+    // m_motor.config_IntegralZone(0, ControlPanelConstants.kPanelIzone);
+    m_motor.config_kF(0, ControlPanelConstants.kPanelFF);
 
-   // m_motor.setOutputRange(PIDConstants.kMinOutput, PIDConstants.kMaxOutput);
+   // m_motor.setOutputRange(ControlPanelConstants.kMinOutput, ControlPanelConstants.kMaxOutput);
   }
 
 }

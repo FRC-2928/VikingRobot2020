@@ -60,39 +60,31 @@ import frc.robot.commands.climber.ClimbMid;
 import frc.robot.commands.climber.DeployClimber;
 import frc.robot.commands.climber.ClimbLow;
 
-
-/**
- * This class is where the bulk of the robot should be declared.  Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls).  Instead, the structure of the robot
- * (including subsystems, commands, and button mappings) should be declared here.
- */
 public class RobotContainer {
 
   // The robot's subsystems
   private final DrivetrainSubsystem m_robotDrive = new DrivetrainSubsystem();
-
-  private Trajectory m_trajectory;
-  // The robot's subsystems and commands are defined here...
   private final FlywheelSubsystem m_flywheelsubsystem = new FlywheelSubsystem();
   private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
   private final Intake m_intake = new Intake();
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
   private final ClimberSubsystem m_climber = new ClimberSubsystem();
+  private final FeederSubsystem m_feeder = new FeederSubsystem();
   
-  XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
-  XboxController m_operatorController = new XboxController(Constants.OIConstants.kOperatorControllerPort);
+  // Operator Input
+  // XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
+  // XboxController m_operatorController = new XboxController(Constants.OIConstants.kOperatorControllerPort);
 
   private final XboxController driveController = new XboxController(0);
   private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
   private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
   private final JoystickButton positionControlHood = new JoystickButton(driveController, 1);
-  // The robot's subsystems and commands are defined here...
 
-  private final FeederSubsystem m_feeder = new FeederSubsystem();
- 
   private final DriverOI m_driverOI;
   private final OperatorOI m_operatorOI;
+
+  // Autonomous 
+  private Trajectory m_trajectory;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -111,8 +103,8 @@ public class RobotContainer {
         // A split-stick arcade command, with forward/backward controlled by the left
         // hand, and turning controlled by the right.
         new RunCommand(() -> m_robotDrive
-            .drive(m_driverController.getY(GenericHID.Hand.kLeft),
-                         m_driverController.getX(GenericHID.Hand.kRight)), m_robotDrive));
+            .drive(m_driverOI.getMoveSupplier(),
+                   m_driverOI.getRotateSupplier()), m_robotDrive));
   }
 
   /**
@@ -125,9 +117,9 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Drive at half speed when the right bumper is held
-    new JoystickButton(m_driverController, Button.kBumperRight.value)
-        .whenPressed(() -> m_robotDrive.setMaxOutput(0.5))
-        .whenReleased(() -> m_robotDrive.setMaxOutput(1));
+    // new JoystickButton(m_driverController, Button.kBumperRight.value)
+    //     .whenPressed(() -> m_robotDrive.setMaxOutput(0.5))
+    //     .whenReleased(() -> m_robotDrive.setMaxOutput(1));
 
     velocityControlFlywheel.whileHeld(
       new RunCommand(() -> {
@@ -136,24 +128,24 @@ public class RobotContainer {
       }, 
       m_flywheelsubsystem));
 
-    ConfigureControlButtons(); 
+    configureControlPanelButtons(); 
+    configureIntakeButtons();
+    configureFeederButtons();
+    ConfigureClimberButtons();
 
     openLoopFlywheel.whileHeld(new RunCommand(() -> m_flywheelsubsystem.setPower(0.75),m_flywheelsubsystem));
 
     positionControlHood.whileHeld(new RunCommand(() -> m_hoodsubsystem.setHoodDegrees(), m_hoodsubsystem));  
   }
 
-  public void ConfigureControlButtons() {
-      // Spin the control panel three times
-      new JoystickButton(m_operatorController, Button.kY.value)
-      .whenPressed(() -> m_controlPanel.rotateSegments(ControlPanelConstants.threeTurns));
-
+  public void configureControlPanelButtons() {
+      
     // Spin the control panel three times
-    new JoystickButton(m_operatorController, Button.kY.value)
+    m_operatorOI.spinColorWheelButton()
       .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.threeTurns));
 
     // Spin the control panel to target color
-    new JoystickButton(m_operatorController, Button.kX.value)
+    m_operatorOI.turnToColorButton()
       .whenPressed(new ConditionalCommand(
 
        // TRUE - the detected color is unknown so rotate half a segment 
@@ -166,20 +158,12 @@ public class RobotContainer {
 
        // CONDITION - is the color unknown?
        m_controlPanel.unknownColor()
-     )
-
- );
+     ));
   }
 
   public void onInitialize(){
     m_flywheelsubsystem.configFeedbackGains();
     m_hoodsubsystem.configPIDGains();
-    //buttons for the intake
-    // configureIntakeButtons();
-    
-
-    configureFeederButtons();
-    
   }
 
   public void configureFeederButtons() {
@@ -189,30 +173,62 @@ public class RobotContainer {
     m_operatorOI.getEnableFeederButton().whenPressed(new StartFeeder(m_feeder));
     m_operatorOI.getDisableFeederButton().whenPressed(new StopFeeder(m_feeder));
     m_operatorOI.getReverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
-    ConfigureClimberButtons();
   
   }
 
   public void ConfigureClimberButtons() {
       
+    // TODO still need to map these buttons
     // Deploy to top
-    new JoystickButton(m_operatorController, Button.kA.value)
-        .whenPressed(new DeployClimber(m_climber));
+    // new JoystickButton(m_operatorController, Button.kA.value)
+    //     .whenPressed(new DeployClimber(m_climber));
 
-    // Deploy to high point
-    new JoystickButton(m_operatorController, Button.kB.value)
-        .whenPressed(new DeployClimber(m_climber)
-          .andThen(new ClimbHigh(m_climber)));
+    // // Deploy to high point
+    // new JoystickButton(m_operatorController, Button.kB.value)
+    //     .whenPressed(new DeployClimber(m_climber)
+    //       .andThen(new ClimbHigh(m_climber)));
      
-    // Deploy to Mid point
-    new JoystickButton(m_operatorController, Button.kX.value)
-        .whenPressed(new DeployClimber(m_climber)
-          .andThen(new ClimbMid(m_climber)));
+    // // Deploy to Mid point
+    // new JoystickButton(m_operatorController, Button.kX.value)
+    //     .whenPressed(new DeployClimber(m_climber)
+    //       .andThen(new ClimbMid(m_climber)));
       
-    // Deploy to low point
-    new JoystickButton(m_operatorController, Button.kY.value)
-        .whenPressed(new DeployClimber(m_climber)
-          .andThen(new ClimbLow(m_climber)));      
+    // // Deploy to low point
+    // new JoystickButton(m_operatorController, Button.kY.value)
+    //     .whenPressed(new DeployClimber(m_climber)
+    //       .andThen(new ClimbLow(m_climber)));      
+  }
+
+
+  private void configureIntakeButtons() {
+
+    // Pickup balls from the ground
+    m_driverOI.getGroundIntakeButton().whenPressed(new SequentialCommandGroup(
+      //extend intake
+      new InstantCommand(m_intake::groundPickup, m_intake ),
+      //wait until intake deploys
+      new WaitCommand(1),
+      // run motors
+      new RunCommand(m_intake::startMotor, m_intake)
+    ));
+
+    // Pickup balls from the Player Station
+    m_driverOI.getStationIntakeButton().whenPressed(new SequentialCommandGroup(
+      //extend intake
+      new InstantCommand(m_intake::StationPickup, m_intake ),
+      //wait until intake deploys
+      new WaitCommand(1),
+      // run motors
+      new RunCommand(m_intake::startMotor, m_intake)
+    ));
+
+    // TODO Stow the intake
+    // new JoystickButton(m_driverController, Button.kB.value).whenReleased(new SequentialCommandGroup(
+    //   //stop motors
+    //   new InstantCommand(m_intake::stopMotor, m_intake),
+    //   //retract intake
+    //   new InstantCommand(m_intake::Stowed, m_intake )
+    // ));
   }
 
   /**

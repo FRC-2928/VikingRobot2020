@@ -1,6 +1,7 @@
 package frc.robot.commands.controlpanel;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 
@@ -24,7 +25,7 @@ public class RotateSegments extends CommandBase {
 
   @Override
   public void execute() {
-    m_controlPanel.rotateSegments(ConversionConstants.threeTurns);
+    m_controlPanel.rotateSegments(ControlPanelConstants.threeTurns);
   }
 
   @Override

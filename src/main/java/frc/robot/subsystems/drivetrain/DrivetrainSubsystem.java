@@ -1,5 +1,7 @@
 package frc.robot.subsystems.drivetrain;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -160,6 +162,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // -----------------------------------------------------------
     // Actuator Output
     // -----------------------------------------------------------
+    public void drive(DoubleSupplier move, DoubleSupplier rotate){
+        drive(move.getAsDouble(), rotate.getAsDouble(), true);
+    }
+
     public void drive(double move, double rotate, boolean squaredInputs){
         m_differentialDrive.arcadeDrive(move, rotate, squaredInputs);
     }
