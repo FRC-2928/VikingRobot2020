@@ -52,6 +52,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     private Pose2d m_pose;
 
     public static final double kNominalVoltageVolts = 12.0;
+    private DifferentialDriveWheelSpeeds m_prevSpeeds;
     private double m_targetVelocityRotationsPerSecond;
 
     // -----------------------------------------------------------
@@ -122,6 +123,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
                                                 DrivetrainConstants.kvVoltSecondsPerMeter,
                                                 DrivetrainConstants.kaVoltSecondsSquaredPerMeter);
         
+        // Save previous wheel speeds. Start at zero.
+        m_prevSpeeds = new DifferentialDriveWheelSpeeds(0,0);
+
         // Setup odometry to start at position 0,0 (top left of field)
         m_yaw = m_pigeon.getYaw();
         SmartDashboard.putNumber("Initial robot yaw", m_yaw);
@@ -148,15 +152,29 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     public void outputMetersPerSecond(double leftMetersPerSecond, double rightMetersPerSecond) {
-        // Feed these to the drivetrain...
-        double leftVelocityRotationsPerSecond = leftMetersPerSecond / (DrivetrainConstants.kWheelDiameterMeters * Math.PI);
-        double rightVelocityRotationsPerSecond = rightMetersPerSecond / (DrivetrainConstants.kWheelDiameterMeters * Math.PI);
         
-        // Calculate feedforward.  TODO get acceleration
-        double leftFeedForward = m_feedForward.calculate(leftVelocityRotationsPerSecond,0.0);
-        double rightFeedForward = m_feedForward.calculate(rightVelocityRotationsPerSecond,0.0);
+        // Calculate feedforward for the left and right wheels.
+        double leftAcceleration = (leftMetersPerSecond - m_prevSpeeds.leftMetersPerSecond) / 0.001;
+        double leftFeedForward = m_feedForward.calculate(leftMetersPerSecond, leftAcceleration);
+
+        double rightAcceleration = (rightMetersPerSecond - m_prevSpeeds.rightMetersPerSecond) / 0.001;
+        double rightFeedForward = m_feedForward.calculate(rightMetersPerSecond, rightAcceleration);
+        
+        // Convert meters per second to rotations per second
+        double leftVelocityRotationsPerSecond = metersToRotations(leftMetersPerSecond);
+        double rightVelocityRotationsPerSecond = metersToRotations(rightMetersPerSecond);
+
+        // Feed these to the drivetrain...
         setDriveTrainVelocity(leftVelocityRotationsPerSecond, leftFeedForward,
                               rightVelocityRotationsPerSecond, rightFeedForward);
+
+        // Save previous speeds
+        m_prevSpeeds.leftMetersPerSecond = leftMetersPerSecond;
+        m_prevSpeeds.rightMetersPerSecond = rightMetersPerSecond;
+    }
+
+    public double metersToRotations(double metersPerSecond) {
+        return metersPerSecond / (DrivetrainConstants.kWheelDiameterMeters * Math.PI);
     }
 
     // -----------------------------------------------------------
