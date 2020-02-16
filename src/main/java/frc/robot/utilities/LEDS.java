@@ -2,6 +2,8 @@ package frc.robot.utilities;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 
 public class LEDS {
@@ -13,6 +15,12 @@ public class LEDS {
     private int hueIndex;
     private int m_rainbowFirstPixelHue = 0;
     private int m_rainbowSecondFirstHue = 230;
+    private DriverStation m_driverStation; 
+    private DriverStation.Alliance m_allianceColor;
+    private boolean firstCallPattern = true;
+    private int colorSectionStart = 0;
+    private int colorSectionEnd = 10;
+    private int m_value = 100;
 
     public LEDS (){
         m_led = new AddressableLED(9);
@@ -99,13 +107,15 @@ public class LEDS {
         m_rainbowFirstPixelHue += 3;
         // Check bounds
         m_rainbowFirstPixelHue %= 180;
-      }
+    }
  
         //Sets LEDs to rainbow, repeated calls should "move" the rainbow
-    private void movingPattern(boolean reset) {
+    private void movingPattern() {
         int m_rainbowLastPixelHue =0;
 
-        if (reset) {  // For every pixel setup initial pattern
+        if (firstCallPattern) {  // For every pixel setup initial pattern
+           
+
             m_ledPatternHueBuffer = new int[m_ledBuffer.getLength()];
 
             // fill first secion of hue buffer
@@ -141,23 +151,62 @@ public class LEDS {
                 m_ledPatternHueBuffer[i] = 
                     m_rainbowLastPixelHue - (m_rainbowSecondFirstHue + (i * 180 / m_ledBuffer.getLength())) % 180;
               }
-
         }
-      
+        
+            
         //display pattern
-        for (var i = 0; i < m_ledBuffer.getLength(); i++) {
+                for (var i = 0; i < m_ledBuffer.getLength(); i++) {
           // Calculate the hue - hue is easier for rainbows because the color
           // shape is a circle so only one value needs to precess
         
-          hueIndex = m_ledPatternHueBuffer[ ( (i+bufStart) % m_ledBuffer.getLength() ) ];
+                hueIndex = m_ledPatternHueBuffer[ ( (i+bufStart) % m_ledBuffer.getLength() ) ];
 
-          m_ledBuffer.setHSV(i, hueIndex, 255, 128);
+                m_ledBuffer.setHSV(i, hueIndex, 255, 128);
         }
 
         // move pattern one led
         bufStart++;
-
     }
-  
+    // Also call repeatedly to "move"
+    private void colorAcross(int hue) {
+        m_value = 100;
+        // For every pixel
+        for (var i = 0; i < m_ledBuffer.getLength(); i++) {
+          
+          if (i < colorSectionEnd && i > colorSectionStart) {
+          // Set the section of active LEDs
+          m_ledBuffer.setHSV(i, hue, 255, m_value);
+          //Dims light as it moves
+          m_value -= 5;
+        }
+        else {
+            m_ledBuffer.setHSV(i, 0, 0, 0);
+        }
+    }
+        // Increase by to make the line "move"
+        colorSectionStart++;
+        colorSectionEnd++;
+      
+    }
+    //call repeatedly for movement 
+    private void allianceColor() {
+        m_driverStation = DriverStation.getInstance();
+        m_allianceColor = m_driverStation.getAlliance();
+
+        switch (m_allianceColor) {
+            case Blue:
+            colorAcross(240);
+
+            break;
+
+            case Red: 
+            colorAcross(0);
+            break; 
+
+            case Invalid:
+            colorAcross(279);
+            break;
+        }
+    }
 }
 
