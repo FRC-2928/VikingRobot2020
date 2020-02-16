@@ -150,7 +150,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   // Field relative turret tracking, depends on starting position
   public void searchForTarget() {
-    double reference = -m_robotYaw - m_robotStartAngle;
+    double reference = (-m_robotYaw % 360) - m_robotStartAngle;
     setPosition(reference);
   }
 
@@ -209,6 +209,36 @@ public class TurretSubsystem extends SubsystemBase {
     }
   }
 
+  //Returns an angle which is valid and fastest to reference
+  public double checkValidAngle(double reference){
+    double currentAngle = getTurretDegrees();
+    double newReference = reference % 360;
+
+    //Checks if reference is out of bounds
+    if(newReference > leftMaxLimit){
+      newReference -= 360;
+      return newReference;
+    }
+    else if(newReference < rightMaxLimit){
+      newReference += 360;
+      return newReference;
+    }
+
+    //Checks if there's a faster way to reference
+    if(newReference - currentAngle <= -180){
+      if(newReference + 360 < leftMaxLimit){
+        newReference = newReference + 360;
+      }
+    }
+    else if(newReference - currentAngle >= 180){
+      if(newReference - 360 > rightMaxLimit){
+        newReference = newReference - 360;
+      }
+    }
+
+    return newReference;
+  }
+
   public TurretState getTurretState() {
     return m_turretState;
   }
@@ -264,7 +294,7 @@ public class TurretSubsystem extends SubsystemBase {
    * opponent's alliance stations.
    */
   public double getTurretFieldDegrees() {
-    return 420; // Placeholder
+    return (m_robotYaw % 360) + getTurretDegrees();
   }
 
   // -----------------------------------------------------------
