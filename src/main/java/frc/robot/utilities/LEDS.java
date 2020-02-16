@@ -110,7 +110,7 @@ public class LEDS {
     }
  
         //Sets LEDs to rainbow, repeated calls should "move" the rainbow
-    private void movingPattern() {
+    public void movingPattern() {
         int m_rainbowLastPixelHue =0;
 
         if (firstCallPattern) {  // For every pixel setup initial pattern
