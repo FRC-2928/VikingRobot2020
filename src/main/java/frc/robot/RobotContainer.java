@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.trajectories.Test1Trajectory;
 import frc.robot.commands.controlpanel.RotateSegments;
 import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
@@ -55,6 +56,7 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.commands.auto.RamseteTrajectoryCommand;
 import frc.robot.commands.climber.ClimbHigh;
 import frc.robot.commands.climber.ClimbMid;
 import frc.robot.commands.climber.DeployClimber;
@@ -256,36 +258,60 @@ public class RobotContainer {
           // Apply the voltage constraint
           .addConstraint(autoVoltageConstraint);
 
-    String trajectoryJSON = "trajectories/test.wpilib.json";
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-      m_trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException ex) {
-      DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    }
+    // String trajectoryJSON = "trajectories/test.wpilib.json";
+    // try {
+    //   Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
+    //   m_trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    // } catch (IOException ex) {
+    //   DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
+    // }
 
-    // Ramsete command will use PID within the TalonFX
-    RamseteCommand ramseteCommand = new RamseteCommand(
-        // Where we're going
-        m_trajectory,
+    // An example trajectory to follow.  All units in meters.
+    // Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+    //   // Start at the origin facing the +X direction
+    //   new Pose2d(0, 0, new Rotation2d(0)),
+    //   // Pass through these two interior waypoints, making an 's' curve path
+    //   List.of(
+    //       new Translation2d(1, 1),
+    //       new Translation2d(2, -1)
+    //   ),
+    //   // End 3 meters straight ahead of where we started, facing forward
+    //   new Pose2d(3, 0, new Rotation2d(0)),
+    //   // Pass config
+    //   config
+    // );
 
-        // Where we are currently.  Input from the drivetrain
-        m_robotDrive::getPose,
+    // Create a trajectory
+    Test1Trajectory test1 = new Test1Trajectory(config);
+    Trajectory trajectory1 = Trajectory.class.cast(test1);
 
-        // The controller. Computes the wheel speeds for the next spline
-        new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta), 
-        
-        // Kinematics, defined in the Constants file
-        DrivetrainConstants.kDriveKinematics,
-
-        // Consumed in the drivetrain to pass to PID loop
-        m_robotDrive::outputMetersPerSecond,
-
-        // Required subsystem
-        m_robotDrive
-    );
+    RamseteTrajectoryCommand trajectoryCommand = new RamseteTrajectoryCommand(m_robotDrive, trajectory1);
 
     // Run path following command, then stop at the end.
-    return ramseteCommand.andThen(() -> m_robotDrive.stopDrivetrain());
+    return trajectoryCommand.andThen(() -> m_robotDrive.stopDrivetrain());
+
+    // // Ramsete command will use PID within the TalonFX
+    // RamseteCommand ramseteCommand = new RamseteCommand(
+    //     // Where we're going
+    //     m_trajectory,
+
+    //     // Where we are currently.  Input from the drivetrain
+    //     m_robotDrive::getPose,
+
+    //     // The controller. Computes the wheel speeds for the next spline
+    //     new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta), 
+        
+    //     // Kinematics, defined in the Constants file
+    //     DrivetrainConstants.kDriveKinematics,
+
+    //     // Consumed in the drivetrain to pass to PID loop
+    //     m_robotDrive::outputMetersPerSecond,
+
+    //     // Required subsystem
+    //     m_robotDrive
+    // );
+
+    // // Run path following command, then stop at the end.
+    // return ramseteCommand.andThen(() -> m_robotDrive.stopDrivetrain());
   }
 }

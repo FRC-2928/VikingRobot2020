@@ -7,11 +7,11 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 
-public class DrivetrainFollowTrajectoryCommand extends RamseteCommand {
+public class RamseteTrajectoryCommand extends RamseteCommand {
   /**
-   * Creates a new DrivetrainFollowTrajectoryCommand.
+   * Creates a new RamseteTrajectoryCommand.
    */
-  public DrivetrainFollowTrajectoryCommand(DrivetrainSubsystem drivetrain, Trajectory trajectory) {
+  public RamseteTrajectoryCommand(DrivetrainSubsystem drivetrain, Trajectory trajectory) {
     super(
       trajectory,
       drivetrain::getPose,
