@@ -94,7 +94,7 @@ public class LEDS {
     }
    
     //Sets LEDs to rainbow, repeated calls should "move" the rainbow
-    private void rainbow() {
+    public void rainbow() {
         // For every pixel
         for (var i = 0; i < m_ledBuffer.getLength(); i++) {
           // Calculate the hue - hue is easier for rainbows because the color
@@ -189,7 +189,7 @@ public class LEDS {
       
     }
     //call repeatedly for movement 
-    private void allianceColor() {
+    public void allianceColor() {
         m_driverStation = DriverStation.getInstance();
         m_allianceColor = m_driverStation.getAlliance();
 
