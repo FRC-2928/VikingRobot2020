@@ -1,7 +1,6 @@
 package frc.robot.subsystems.leds;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.RobotMap;
 import frc.robot.utilities.LEDS;
 
 
@@ -10,8 +9,15 @@ public class leds extends SubsystemBase {
   
    private final LEDS m_LEDS;
    
-  public leds() {
 
+   public enum Patterns {
+       RAINBOW,ALLAINCE,PATTERN
+   }
+
+    private Patterns m_pattern;
+
+  public leds(Patterns patterns) {
+    m_pattern = patterns;
     m_LEDS = new LEDS();
 
   }
@@ -19,12 +25,25 @@ public class leds extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_LEDS.allianceColor();
+    switch (m_pattern) {
+        case ALLAINCE:
+        m_LEDS.allianceColor();
+        break;
+
+        case RAINBOW:
+        m_LEDS.rainbow();
+        break;
+
+        case PATTERN:
+        m_LEDS.movingPattern();
+        break;
+    }
+    
   }
 
   //still needs to be called repeatedly to work
   
-  public void displayRainbow() {
-      m_LEDS.rainbow();
+  public void setPattern(Patterns patterns) {
+      m_pattern = patterns; 
   }
 }
