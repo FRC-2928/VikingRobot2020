@@ -23,7 +23,7 @@ public class leds extends SubsystemBase {
   }
 
   //still needs to be called repeatedly to work
-  @Override
+  
   public void displayRainbow() {
       m_LEDS.rainbow();
   }
