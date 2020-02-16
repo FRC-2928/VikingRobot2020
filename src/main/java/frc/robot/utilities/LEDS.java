@@ -102,7 +102,7 @@ public class LEDS {
       }
  
         //Sets LEDs to rainbow, repeated calls should "move" the rainbow
-      private void movingPattern(boolean reset) {
+    private void movingPattern(boolean reset) {
         int m_rainbowLastPixelHue =0;
 
         if (reset) {  // For every pixel setup initial pattern
@@ -123,9 +123,8 @@ public class LEDS {
                 // TBD how we make pattern
                 m_ledPatternHueBuffer[i] = 
                     m_rainbowLastPixelHue - (m_rainbowFirstPixelHue + (i * 180 / m_ledBuffer.getLength())) % 180;
-                m_rainbowLastPixelHue = m_ledPatternHueBuffer[i];
-
               }
+              
             // fill third secion of hue buffer
             for (var i = (m_ledBuffer.getLength()/2); i < (m_ledBuffer.getLength()*3/4); i++) {
                 // Calculate the hue - hue is easier for rainbows because the color
@@ -146,7 +145,7 @@ public class LEDS {
         }
       
         //display pattern
-     for (var i = 0; i < m_ledBuffer.getLength(); i++) {
+        for (var i = 0; i < m_ledBuffer.getLength(); i++) {
           // Calculate the hue - hue is easier for rainbows because the color
           // shape is a circle so only one value needs to precess
         
@@ -158,7 +157,7 @@ public class LEDS {
         // move pattern one led
         bufStart++;
 
-        }
+    }
   
 }
 
