@@ -58,6 +58,10 @@ public final class Constants {
     public static final class OIConstants {
         public static final int kDriverControllerPort =1;
         public static final int kOperatorControllerPort =2;
+        public static final int kUp = 0;
+        public static final int kMid = 90;
+        public static final int kDown = 180;
+        public static final int kMidTwo = 270;
     }
 
     public static final class ControlPanelConstants {
