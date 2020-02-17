@@ -6,17 +6,17 @@ import edu.wpi.first.wpilibj2.command.button.Button;
 
 public interface OperatorOI {
 
-    Button getEnableFeederButton();
+    Button deployClimberHigh();
 
-    Button getDisableFeederButton();
+    Button deployClimberMid();
 
-    Button getReverseFeederButton();
+    Button deployClimberLow();
+
+    DoubleSupplier climberAdjustmentButton();
 
     Button getEnableAutoTargetButton();
 
     Button getDisableAutoTargetButton();
-
-    DoubleSupplier ClimberAdjustmentButton();
 
     Button spinColorWheelButton();
 

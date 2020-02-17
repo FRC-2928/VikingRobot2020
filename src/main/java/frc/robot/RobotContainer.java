@@ -172,9 +172,9 @@ public class RobotContainer {
     // Also need to pass in the flywheel
     //m_driverOI.getAutoShootingButton().whenPressed(new FastForwardFeeder(m_feeder));
 
-    m_operatorOI.getEnableFeederButton().whenPressed(new StartFeeder(m_feeder));
-    m_operatorOI.getDisableFeederButton().whenPressed(new StopFeeder(m_feeder));
-    m_operatorOI.getReverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
+    m_operatorOI.enableFeederButton().whenPressed(new StartFeeder(m_feeder));
+    m_operatorOI.disableFeederButton().whenPressed(new StopFeeder(m_feeder));
+    m_operatorOI.reverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
   
   }
 

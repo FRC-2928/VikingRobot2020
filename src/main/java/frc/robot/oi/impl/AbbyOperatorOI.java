@@ -16,18 +16,18 @@ public class AbbyOperatorOI implements OperatorOI {
     }
    
     @Override
-    public Button getEnableFeederButton() {
+    public Button deployClimberHigh() {
         return new JoystickButton(m_controller, XboxController.Button.kA.value);
     }
 
     @Override
-    public Button getDisableFeederButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kB.value);
+    public Button deployClimberMid() {
+        return new JoystickButton(m_controller, XboxController.Button.kY.value);
     }
 
     @Override
-    public Button getReverseFeederButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kX.value);
+    public Button deployClimberLow() {
+        return new JoystickButton(m_controller, XboxController.Button.kB.value);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class AbbyOperatorOI implements OperatorOI {
     }
 
     @Override
-    public DoubleSupplier ClimberAdjustmentButton() {
+    public DoubleSupplier climberAdjustmentButton() {
         return() -> -m_controller.getY(Hand.kLeft);
     }
 
