@@ -10,7 +10,11 @@ public interface OperatorOI {
 
     Button deployClimberMid();
 
+    Button deployClimberMidTwo();
+
     Button deployClimberLow();
+
+    Button deployToTop(); //this is for testing
 
     DoubleSupplier climberAdjustmentButton();
 
@@ -21,10 +25,25 @@ public interface OperatorOI {
     Button spinColorWheelButton();
 
     Button turnToColorButton();
+    
+    Button turnWheelThreeTimes();
 
     Button enableFeederButton();
 
     Button disableFeederButton();
 
     Button reverseFeederButton();
+
+    Button turnTurretToWheel();
+
+    Button rotateTurret();
+
+    Button shootFromWallButton();
+
+    Button shootFromLineButton();
+
+    Button shootFromWheelButton();
+
+    Button shootFromTrenchButton();
+    
 }
