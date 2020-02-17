@@ -1,8 +1,6 @@
 package frc.robot.utilities;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
-
-import frc.robot.Constants;
 import frc.robot.Constants.RobotMap;
 
 /**

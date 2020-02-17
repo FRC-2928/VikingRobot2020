@@ -109,6 +109,11 @@ public class RobotContainer {
                    m_driverOI.getRotateSupplier()), m_robotDrive));
   }
 
+  public void onInitialize(){
+    m_flywheelsubsystem.configFeedbackGains();
+    m_hoodsubsystem.configPIDGains();
+  }
+
   /**
    * Use this method to define your button->command mappings.  Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses ({@link
@@ -143,29 +148,25 @@ public class RobotContainer {
   public void configureControlPanelButtons() {
       
     // Spin the control panel three times
-    m_operatorOI.spinColorWheelButton()
+    m_operatorOI.turnWheelButton()
+      .whileHeld(new RunCommand(m_controlPanel::setPower, m_controlPanel));
+
+    // Spin the control panel three times
+    m_operatorOI.turnWheelThreeTimes()
       .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.threeTurns));
 
     // Spin the control panel to target color
     m_operatorOI.turnToColorButton()
       .whenPressed(new ConditionalCommand(
-
        // TRUE - the detected color is unknown so rotate half a segment 
        new RotateSegments(m_controlPanel, 0.5)
          // and then rotate to color
          .andThen(new RotateToColor(m_controlPanel)),
-
        // FALSE - the color is known so rotate to target color
        new RotateToColor(m_controlPanel),
-
        // CONDITION - is the color unknown?
        m_controlPanel.unknownColor()
      ));
-  }
-
-  public void onInitialize(){
-    m_flywheelsubsystem.configFeedbackGains();
-    m_hoodsubsystem.configPIDGains();
   }
 
   public void configureFeederButtons() {
@@ -213,7 +214,7 @@ public class RobotContainer {
     // Pickup balls from the Player Station
     m_driverOI.getStationIntakeButton().whenPressed(new SequentialCommandGroup(
       //extend intake
-      new InstantCommand(m_intake::StationPickup, m_intake ),
+      new InstantCommand(m_intake::stationPickup, m_intake ),
       //wait until intake deploys
       new WaitCommand(1),
       // run motors

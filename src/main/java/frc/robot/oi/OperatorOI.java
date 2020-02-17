@@ -22,7 +22,7 @@ public interface OperatorOI {
 
     Button getDisableAutoTargetButton();
 
-    Button spinColorWheelButton();
+    Button turnWheelButton();
 
     Button turnToColorButton();
     
@@ -36,14 +36,16 @@ public interface OperatorOI {
 
     Button turnTurretToWheel();
 
-    Button rotateTurret();
+    Button incrementShootFromButton();
 
-    Button shootFromWallButton();
+    Button decrementShootFromButton();
 
-    Button shootFromLineButton();
+    // Button shootFromWallButton();
 
-    Button shootFromWheelButton();
+    // Button shootFromLineButton();
 
-    Button shootFromTrenchButton();
+    // Button shootFromWheelButton();
+
+    // Button shootFromTrenchButton();
     
 }

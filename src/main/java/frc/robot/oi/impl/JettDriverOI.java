@@ -15,6 +15,8 @@ public class JettDriverOI implements DriverOI {
         m_controller = controller;
     }
 
+    // ---------------- Intake ----------------------------
+
     @Override
     public Button getGroundIntakeButton() {
         return new JoystickButton(m_controller, XboxController.Axis.kLeftTrigger.value);
@@ -25,15 +27,21 @@ public class JettDriverOI implements DriverOI {
         return new JoystickButton(m_controller, XboxController.Button.kBumperLeft.value);
     }
 
+    // ---------------- Climber ----------------------------
+
     @Override
     public Button getClimbTrigger() {
         return new JoystickButton(m_controller, XboxController.Axis.kRightTrigger.value);
     }
 
+    // ---------------- Shooting ----------------------------
+
     @Override
     public Button getAutoShootingButton() {
         return new JoystickButton(m_controller, XboxController.Button.kBumperRight.value);
     }
+
+    // ---------------- Drivetrain ----------------------------
 
     @Override
     public Button getShiftLowButton() {

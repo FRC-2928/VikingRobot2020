@@ -7,17 +7,11 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.revrobotics.ColorSensorV3;
-import com.revrobotics.ControlType;
-import com.revrobotics.CANSparkMax.IdleMode;
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.Constants.ControlPanelConstants;
-import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.RobotMap;
 import frc.robot.types.ControlPanelColor;
@@ -154,6 +148,11 @@ public class ControlPanelSubsystem extends SubsystemBase {
   // Actuator Output
   // -----------------------------------------------------------
   
+  // Send a percent power to the motor
+  public void setPower() {
+    m_motor.set(ControlMode.PercentOutput, 0.5);
+  }
+
   // Closed position loop using number of rotations as the setpoint
   public void runRotationLoop(double rotations) {
 

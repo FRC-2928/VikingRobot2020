@@ -16,6 +16,8 @@ public class AbbyOperatorOI implements OperatorOI {
         m_controller = controller;
     }
    
+    // --------------- Climber ------------------
+
     @Override
     public Button deployClimberHigh() {
         return new Button(() -> {
@@ -49,6 +51,13 @@ public class AbbyOperatorOI implements OperatorOI {
     public Button deployToTop(){
         return new JoystickButton(m_controller, XboxController.Button.kX.value);
     }
+  
+    @Override
+    public DoubleSupplier climberAdjustmentButton() {
+        return() -> -m_controller.getY(Hand.kLeft);
+    }
+
+    // ------------ Auto Targeting ------------------
 
     @Override
     public Button getEnableAutoTargetButton() {
@@ -60,13 +69,20 @@ public class AbbyOperatorOI implements OperatorOI {
         return new JoystickButton(m_controller, XboxController.Button.kBack.value);
     }
 
+    // ------------ Shooting ---------------------
     @Override
-    public DoubleSupplier climberAdjustmentButton() {
-        return() -> -m_controller.getY(Hand.kLeft);
+    public Button incrementShootFromButton() {
+        return new JoystickButton(m_controller, XboxController.Button.kBumperRight.value);
     }
 
     @Override
-    public Button spinColorWheelButton() {
+    public Button decrementShootFromButton() {
+        return new JoystickButton(m_controller, XboxController.Button.kBumperLeft.value);
+    }
+    // ------------ Color Wheel ------------------
+
+    @Override
+    public Button turnWheelButton() {
         return new Button(() -> {
             return m_controller.getTriggerAxis(Hand.kLeft) > 0.1 && 
                    m_controller.getTriggerAxis(Hand.kRight) > 0.1;
@@ -75,8 +91,20 @@ public class AbbyOperatorOI implements OperatorOI {
 
     @Override
     public Button turnToColorButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kBumperLeft.value);
+        return new JoystickButton(m_controller, XboxController.Axis.kLeftTrigger.value);
     }
+
+    @Override
+    public Button turnWheelThreeTimes() {
+        return new JoystickButton(m_controller, XboxController.Axis.kRightTrigger.value);
+    }
+
+    @Override
+    public Button turnTurretToWheel() {
+        return new JoystickButton(m_controller, XboxController.Button.kStickRight.value);
+    }
+
+    // ------------ Feeder ------------------
 
     @Override
     public Button enableFeederButton() {
