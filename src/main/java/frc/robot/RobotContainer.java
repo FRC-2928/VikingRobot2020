@@ -179,26 +179,22 @@ public class RobotContainer {
   }
 
   public void ConfigureClimberButtons() {
-      
-    // TODO still need to map these buttons
-    // Deploy to top
-    // new JoystickButton(m_operatorController, Button.kA.value)
-    //     .whenPressed(new DeployClimber(m_climber));
-
-    // // Deploy to high point
-    // new JoystickButton(m_operatorController, Button.kB.value)
-    //     .whenPressed(new DeployClimber(m_climber)
-    //       .andThen(new ClimbHigh(m_climber)));
-     
-    // // Deploy to Mid point
-    // new JoystickButton(m_operatorController, Button.kX.value)
-    //     .whenPressed(new DeployClimber(m_climber)
-    //       .andThen(new ClimbMid(m_climber)));
-      
-    // // Deploy to low point
-    // new JoystickButton(m_operatorController, Button.kY.value)
-    //     .whenPressed(new DeployClimber(m_climber)
-    //       .andThen(new ClimbLow(m_climber)));      
+  
+    m_operatorOI.deployClimberHigh()
+      .whenPressed(new DeployClimber(m_climber)
+      .andThen(new ClimbHigh(m_climber)));
+    m_operatorOI.deployClimberMid()
+      .whenPressed(new DeployClimber(m_climber)
+      .andThen(new ClimbMid(m_climber)));
+    m_operatorOI.deployClimberMidTwo()
+      .whenPressed(new DeployClimber(m_climber)
+      .andThen(new ClimbMid(m_climber)));
+    m_operatorOI.deployClimberLow()
+      .whenPressed(new DeployClimber(m_climber)
+      .andThen(new ClimbLow(m_climber)));
+    m_operatorOI.deployToTop()
+      .whenPressed(new DeployClimber(m_climber));
+    
   }
 
 
