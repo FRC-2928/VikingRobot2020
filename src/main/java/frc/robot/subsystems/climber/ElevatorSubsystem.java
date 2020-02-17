@@ -1,14 +1,15 @@
 package frc.robot.subsystems.climber;
 
+import org.ballardrobotics.speedcontrollers.SmartSpeedController;
+import org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
+import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
+
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
-import frc.org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
-import frc.org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
-import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Robot;
 
 public class ElevatorSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;

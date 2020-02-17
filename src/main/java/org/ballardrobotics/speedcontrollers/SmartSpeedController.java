@@ -1,4 +1,4 @@
-package frc.org.ballardrobotics.speedcontrollers;
+package org.ballardrobotics.speedcontrollers;
 
 import edu.wpi.first.wpilibj.SpeedController;
 

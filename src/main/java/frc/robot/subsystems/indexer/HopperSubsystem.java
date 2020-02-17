@@ -1,11 +1,12 @@
 package frc.robot.subsystems.indexer;
 
+import org.ballardrobotics.speedcontrollers.SmartSpeedController;
+import org.ballardrobotics.speedcontrollers.ctre.SmartVictorSPX;
+import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
-import frc.org.ballardrobotics.speedcontrollers.ctre.SmartVictorSPX;
-import frc.org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import frc.robot.Constants.HopperConstants;
 import frc.robot.Robot;
 

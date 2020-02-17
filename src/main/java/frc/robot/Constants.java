@@ -7,8 +7,8 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import frc.org.ballardrobotics.types.PIDValues;
+import org.ballardrobotics.types.PIDValues;
+
 import frc.robot.types.ShooterSetpoint;
 
 /**

@@ -1,4 +1,4 @@
-package frc.org.ballardrobotics.sensors.ctre;
+package org.ballardrobotics.sensors.ctre;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
 

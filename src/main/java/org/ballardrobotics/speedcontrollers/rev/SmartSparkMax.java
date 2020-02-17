@@ -1,14 +1,13 @@
-package frc.org.ballardrobotics.speedcontrollers.rev;
+package org.ballardrobotics.speedcontrollers.rev;
 
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
-import com.revrobotics.CANPIDController.AccelStrategy;
 import com.revrobotics.CANPIDController.ArbFFUnits;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.EncoderType;
 
-import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
+import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 
 /**
  * Add your docs here.

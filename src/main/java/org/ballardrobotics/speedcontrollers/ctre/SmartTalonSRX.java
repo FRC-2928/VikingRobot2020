@@ -1,15 +1,15 @@
-package frc.org.ballardrobotics.speedcontrollers.ctre;
+package org.ballardrobotics.speedcontrollers.ctre;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
-import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
+import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 
 /**
  * Add your docs here.
  */
-public class SmartVictorSPX extends WPI_VictorSPX implements SmartSpeedController {
+public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController {
     public static final double kNominalVoltageVolts = 12.0;
     public static final int kVelocitySlotIdx = 0;
     public static final int kPositionSlotIdx = 1;
@@ -23,12 +23,13 @@ public class SmartVictorSPX extends WPI_VictorSPX implements SmartSpeedControlle
     private double m_targetVelocityRotationsPerSecond;
     private double m_targetPositionRevolutions;
     private double m_targetVoltageVolts;
+    private double m_targetCurrentAmps;
 
-    public SmartVictorSPX(int deviceNumber) {
+    public SmartTalonSRX(int deviceNumber) {
         this(deviceNumber, 1.0);
     }
 
-    public SmartVictorSPX(int deviceNumber, double unitsPerRevolution) {
+    public SmartTalonSRX(int deviceNumber, double unitsPerRevolution) {
         super(deviceNumber);
         kUnitsPerRevolution = unitsPerRevolution;
         configVoltageCompSaturation(kNominalVoltageVolts);
@@ -48,7 +49,7 @@ public class SmartVictorSPX extends WPI_VictorSPX implements SmartSpeedControlle
     @Override
     public void setVelocity(double velocityRotationsPerSecond, double feedforwardVolts) {
         m_targetVelocityRotationsPerSecond = velocityRotationsPerSecond;
-        set(ControlMode.Velocity, (velocityRotationsPerSecond * kUnitsPerRevolution) / 10.0, DemandType.ArbitraryFeedForward,
+        set(ControlMode.Velocity, (velocityRotationsPerSecond * kUnitsPerRevolution) /  10.0, DemandType.ArbitraryFeedForward,
                 feedforwardVolts / kNominalVoltageVolts);
     }
 
@@ -107,19 +108,18 @@ public class SmartVictorSPX extends WPI_VictorSPX implements SmartSpeedControlle
 
     @Override
     public void setCurrent(double currentAmps) {
-        System.err.println("UnsupportedOperation: VictorSPX does not support setCurrent(double)");
+        m_targetCurrentAmps = currentAmps;
+        set(ControlMode.Current, currentAmps);
     }
 
     @Override
     public double getTargetCurrent() {
-        System.err.println("UnsupportedOperation: VictorSPX does not support getTargetCurrent()");
-        return 0.0;
+        return m_targetCurrentAmps;
     }
 
     @Override
     public double getMeasuredCurrent() {
-        System.err.println("UnsupportedOperation: VictorSPX does not support getMeasuredCurrent()");
-        return 0.0;
+        return getSupplyCurrent();
     }
 
     @Override

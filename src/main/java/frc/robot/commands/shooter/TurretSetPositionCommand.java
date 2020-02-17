@@ -2,6 +2,8 @@ package frc.robot.commands.shooter;
 
 import java.util.function.DoubleSupplier;
 
+import org.ballardrobotics.utilities.RotationUtility;
+
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.subsystems.shooter.TurretSubsystem;
@@ -23,27 +25,9 @@ public class TurretSetPositionCommand extends CommandBase {
 
   @Override
   public void execute() {
-    m_turret.setPosition(getTargetPosition(m_positionSupplier.getAsDouble(), m_turret.getMeasuredPosition()));
-  }
-
-  static double getTargetPosition(double angle, double current) {
-    angle %= 360.0;
-    double other = (angle > 0) ? angle - 360.0 : angle + 360.0;
-
-    if (!withinRange(angle)) {
-      return other;
-    }
-    if (!withinRange(other)) {
-      return angle;
-    }
-
-    if (Math.abs(angle - current) < Math.abs(other - current)) {
-      return angle;
-    }
-    return other;
-  }
-
-  static boolean withinRange(double value) {
-    return value <= TurretConstants.kMaxAngle && value >= -TurretConstants.kMaxAngle;
+    double inputAngle = m_positionSupplier.getAsDouble();
+    double currentAngle = m_turret.getMeasuredPosition();
+    double targetAngle = RotationUtility.getTargetAngle(inputAngle, currentAngle, -TurretConstants.kMaxAngle, TurretConstants.kMaxAngle);
+    m_turret.setPosition(targetAngle);
   }
 }

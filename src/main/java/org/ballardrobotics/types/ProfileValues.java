@@ -1,4 +1,4 @@
-package frc.org.ballardrobotics.types;
+package org.ballardrobotics.types;
 
 import java.util.function.Consumer;
 

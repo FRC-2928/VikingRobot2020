@@ -1,9 +1,9 @@
-package frc.org.ballardrobotics.speedcontrollers.fakes;
+package org.ballardrobotics.speedcontrollers.fakes;
 
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
 
-import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
+import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 
 /**
  * Add your docs here.

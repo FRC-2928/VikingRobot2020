@@ -1,15 +1,15 @@
-package frc.org.ballardrobotics.speedcontrollers.ctre;
+package org.ballardrobotics.speedcontrollers.ctre;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import frc.org.ballardrobotics.speedcontrollers.SmartSpeedController;
+import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 
 /**
  * Add your docs here.
  */
-public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController {
+public class SmartTalonFX extends WPI_TalonFX implements SmartSpeedController {
     public static final double kNominalVoltageVolts = 12.0;
     public static final int kVelocitySlotIdx = 0;
     public static final int kPositionSlotIdx = 1;
@@ -25,11 +25,11 @@ public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController 
     private double m_targetVoltageVolts;
     private double m_targetCurrentAmps;
 
-    public SmartTalonSRX(int deviceNumber) {
+    public SmartTalonFX(int deviceNumber) {
         this(deviceNumber, 1.0);
     }
 
-    public SmartTalonSRX(int deviceNumber, double unitsPerRevolution) {
+    public SmartTalonFX(int deviceNumber, double unitsPerRevolution) {
         super(deviceNumber);
         kUnitsPerRevolution = unitsPerRevolution;
         configVoltageCompSaturation(kNominalVoltageVolts);
@@ -49,7 +49,7 @@ public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController 
     @Override
     public void setVelocity(double velocityRotationsPerSecond, double feedforwardVolts) {
         m_targetVelocityRotationsPerSecond = velocityRotationsPerSecond;
-        set(ControlMode.Velocity, (velocityRotationsPerSecond * kUnitsPerRevolution) /  10.0, DemandType.ArbitraryFeedForward,
+        set(ControlMode.Velocity, (velocityRotationsPerSecond * kUnitsPerRevolution) / 10.0, DemandType.ArbitraryFeedForward,
                 feedforwardVolts / kNominalVoltageVolts);
     }
 

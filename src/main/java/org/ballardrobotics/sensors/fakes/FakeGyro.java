@@ -1,4 +1,4 @@
-package frc.org.ballardrobotics.sensors.fakes;
+package org.ballardrobotics.sensors.fakes;
 
 import java.util.function.DoubleSupplier;
 
