@@ -6,7 +6,7 @@ import frc.robot.utilities.LEDS.color;
 
 
 
-public class leds extends SubsystemBase {
+public class LEDSubsystem extends SubsystemBase {
   
    private final LEDS m_LEDS;
    
@@ -17,7 +17,7 @@ public class leds extends SubsystemBase {
 
     private Patterns m_pattern;
 
-  public leds(Patterns patterns) {
+  public LEDSubsystem(Patterns patterns) {
     m_pattern = patterns;
     m_LEDS = new LEDS();
 
