@@ -37,8 +37,16 @@ import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.trajectories.Test1Trajectory;
 import frc.robot.commands.controlpanel.RotateSegments;
+import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
+import frc.robot.utilities.Limelight;
+import edu.wpi.first.wpilibj.XboxController.Button;
+import frc.robot.Constants.RobotMap;
 import frc.robot.commands.controlpanel.RotateToColor;
+import frc.robot.commands.turret.TurretLimelightSetPosition;
+import frc.robot.commands.turret.TurretSetStateCommand;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -72,12 +80,17 @@ public class RobotContainer {
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
   private final ClimberSubsystem m_climber = new ClimberSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
-  
-  // Operator Input
-  // XboxController m_driverController = new XboxController(Constants.OIConstants.kDriverControllerPort);
-  // XboxController m_operatorController = new XboxController(Constants.OIConstants.kOperatorControllerPort);
+  private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
+  private final Limelight m_limelight = new Limelight();
 
   private final XboxController driveController = new XboxController(0);
+
+  private final JoystickButton turretPositionControl = new JoystickButton(driveController, 1);
+  private final JoystickButton turretFieldCentricControl = new JoystickButton(driveController, 2);
+  private final JoystickButton turretVisionControl = new JoystickButton(driveController, 3);
+  private final JoystickButton turretOpenLoopLeft = new JoystickButton(driveController, 5);
+  private final JoystickButton turretOpenLoopRight = new JoystickButton(driveController, 6);
+
   private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
   private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
   private final JoystickButton positionControlHood = new JoystickButton(driveController, 1);
@@ -139,10 +152,20 @@ public class RobotContainer {
     configureIntakeButtons();
     configureFeederButtons();
     ConfigureClimberButtons();
+    configureTurretButtons();
 
     openLoopFlywheel.whileHeld(new RunCommand(() -> m_flywheelsubsystem.setPower(0.75),m_flywheelsubsystem));
-
     positionControlHood.whileHeld(new RunCommand(() -> m_hoodsubsystem.setHoodDegrees(), m_hoodsubsystem));  
+
+  }
+
+  public void configureTurretButtons(){
+    turretPositionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.SETPOINT));
+    turretFieldCentricControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.SEARCHING_FIELD));
+    turretVisionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.TRACKING_TARGET));
+
+    turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.4)));
+    turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.4)));
   }
 
   public void configureControlPanelButtons() {

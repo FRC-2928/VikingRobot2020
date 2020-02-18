@@ -266,10 +266,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
         return Math.IEEEremainder(m_pigeon.getYaw(), 360) * (DrivetrainConstants.kGyroReversed ? -1.0 : 1.0);
     }
 
-    // public double getTurnRate() {
-    //     return m_pigeon.getYaw() * (DrivetrainConstants.kGyroReversed ? -1.0 : 1.0);
-    // }
-
     public void resetOdometry(Pose2d pose) {
         resetEncoders();
         m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getHeading()));

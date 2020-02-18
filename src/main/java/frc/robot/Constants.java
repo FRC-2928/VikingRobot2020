@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
  * wherever the constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  
+
     public static final class RobotMap{
         
         //Drivetrain
@@ -34,6 +34,9 @@ public final class Constants {
         public static final int kFlywheelTalonFX = 0;
         public static final int kHoodTalonSRX = 5;
 
+        //Turret
+        public static final int kTurretSparkMax = 4;
+
         //Climber
         public static final int kClimberTalonFX = 5; //Placeholder
         public static final int kClimberSolenoidBrake = 420;
@@ -45,11 +48,11 @@ public final class Constants {
         public static final int kIntakeWPI_TalonSRX = 6; //placeholder
 
         //Solenoids
-        public static final int kIntakeSoleniodRightOne = 69; //place holder
-        public static final int kIntakeSoleniodRightTwo = 69;
-        public static final int kIntakeSoleniodLeftOne = 69;
-        public static final int kIntakeSoleniodLeftTwo = 69;
         public static final int kDrivetrainShiftSolenoid = 0; //Placeholder
+        public static final int kIntakeSoleniodRightOne = 1; //place holder
+        public static final int kIntakeSoleniodRightTwo = 2;
+        public static final int kIntakeSoleniodLeftOne = 3;
+        public static final int kIntakeSoleniodLeftTwo = 4;
 
         //Sensors
         public static final int kPigeonIMU = 3;
@@ -121,6 +124,9 @@ public final class Constants {
         public static final double kHoodkP = 2.5;
         public static final double kHoodkD = 15;
 
+        public static double kPTurret = 0.055;
+        public static double kDTurret = 0.5;
+        public static double kFTurret = 0.4;
     }
     
     public static final class FlywheelConstants {
@@ -128,6 +134,13 @@ public final class Constants {
         public static final double kSetPowerLine = 0.4;
         public static final double kSetPowerWheel = 0.6;
         public static final double kSetPowerTrench = 0.75;
+    }
+
+    public static final class TurretConstants {
+        //Turret
+        public static final double kTurretLockedThreshold = 1;
+        public static final double kTurretLeftLimit = 360;
+        public static final double kTurretRightLimit = -360;
     }
 
     public static final class FeederConstants {
@@ -166,6 +179,19 @@ public final class Constants {
         public static final double kDistancePerPullyRotation = .18; // 18 cm
     }
 
+    public static final class LimelightConstants{
+        //Pipelines
+        public static final int kLowLimelightTrackingPipeline = 0;
+        public static final int kLowLimelightDrivePipeline = 1;
+        public static final int kHighLimelightTrackingPipeline = 0;
+        public static final int kHighLimelightDrivePipeline = 1;
+
+        public static final double kHighLimelightHeight = 37.5;
+        public static final double kHighGoalHeight = 90;
+         
+        
+    }
+
     public static final class ConversionConstants{
     
         // Flywheel
@@ -175,6 +201,10 @@ public final class Constants {
         // Hood
         public static final double kHoodEncoderTicksPerRotation = 4096;
         public static final double kHoodGearRatio = 60.0/24.0; 
+
+        // Turret
+        public static final double kTurretGearRatio = 169.155; 
+        public static final double kTurretDegreesPerRotation = 360; 
     }
   
 }
