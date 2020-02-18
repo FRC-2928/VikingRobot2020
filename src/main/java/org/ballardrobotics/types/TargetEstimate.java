@@ -1,4 +1,4 @@
-package frc.robot.types;
+package org.ballardrobotics.types;
 
 /**
  * Add your docs here.
