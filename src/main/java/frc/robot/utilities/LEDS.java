@@ -14,7 +14,7 @@ public class LEDS {
     private int bufStart = 0;
     private int hueIndex;
     private int m_rainbowFirstPixelHue = 0;
-    private int m_rainbowSecondFirstHue = 230;
+    private int m_rainbowSecondFirstHue = 180;
     private DriverStation m_driverStation; 
     private DriverStation.Alliance m_allianceColor;
     private boolean firstCallPattern = true;
