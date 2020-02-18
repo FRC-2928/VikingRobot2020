@@ -2,6 +2,7 @@ package frc.robot.subsystems.leds;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.LEDS;
+import frc.robot.utilities.LEDS.color;
 
 
 
@@ -45,5 +46,9 @@ public class leds extends SubsystemBase {
   
   public void setPattern(Patterns patterns) {
       m_pattern = patterns; 
+  }
+
+  public void SetColor(color color) {
+    m_LEDS.setColor(color);
   }
 }
