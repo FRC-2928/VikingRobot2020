@@ -8,15 +8,15 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.trajectories.Test1Trajectory;
@@ -29,26 +29,27 @@ import frc.robot.commands.turret.TurretLimelightSetPosition;
 import frc.robot.commands.turret.TurretSetStateCommand;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.Intake;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.auto.RamseteTrajectoryCommand;
+import frc.robot.commands.climber.ClimbHigh;
+import frc.robot.commands.climber.ClimbLow;
+import frc.robot.commands.climber.ClimbMid;
+import frc.robot.commands.climber.DeployClimber;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
 import frc.robot.oi.DriverOI;
 import frc.robot.oi.OperatorOI;
-import frc.robot.oi.impl.AbbyOperatorOI;
+import frc.robot.oi.impl.AbbiOperatorOI;
 import frc.robot.oi.impl.JettDriverOI;
-import frc.robot.subsystems.intake.FeederSubsystem;
 import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.commands.auto.RamseteTrajectoryCommand;
-import frc.robot.commands.climber.ClimbHigh;
-import frc.robot.commands.climber.ClimbMid;
-import frc.robot.commands.climber.DeployClimber;
-import frc.robot.commands.climber.ClimbLow;
+import frc.robot.subsystems.drivetrain.TransmissionSubsystem;
+import frc.robot.subsystems.intake.FeederSubsystem;
 
 public class RobotContainer {
 
   // The robot's subsystems
   private final DrivetrainSubsystem m_robotDrive = new DrivetrainSubsystem();
+  private final TransmissionSubsystem m_transmission = new TransmissionSubsystem();
   private final FlywheelSubsystem m_flywheelsubsystem = new FlywheelSubsystem();
   private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
   private final Intake m_intake = new Intake();
@@ -66,15 +67,15 @@ public class RobotContainer {
   private final JoystickButton turretOpenLoopLeft = new JoystickButton(driveController, 5);
   private final JoystickButton turretOpenLoopRight = new JoystickButton(driveController, 6);
 
-  private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
-  private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
-  private final JoystickButton positionControlHood = new JoystickButton(driveController, 1);
+  // private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
+  // private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
+  // private final JoystickButton positionControlHood = new JoystickButton(driveController, 1);
 
   private final DriverOI m_driverOI;
   private final OperatorOI m_operatorOI;
 
   // Autonomous 
-  private Trajectory m_trajectory;
+  // private Trajectory m_trajectory;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -82,7 +83,7 @@ public class RobotContainer {
   public RobotContainer() {
 
     m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriverControllerPort));
-    m_operatorOI = new AbbyOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
+    m_operatorOI = new AbbiOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -111,13 +112,6 @@ public class RobotContainer {
    * 
    */
   private void configureButtonBindings() {
-    
-    // velocityControlFlywheel.whileHeld(
-    //   new RunCommand(() -> {
-    //     double targetRPM = SmartDashboard.getNumber("Target RPM", 0);
-    //     m_flywheelsubsystem.setFlywheelRPM(targetRPM);
-    //   }, 
-    //   m_flywheelsubsystem));
 
     configureControlPanelButtons(); 
     configureIntakeButtons();
@@ -125,9 +119,11 @@ public class RobotContainer {
     ConfigureClimberButtons();
     configureTurretButtons();
 
-    openLoopFlywheel.whileHeld(new RunCommand(() -> m_flywheelsubsystem.setPower(0.75),m_flywheelsubsystem));
-    positionControlHood.whileHeld(new RunCommand(() -> m_hoodsubsystem.setHoodDegrees(), m_hoodsubsystem));  
+    m_driverOI.getShiftLowButton()
+    .whenPressed(new InstantCommand(m_transmission::setLow, m_transmission));
 
+    m_driverOI.getShiftHighButton()
+    .whenPressed(new InstantCommand(m_transmission::setHigh, m_transmission));
   }
 
   public void configureTurretButtons(){
@@ -175,7 +171,6 @@ public class RobotContainer {
     m_operatorOI.enableFeederButton().whenPressed(new StartFeeder(m_feeder));
     m_operatorOI.disableFeederButton().whenPressed(new StopFeeder(m_feeder));
     m_operatorOI.reverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
-  
   }
 
   public void ConfigureClimberButtons() {
@@ -204,7 +199,7 @@ public class RobotContainer {
       //extend intake
       new InstantCommand(m_intake::groundPickup, m_intake ),
       //wait until intake deploys
-      new WaitCommand(1),
+      new WaitCommand(0.5),
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));
@@ -214,7 +209,7 @@ public class RobotContainer {
       //extend intake
       new InstantCommand(m_intake::stationPickup, m_intake ),
       //wait until intake deploys
-      new WaitCommand(1),
+      new WaitCommand(0.5),
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));

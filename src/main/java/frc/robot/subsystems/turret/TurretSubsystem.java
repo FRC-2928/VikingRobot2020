@@ -162,6 +162,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     if (m_turretState != TurretState.CORRECTING_RANGE) {
       switch (desiredState) {
+        
       case IDLE:
         stopMotor();
         m_turretState = desiredState;

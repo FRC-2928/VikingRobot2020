@@ -40,6 +40,14 @@ public class TransmissionSubsystem extends SubsystemBase {
     }
   }
 
+  public void setHigh(){
+    setGearState(GearState.HIGH);
+  }
+
+  public void setLow(){
+    setGearState(GearState.LOW);
+  }
+
   public void toggle() {
     setGearState(m_gearState == GearState.LOW ? GearState.HIGH : GearState.LOW);
   }

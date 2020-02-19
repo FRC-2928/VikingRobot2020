@@ -88,7 +88,6 @@ public class FeederSubsystem extends SubsystemBase {
     //Placing the indexing values on ShuffleBoard
     SmartDashboard.putNumber("Index Power", FeederConstants.kIndexPower);
     SmartDashboard.putString("Indexer State", m_indexState.name());
-   
   }
 
   // -----------------------------------------------------------
