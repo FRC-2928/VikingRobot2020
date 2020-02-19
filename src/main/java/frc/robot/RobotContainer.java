@@ -1,28 +1,13 @@
 package frc.robot;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -32,7 +17,6 @@ import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.trajectories.Test1Trajectory;
@@ -40,18 +24,13 @@ import frc.robot.commands.controlpanel.RotateSegments;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.utilities.Limelight;
-import edu.wpi.first.wpilibj.XboxController.Button;
-import frc.robot.Constants.RobotMap;
 import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.commands.turret.TurretLimelightSetPosition;
 import frc.robot.commands.turret.TurretSetStateCommand;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
-import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.intake.Intake;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.intake.FastForwardFeeder;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
 import frc.robot.oi.DriverOI;
@@ -59,10 +38,6 @@ import frc.robot.oi.OperatorOI;
 import frc.robot.oi.impl.AbbyOperatorOI;
 import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.intake.FeederSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.commands.auto.RamseteTrajectoryCommand;
 import frc.robot.commands.climber.ClimbHigh;
@@ -136,17 +111,13 @@ public class RobotContainer {
    * 
    */
   private void configureButtonBindings() {
-    // Drive at half speed when the right bumper is held
-    // new JoystickButton(m_driverController, Button.kBumperRight.value)
-    //     .whenPressed(() -> m_robotDrive.setMaxOutput(0.5))
-    //     .whenReleased(() -> m_robotDrive.setMaxOutput(1));
-
-    velocityControlFlywheel.whileHeld(
-      new RunCommand(() -> {
-        double targetRPM = SmartDashboard.getNumber("Target RPM", 0);
-        m_flywheelsubsystem.setFlywheelRPM(targetRPM);
-      }, 
-      m_flywheelsubsystem));
+    
+    // velocityControlFlywheel.whileHeld(
+    //   new RunCommand(() -> {
+    //     double targetRPM = SmartDashboard.getNumber("Target RPM", 0);
+    //     m_flywheelsubsystem.setFlywheelRPM(targetRPM);
+    //   }, 
+    //   m_flywheelsubsystem));
 
     configureControlPanelButtons(); 
     configureIntakeButtons();
@@ -160,6 +131,11 @@ public class RobotContainer {
   }
 
   public void configureTurretButtons(){
+
+    // Track the target
+    m_driverOI.getAutoShootingButton()
+      .whenPressed(new TurretLimelightSetPosition(m_turretSubsystem, m_limelight));
+
     turretPositionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.SETPOINT));
     turretFieldCentricControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.SEARCHING_FIELD));
     turretVisionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.TRACKING_TARGET));
@@ -217,8 +193,7 @@ public class RobotContainer {
       .whenPressed(new DeployClimber(m_climber)
       .andThen(new ClimbLow(m_climber)));
     m_operatorOI.deployToTop()
-      .whenPressed(new DeployClimber(m_climber));
-    
+      .whenPressed(new DeployClimber(m_climber));  
   }
 
 
@@ -244,13 +219,6 @@ public class RobotContainer {
       new RunCommand(m_intake::startMotor, m_intake)
     ));
 
-    // TODO Stow the intake
-    // new JoystickButton(m_driverController, Button.kB.value).whenReleased(new SequentialCommandGroup(
-    //   //stop motors
-    //   new InstantCommand(m_intake::stopMotor, m_intake),
-    //   //retract intake
-    //   new InstantCommand(m_intake::Stowed, m_intake )
-    // ));
   }
 
   /**
@@ -259,7 +227,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
+    
     // Create a voltage constraint to ensure we don't accelerate too fast
     var autoVoltageConstraint =
         new DifferentialDriveVoltageConstraint(
@@ -278,29 +246,6 @@ public class RobotContainer {
           // Apply the voltage constraint
           .addConstraint(autoVoltageConstraint);
 
-    // String trajectoryJSON = "trajectories/test.wpilib.json";
-    // try {
-    //   Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-    //   m_trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    // } catch (IOException ex) {
-    //   DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    // }
-
-    // An example trajectory to follow.  All units in meters.
-    // Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-    //   // Start at the origin facing the +X direction
-    //   new Pose2d(0, 0, new Rotation2d(0)),
-    //   // Pass through these two interior waypoints, making an 's' curve path
-    //   List.of(
-    //       new Translation2d(1, 1),
-    //       new Translation2d(2, -1)
-    //   ),
-    //   // End 3 meters straight ahead of where we started, facing forward
-    //   new Pose2d(3, 0, new Rotation2d(0)),
-    //   // Pass config
-    //   config
-    // );
-
     // Create a trajectory
     Test1Trajectory test1 = new Test1Trajectory(config);
     Trajectory trajectory1 = Trajectory.class.cast(test1);
@@ -310,28 +255,5 @@ public class RobotContainer {
     // Run path following command, then stop at the end.
     return trajectoryCommand.andThen(() -> m_robotDrive.stopDrivetrain());
 
-    // // Ramsete command will use PID within the TalonFX
-    // RamseteCommand ramseteCommand = new RamseteCommand(
-    //     // Where we're going
-    //     m_trajectory,
-
-    //     // Where we are currently.  Input from the drivetrain
-    //     m_robotDrive::getPose,
-
-    //     // The controller. Computes the wheel speeds for the next spline
-    //     new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta), 
-        
-    //     // Kinematics, defined in the Constants file
-    //     DrivetrainConstants.kDriveKinematics,
-
-    //     // Consumed in the drivetrain to pass to PID loop
-    //     m_robotDrive::outputMetersPerSecond,
-
-    //     // Required subsystem
-    //     m_robotDrive
-    // );
-
-    // // Run path following command, then stop at the end.
-    // return ramseteCommand.andThen(() -> m_robotDrive.stopDrivetrain());
   }
 }
