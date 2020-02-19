@@ -1,79 +1,54 @@
 package frc.robot;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.DrivetrainConstants;
-import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.trajectories.Test1Trajectory;
-import frc.robot.commands.controlpanel.RotateSegments;
-import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
-import frc.robot.utilities.Limelight;
-import edu.wpi.first.wpilibj.XboxController.Button;
-import frc.robot.Constants.RobotMap;
-import frc.robot.commands.controlpanel.RotateToColor;
-import frc.robot.commands.turret.TurretLimelightSetPosition;
-import frc.robot.commands.turret.TurretSetStateCommand;
-import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
-import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
-import frc.robot.subsystems.intake.Intake;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.intake.FastForwardFeeder;
-import frc.robot.commands.intake.StartFeeder;
-import frc.robot.commands.intake.StopFeeder;
-import frc.robot.oi.DriverOI;
-import frc.robot.oi.OperatorOI;
-import frc.robot.oi.impl.AbbyOperatorOI;
-import frc.robot.oi.impl.JettDriverOI;
-import frc.robot.subsystems.intake.FeederSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj.XboxController.Button;
-import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.commands.auto.RamseteTrajectoryCommand;
 import frc.robot.commands.climber.ClimbHigh;
+import frc.robot.commands.climber.ClimbLow;
 import frc.robot.commands.climber.ClimbMid;
 import frc.robot.commands.climber.DeployClimber;
-import frc.robot.commands.climber.ClimbLow;
+import frc.robot.commands.controlpanel.RotateSegments;
+import frc.robot.commands.controlpanel.RotateToColor;
+import frc.robot.commands.intake.StartFeeder;
+import frc.robot.commands.intake.StopFeeder;
+import frc.robot.commands.turret.TurretSetStateCommand;
+import frc.robot.oi.DriverOI;
+import frc.robot.oi.OperatorOI;
+import frc.robot.oi.impl.AbbiOperatorOI;
+import frc.robot.oi.impl.JettDriverOI;
+import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.subsystems.drivetrain.TransmissionSubsystem;
+import frc.robot.subsystems.intake.FeederSubsystem;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
+import frc.robot.trajectories.Test1Trajectory;
+import frc.robot.utilities.Limelight;
 
 public class RobotContainer {
 
   // The robot's subsystems
   private final DrivetrainSubsystem m_robotDrive = new DrivetrainSubsystem();
+  private final TransmissionSubsystem m_transmission = new TransmissionSubsystem();
   private final FlywheelSubsystem m_flywheelsubsystem = new FlywheelSubsystem();
   private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
   private final Intake m_intake = new Intake();
@@ -107,7 +82,7 @@ public class RobotContainer {
   public RobotContainer() {
 
     m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriverControllerPort));
-    m_operatorOI = new AbbyOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
+    m_operatorOI = new AbbiOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -136,17 +111,6 @@ public class RobotContainer {
    * 
    */
   private void configureButtonBindings() {
-    // Drive at half speed when the right bumper is held
-    // new JoystickButton(m_driverController, Button.kBumperRight.value)
-    //     .whenPressed(() -> m_robotDrive.setMaxOutput(0.5))
-    //     .whenReleased(() -> m_robotDrive.setMaxOutput(1));
-
-    velocityControlFlywheel.whileHeld(
-      new RunCommand(() -> {
-        double targetRPM = SmartDashboard.getNumber("Target RPM", 0);
-        m_flywheelsubsystem.setFlywheelRPM(targetRPM);
-      }, 
-      m_flywheelsubsystem));
 
     configureControlPanelButtons(); 
     configureIntakeButtons();
@@ -154,9 +118,11 @@ public class RobotContainer {
     ConfigureClimberButtons();
     configureTurretButtons();
 
-    openLoopFlywheel.whileHeld(new RunCommand(() -> m_flywheelsubsystem.setPower(0.75),m_flywheelsubsystem));
-    positionControlHood.whileHeld(new RunCommand(() -> m_hoodsubsystem.setHoodDegrees(), m_hoodsubsystem));  
+    m_driverOI.getShiftLowButton()
+    .whenPressed(new InstantCommand(m_transmission::setLow, m_transmission));
 
+    m_driverOI.getShiftHighButton()
+    .whenPressed(new InstantCommand(m_transmission::setHigh, m_transmission));
   }
 
   public void configureTurretButtons(){
@@ -199,7 +165,6 @@ public class RobotContainer {
     m_operatorOI.enableFeederButton().whenPressed(new StartFeeder(m_feeder));
     m_operatorOI.disableFeederButton().whenPressed(new StopFeeder(m_feeder));
     m_operatorOI.reverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
-  
   }
 
   public void ConfigureClimberButtons() {
@@ -229,7 +194,7 @@ public class RobotContainer {
       //extend intake
       new InstantCommand(m_intake::groundPickup, m_intake ),
       //wait until intake deploys
-      new WaitCommand(1),
+      new WaitCommand(0.5),
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));
@@ -239,7 +204,7 @@ public class RobotContainer {
       //extend intake
       new InstantCommand(m_intake::stationPickup, m_intake ),
       //wait until intake deploys
-      new WaitCommand(1),
+      new WaitCommand(0.5),
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));
