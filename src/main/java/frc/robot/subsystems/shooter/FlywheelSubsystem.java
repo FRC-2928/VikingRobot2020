@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
+import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 /**
@@ -21,8 +22,18 @@ public class FlywheelSubsystem extends SubsystemBase {
   private TalonFX m_flywheelMotor;
   private double velocity;
 
+  private FlywheelState m_currentState;
+
   private final double kP = PIDConstants.kFlywheelkP;
   private final double kF = PIDConstants.kFlywheelkF;
+
+  public enum FlywheelState{
+    IDLE, MANUAL, SPINNING_UP, AT_VELOCITY;
+  }
+
+  public enum FlywheelControlState{
+    IDLE, OPEN_LOOP, VELOCITY_CONTROL;
+  }
 
   public FlywheelSubsystem() {
    m_flywheelMotor = new TalonFX(RobotMap.kFlywheelTalonFX);
@@ -60,6 +71,33 @@ public class FlywheelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Flywheel current draw", m_flywheelMotor.getSupplyCurrent());
     SmartDashboard.putNumber("Flywheel Voltage", m_flywheelMotor.getMotorOutputVoltage());
     SmartDashboard.putNumber("Flywheel FPS", getFlywheelVelocityFPS());
+  }
+
+  public void setFlywheelState(FlywheelControlState desiredState, double reference){
+    switch(desiredState){
+      case IDLE:
+      stopFlywheel();
+      m_currentState = FlywheelState.IDLE;
+      break;
+
+      case OPEN_LOOP:
+      setPower(reference);
+      m_currentState = FlywheelState.MANUAL;
+      break;
+
+      case VELOCITY_CONTROL:
+      setFlywheelRPM(reference);
+      if(Math.abs(reference - getFlywheelVelocityRPM()) < FlywheelConstants.kVelocityErrorThreshold){
+        m_currentState = FlywheelState.AT_VELOCITY;
+      }
+      else{
+        m_currentState = FlywheelState.SPINNING_UP;
+      }
+    }
+  }
+
+  public FlywheelState getFlywheelState(){
+    return m_currentState;
   }
 
   public void setPower(double power){
