@@ -130,10 +130,13 @@ public final class Constants {
     }
     
     public static final class FlywheelConstants {
+        //Setpoints
         public static final double kSetPowerWall = 0.2;
         public static final double kSetPowerLine = 0.4;
         public static final double kSetPowerWheel = 0.6;
         public static final double kSetPowerTrench = 0.75;
+
+        public static final double kVelocityErrorThreshold = 75;
     }
 
     public static final class HoodConstants{
