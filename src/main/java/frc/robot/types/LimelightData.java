@@ -27,6 +27,22 @@ public class LimelightData {
         m_verticalOffset = verticalOffset;
     }
 
+    public void setHorizontalOffset(double horizontalOffeset){
+        m_horizontalOffset = horizontalOffeset;
+    }
+
+    public void setVerticalOffset(double verticalOffset){
+        m_verticalOffset = verticalOffset;
+    }
+
+    public void setTargetDistance(double targetDistance){
+        m_targetDistance = targetDistance;
+    }
+
+    public void setTargetFound(boolean isTargetFound){
+        m_isTargetFound = isTargetFound;
+    }
+    
     public double getHorizontalOffset(){
         return m_horizontalOffset;
     }

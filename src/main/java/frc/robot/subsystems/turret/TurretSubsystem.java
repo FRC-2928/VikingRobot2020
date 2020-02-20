@@ -14,6 +14,7 @@ import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 import frc.robot.Constants.TurretConstants;
+import frc.robot.types.LimelightData;
 import frc.robot.utilities.Limelight;
 import frc.robot.utilities.Pigeon;
 import frc.robot.utilities.Limelight.Limelights;
@@ -29,6 +30,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   private Pigeon m_pigeon;
   private Limelight m_limelight;
+  private LimelightData m_limelightData;
 
   private TurretState m_turretState;
   private TurretRangeState m_turretRangeState;
@@ -108,14 +110,15 @@ public class TurretSubsystem extends SubsystemBase {
     m_robotYaw = m_pigeon.getYaw();
     m_robotStartAngle = SmartDashboard.getNumber("Robot Start Angle", 0);
     m_setpointReference = SmartDashboard.getNumber("Turret Reference", 0);
+    m_limelightData = m_limelight.getLimelightData();
 
     SmartDashboard.putNumber("Robot yaw", m_robotYaw);
     SmartDashboard.putNumber("Turret position degrees", getTurretDegrees());
     SmartDashboard.putNumber("Turret Amp Draw", m_turretMotor.getOutputCurrent());
     SmartDashboard.putNumber("Turret Voltage Draw", m_turretMotor.getAppliedOutput() * 12);
     SmartDashboard.putString("Turret State", m_turretState.toString());
-    SmartDashboard.putBoolean("Limelight valid target", m_limelight.isTargetFound());
-    SmartDashboard.putNumber("Target distance", m_limelight.getTargetDistance());
+    SmartDashboard.putBoolean("Limelight valid target", m_limelightData.getTargetFound());
+    SmartDashboard.putNumber("Target distance", m_limelightData.getTargetDistance());
   }
 
   // Checks if turret is out of bounds, and corrects it
@@ -156,8 +159,9 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void setTurretState(TurretState desiredState) {
-    double visionReference = getTurretDegrees() - m_limelight.getHorizontalOffset();
+    double visionReference = getTurretDegrees() - m_limelightData.getHorizontalOffset();
     SmartDashboard.putString("Turret Desired State", desiredState.toString());
+    boolean isTargetFound = m_limelightData.getTargetFound();
 
     correctTurretRange();
 
@@ -182,26 +186,26 @@ public class TurretSubsystem extends SubsystemBase {
         break;
 
       case TRACKING_TARGET:
-        if (!m_limelight.isTargetFound()) {
+        if (!isTargetFound) {
           searchForTarget();
           m_turretState = TurretState.SEARCHING_FIELD;
         } else if (Math.abs(visionReference) < TurretConstants.kTurretLockedThreshold) {
           setPosition(visionReference);
           m_turretState = TurretState.TARGET_LOCKED;
-        } else if(m_limelight.isTargetFound()){
+        } else if(isTargetFound){
           setPosition(visionReference);
           m_turretState = TurretState.TRACKING_TARGET;
         }
         break;
 
       case TARGET_LOCKED:
-        if (!m_limelight.isTargetFound()) {
+        if (!isTargetFound) {
           searchForTarget();
           m_turretState = TurretState.SEARCHING_FIELD;
         } else if (Math.abs(visionReference) < TurretConstants.kTurretLockedThreshold) {
           setPosition(visionReference);
           m_turretState = TurretState.TARGET_LOCKED;
-        } else if(m_limelight.isTargetFound()) {
+        } else if(isTargetFound) {
           setPosition(visionReference);
           m_turretState = TurretState.TRACKING_TARGET;
         }
