@@ -36,13 +36,14 @@ import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.drivetrain.TransmissionSubsystem;
 import frc.robot.subsystems.intake.FeederSubsystem;
-import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.trajectories.Test1Trajectory;
 import frc.robot.utilities.Limelight;
+import frc.robot.utilities.Limelight.Limelights;
 
 public class RobotContainer {
 
@@ -51,12 +52,13 @@ public class RobotContainer {
   private final TransmissionSubsystem m_transmission = new TransmissionSubsystem();
   private final FlywheelSubsystem m_flywheelsubsystem = new FlywheelSubsystem();
   private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
-  private final Intake m_intake = new Intake();
+  private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
   private final ClimberSubsystem m_climber = new ClimberSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
   private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
-  private final Limelight m_limelight = new Limelight();
+  private final Limelight m_driverLimelight = new Limelight(Limelights.DRIVER);
+  private final Limelight m_turretLimelight = new Limelight(Limelights.TURRET);
 
   private final XboxController driveController = new XboxController(0);
 

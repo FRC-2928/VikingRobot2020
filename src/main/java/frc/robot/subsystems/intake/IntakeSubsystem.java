@@ -19,7 +19,7 @@ import frc.robot.Constants.RobotMap;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 
-public class Intake extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase {
   /**
    * Creates a new intake.
    */
@@ -32,7 +32,7 @@ public class Intake extends SubsystemBase {
   private WPI_VictorSPX m_intakeMotor;
 
   public enum IntakeState {
-    GROUND_PICKUP,STATION_PICKUP,STOWED;
+    GROUND_PICKUP, STATION_PICKUP, STOWED;
   }
 
   private IntakeState currentState;
@@ -40,11 +40,11 @@ public class Intake extends SubsystemBase {
   // -----------------------------------------------------------
   // Initialization
   // -----------------------------------------------------------
-  public Intake() {
+  public IntakeSubsystem() {
     kIntakeSolenoidRightBase = new Solenoid(RobotMap.kIntakeSoleniodRightOne);
     kIntakeSolenoidRightArm = new Solenoid(RobotMap.kIntakeSoleniodRightTwo);
-    kIntakeSolenoidLeftBase= new Solenoid(RobotMap.kIntakeSoleniodLeftOne);
-    kIntakeSolenoidLeftArm= new Solenoid(RobotMap.kIntakeSoleniodLeftTwo);
+    kIntakeSolenoidLeftBase = new Solenoid(RobotMap.kIntakeSoleniodLeftOne);
+    kIntakeSolenoidLeftArm = new Solenoid(RobotMap.kIntakeSoleniodLeftTwo);
 
     m_intakeMotor = new WPI_VictorSPX(RobotMap.kIntakeVictorSPX);
 

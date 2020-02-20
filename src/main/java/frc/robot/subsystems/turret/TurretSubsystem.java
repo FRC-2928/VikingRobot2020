@@ -16,6 +16,7 @@ import frc.robot.Constants.RobotMap;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.utilities.Limelight;
 import frc.robot.utilities.Pigeon;
+import frc.robot.utilities.Limelight.Limelights;
 
 /**
  * TurretSubsystem is responsible for subsystem level logic with the turret.
@@ -77,7 +78,7 @@ public class TurretSubsystem extends SubsystemBase {
     m_turretEncoder = m_turretMotor.getEncoder();
     m_turretPID = m_turretMotor.getPIDController();
     m_pigeon = new Pigeon();
-    m_limelight = new Limelight();
+    m_limelight = new Limelight(Limelights.TURRET);
 
     resetTurretEncoder();
     m_correctionReference = 0;

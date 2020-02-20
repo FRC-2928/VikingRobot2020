@@ -137,7 +137,6 @@ public final class Constants {
     }
 
     public static final class TurretConstants {
-        //Turret
         public static final double kTurretLockedThreshold = 1;
         public static final double kTurretLeftLimit = 360;
         public static final double kTurretRightLimit = -360;
@@ -152,7 +151,6 @@ public final class Constants {
         public static final double kHopperFastForwardPower = 0.6;
         public static final double kHopperPower = 0.4;
         public static final double kHopperReversePower = 0.85;
-
     }
 
     public static final class ClimberConstants {
@@ -180,6 +178,11 @@ public final class Constants {
     }
 
     public static final class LimelightConstants{
+
+        //Limelight names
+        public static final String kDriverLimelight = "Driver-Limelight";
+        public static final String kTurretLimelight = "Turret-Limelight";
+
         //Pipelines
         public static final int kLowLimelightTrackingPipeline = 0;
         public static final int kLowLimelightDrivePipeline = 1;
@@ -188,8 +191,6 @@ public final class Constants {
 
         public static final double kHighLimelightHeight = 37.5;
         public static final double kHighGoalHeight = 90;
-         
-        
     }
 
     public static final class ConversionConstants{
