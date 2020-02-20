@@ -36,7 +36,7 @@ public class ControlPanelSubsystem extends SubsystemBase {
   public ControlPanelSubsystem() {
     m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
     m_colorMatcher = new ColorMatcher();
-    m_motor = new WPI_TalonSRX(RobotMap.kControlPanelTalonWPI);
+    m_motor = new WPI_TalonSRX(RobotMap.kControlPanelTalonSRX);
 
     m_motor.configFactoryDefault();
 

@@ -9,6 +9,8 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -27,7 +29,7 @@ public class Intake extends SubsystemBase {
   private Solenoid kIntakeSolenoidLeftBase;
   private Solenoid kIntakeSolenoidLeftArm;
 
-  private WPI_TalonSRX m_intakeMotor;
+  private WPI_VictorSPX m_intakeMotor;
 
   public enum IntakeState {
     GROUND_PICKUP,STATION_PICKUP,STOWED;
@@ -44,7 +46,7 @@ public class Intake extends SubsystemBase {
     kIntakeSolenoidLeftBase= new Solenoid(RobotMap.kIntakeSoleniodLeftOne);
     kIntakeSolenoidLeftArm= new Solenoid(RobotMap.kIntakeSoleniodLeftTwo);
 
-    m_intakeMotor = new WPI_TalonSRX(RobotMap.kIntakeWPI_TalonSRX);
+    m_intakeMotor = new WPI_VictorSPX(RobotMap.kIntakeVictorSPX);
 
     m_intakeMotor.configFactoryDefault();
 
@@ -54,7 +56,8 @@ public class Intake extends SubsystemBase {
     m_intakeMotor.configNominalOutputReverse(0);
     m_intakeMotor.configNeutralDeadband(0.01);
     m_intakeMotor.setNeutralMode(NeutralMode.Coast);
-    m_intakeMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 35, 0.04));
+
+    currentState = IntakeState.STOWED;
 
     // Set default command
     setDefaultCommand(new RunCommand(this::stowIntake, this)); 
@@ -66,9 +69,6 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    double current = m_intakeMotor.getSupplyCurrent(); 
-    SmartDashboard.putNumber("intake current", current);
-
   }
 
   public void groundPickup () {
@@ -116,6 +116,10 @@ public class Intake extends SubsystemBase {
       currentState = state;
     }
 
+    public IntakeState getIntakeState(){
+      return currentState;
+    }
+
   // -----------------------------------------------------------
   // Actuator Output
   // -----------------------------------------------------------  
@@ -130,5 +134,4 @@ public class Intake extends SubsystemBase {
   public void stopMotor () {
     setPower(0);
   }
-
 }

@@ -42,10 +42,10 @@ public final class Constants {
         public static final int kClimberSolenoidBrake = 1;
 
         //Control Panel
-        public static final int kControlPanelTalonWPI = 6; //Placeholder
+        public static final int kControlPanelTalonSRX = 6; //Placeholder
 
         //Intake
-        public static final int kIntakeWPI_TalonSRX = 10; //placeholder
+        public static final int kIntakeVictorSPX = 10; //placeholder
 
         //Solenoids
         public static final int kDrivetrainShiftSolenoid = 0; //Placeholder
@@ -148,10 +148,10 @@ public final class Constants {
         // Motor control constants
         public static final double kIndexFastForwardPower = 0.6;
         public static final double kIndexPower = 0.4;
-        public static final double kIndexReversePower = -0.4;
+        public static final double kIndexReversePower = 0.85;
         public static final double kHopperFastForwardPower = 0.6;
         public static final double kHopperPower = 0.4;
-        public static final double kHopperReversePower = -0.4;
+        public static final double kHopperReversePower = 0.85;
 
     }
 
