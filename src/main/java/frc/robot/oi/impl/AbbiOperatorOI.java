@@ -9,10 +9,10 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants;
 import frc.robot.oi.OperatorOI;
 
-public class AbbyOperatorOI implements OperatorOI {
+public class AbbiOperatorOI implements OperatorOI {
     private XboxController m_controller;
 
-    public AbbyOperatorOI(XboxController controller) {
+    public AbbiOperatorOI(XboxController controller) {
         m_controller = controller;
     }
    

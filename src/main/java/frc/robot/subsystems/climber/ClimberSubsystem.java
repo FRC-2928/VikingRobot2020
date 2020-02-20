@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
@@ -77,7 +78,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     //Default command will enable brake and stop elevator
     setDefaultCommand(
-      new InstantCommand(() -> {
+      new RunCommand(() -> {
         this.setBrakePosition(BrakeState.ON);
         setElevatorPower(0);
       }, this)

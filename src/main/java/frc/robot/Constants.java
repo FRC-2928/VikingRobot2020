@@ -19,48 +19,48 @@ public final class Constants {
         //Drivetrain
         public static final int kDrivetrainLeftFrontTalonFX = 14;
         public static final int kDrivetrainLeftBackTalonFX = 15;
-        public static final int kDrivetrainRightFrontTalonFX = 1;
-        public static final int kDrivetrainRightBackTalonFX = 0;
+        public static final int kDrivetrainRightFrontTalonFX = 0;
+        public static final int kDrivetrainRightBackTalonFX = 1;
 
         //Feeder
-        public static final int kFeederSparkMax = 4;
-        public static final int kTowerVictorSPX = 987; //Placerholder
+        public static final int kFeederSparkMax = 5;
+        public static final int kTowerVictorSPX = 11; //Placerholder
 
-        public static final int kIRSensorBottom = 0;
-        public static final int kIRSensorMiddle = 1;
-        public static final int kIRSensorTop = 2;
+        public static final int kIRSensorBottom = 9;
+        public static final int kIRSensorMiddle = 8;
+        public static final int kIRSensorTop = 7;
 
         //Shooter
-        public static final int kFlywheelTalonFX = 0;
+        public static final int kFlywheelTalonFX = 3;
         public static final int kHoodTalonSRX = 5;
 
         //Turret
         public static final int kTurretSparkMax = 4;
 
         //Climber
-        public static final int kClimberTalonFX = 5; //Placeholder
-        public static final int kClimberSolenoidBrake = 420;
+        public static final int kClimberTalonFX = 12; //Placeholder
+        public static final int kClimberSolenoidBrake = 1;
 
         //Control Panel
-        public static final int kControlPanelTalonWPI = 69; //Placeholder
+        public static final int kControlPanelTalonSRX = 6; //Placeholder
 
         //Intake
-        public static final int kIntakeWPI_TalonSRX = 6; //placeholder
+        public static final int kIntakeVictorSPX = 10; //placeholder
 
         //Solenoids
         public static final int kDrivetrainShiftSolenoid = 0; //Placeholder
-        public static final int kIntakeSoleniodRightOne = 1; //place holder
-        public static final int kIntakeSoleniodRightTwo = 2;
-        public static final int kIntakeSoleniodLeftOne = 3;
-        public static final int kIntakeSoleniodLeftTwo = 4;
+        public static final int kIntakeSoleniodRightOne = 2; //place holder
+        public static final int kIntakeSoleniodRightTwo = 3;
+        public static final int kIntakeSoleniodLeftOne = 4;
+        public static final int kIntakeSoleniodLeftTwo = 5;
 
         //Sensors
         public static final int kPigeonIMU = 3;
     }
 
     public static final class OIConstants {
-        public static final int kDriverControllerPort =1;
-        public static final int kOperatorControllerPort =2;
+        public static final int kDriverControllerPort = 0;
+        public static final int kOperatorControllerPort = 1;
         public static final int kUp = 0;
         public static final int kMid = 90;
         public static final int kDown = 180;
@@ -137,7 +137,6 @@ public final class Constants {
     }
 
     public static final class TurretConstants {
-        //Turret
         public static final double kTurretLockedThreshold = 1;
         public static final double kTurretLeftLimit = 360;
         public static final double kTurretRightLimit = -360;
@@ -148,11 +147,10 @@ public final class Constants {
         // Motor control constants
         public static final double kIndexFastForwardPower = 0.6;
         public static final double kIndexPower = 0.4;
-        public static final double kIndexReversePower = -0.4;
+        public static final double kIndexReversePower = 0.85;
         public static final double kHopperFastForwardPower = 0.6;
         public static final double kHopperPower = 0.4;
-        public static final double kHopperReversePower = -0.4;
-
+        public static final double kHopperReversePower = 0.85;
     }
 
     public static final class ClimberConstants {
@@ -180,6 +178,11 @@ public final class Constants {
     }
 
     public static final class LimelightConstants{
+
+        //Limelight names
+        public static final String kDriverLimelight = "Driver-Limelight";
+        public static final String kTurretLimelight = "Turret-Limelight";
+
         //Pipelines
         public static final int kLowLimelightTrackingPipeline = 0;
         public static final int kLowLimelightDrivePipeline = 1;
@@ -188,8 +191,6 @@ public final class Constants {
 
         public static final double kHighLimelightHeight = 37.5;
         public static final double kHighGoalHeight = 90;
-         
-        
     }
 
     public static final class ConversionConstants{

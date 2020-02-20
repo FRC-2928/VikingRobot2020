@@ -5,6 +5,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.types.LimelightData;
 
 /**
  * Limelight utility is responsible for I/O with both Limelight 2+
@@ -12,30 +13,49 @@ import frc.robot.Constants.LimelightConstants;
  * Feeds base limelight to intake vision tracking and driver shuffleboard
  */
 public class Limelight{
-
   //Pulls values from network tables
   //TODO: Add code to pull from both limelights
-  NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-  NetworkTableEntry tx = table.getEntry("tx");
-  NetworkTableEntry ty = table.getEntry("ty");
-  NetworkTableEntry ta = table.getEntry("ta");
-  NetworkTableEntry tv = table.getEntry("tv");
+  private NetworkTable m_limelightTable;
+  private NetworkTableInstance m_limelightNI = NetworkTableInstance.getDefault();
 
   //Creates variables to assign
-  private double horizontalOffset;
-  private double verticalOffset;
-  private double area;
+  private double m_horizontalOffset;
+  private double m_verticalOffset;
+  private double m_area;
+  private double m_targetDistance;
 
-  private boolean targetFound;
+  private boolean m_targetFound;
 
-  public Limelight() {
+  //Enum for the two limelights on the robot
+  public enum Limelights{
+    DRIVER, TURRET;
+  }
 
+  public Limelight(Limelights camera) {
+    switch(camera){
+      case DRIVER:
+      m_limelightTable = m_limelightNI.getTable(LimelightConstants.kDriverLimelight);
+      break;
 
+      case TURRET:
+      m_limelightTable = m_limelightNI.getTable(LimelightConstants.kTurretLimelight);
+      break;
+
+      default:
+      break;
+    }
+  }
+
+  public LimelightData getLimelightData(){
+    updateReadings();
+    return new LimelightData(m_horizontalOffset, m_verticalOffset, m_targetDistance, m_targetFound);
   }
 
   public void updateReadings(){
-    horizontalOffset = tx.getDouble(0.0);
-    verticalOffset = ty.getDouble(0.0);
+    m_horizontalOffset = getHorizontalOffset();
+    m_verticalOffset = getVerticalOffset();
+    m_targetDistance = getTargetDistance();
+    m_targetFound = isTargetFound();
   }
 
   public double getTargetDistance(){
@@ -44,26 +64,26 @@ public class Limelight{
   }
 
   public double getHorizontalOffset(){
-    horizontalOffset = tx.getDouble(0.0);
-    return horizontalOffset;
+    m_horizontalOffset = m_limelightTable.getEntry("tx").getDouble(0);
+    return m_horizontalOffset;
   }
 
   public double getVerticalOffset(){
-    verticalOffset = ty.getDouble(0.0);
-    return verticalOffset;
+    m_verticalOffset = m_limelightTable.getEntry("ty").getDouble(0);
+    return m_verticalOffset;
   }
 
   public double getArea(){
-    return area;
+    return m_area;
   }
 
   public boolean isTargetFound(){
-    if (tv.getDouble(0.0) == 0){
-      targetFound = false;
+    if (m_limelightTable.getEntry("tv").getDouble(0) == 0){
+      m_targetFound = false;
     }
     else{
-      targetFound = true;
+      m_targetFound = true;
     }
-    return targetFound;
+    return m_targetFound;
   }
 }

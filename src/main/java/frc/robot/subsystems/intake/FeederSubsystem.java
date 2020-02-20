@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.CANPIDController;
@@ -71,10 +72,8 @@ public class FeederSubsystem extends SubsystemBase {
     m_towerMotor.configNominalOutputForward(0);
     m_towerMotor.configNominalOutputReverse(0);
     m_towerMotor.configNeutralDeadband(0.01);
+    m_towerMotor.setInverted(InvertType.InvertMotorOutput);
     m_towerMotor.setNeutralMode(NeutralMode.Coast);
-
-    m_towerMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-    m_towerMotor.configAllowableClosedloopError(0, 5);
 
     m_bottomSensor = new DigitalOutput(RobotMap.kIRSensorBottom);
     m_middleSensor = new DigitalOutput(RobotMap.kIRSensorMiddle);
@@ -88,7 +87,6 @@ public class FeederSubsystem extends SubsystemBase {
     //Placing the indexing values on ShuffleBoard
     SmartDashboard.putNumber("Index Power", FeederConstants.kIndexPower);
     SmartDashboard.putString("Indexer State", m_indexState.name());
-   
   }
 
   // -----------------------------------------------------------
