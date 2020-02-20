@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
+import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 /**
@@ -18,8 +19,18 @@ import frc.robot.Constants.RobotMap;
 public class HoodSubsystem extends SubsystemBase {
   private WPI_TalonSRX m_hoodMotor;
 
+  private HoodState m_currentState;
+
   private final double kP = PIDConstants.kHoodkP;
   private final double kD = PIDConstants.kHoodkD;
+
+  public enum HoodState{
+    IDLE, MANUAL, MOVING_TO_POSITION, AT_POSITION;
+  }
+
+  public enum HoodControlState{
+    IDLE, OPEN_LOOP, POSITION_CONTROL;
+  }
   
   public HoodSubsystem() {
     m_hoodMotor = new WPI_TalonSRX(RobotMap.kHoodTalonSRX);
@@ -54,7 +65,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     resetHoodEncoder();
 
-    setDefaultCommand(new RunCommand(this::stopHood, this));
+    setDefaultCommand(new RunCommand(() -> this.setHoodState(HoodControlState.IDLE, 0), this));
 
     //Placing the hood gains on ShuffleBoard
     SmartDashboard.putNumber("Hood kP", kP);
@@ -67,6 +78,33 @@ public class HoodSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Hood Native Units", m_hoodMotor.getSelectedSensorPosition());
     SmartDashboard.putNumber("Hood Position", getHoodDegrees());
+  }
+
+  public void setHoodState(HoodControlState desiredState, double reference){
+    switch(desiredState){
+      case IDLE:
+      stopHood();
+      m_currentState = HoodState.IDLE;
+      break;
+
+      case OPEN_LOOP:
+      setPower(reference);
+      m_currentState = HoodState.MANUAL;
+      break;
+
+      case POSITION_CONTROL:
+      setHoodDegrees(reference);
+      if(Math.abs(reference - getHoodDegrees()) < HoodConstants.kPositionErrorThreshold){
+        m_currentState = HoodState.AT_POSITION;
+      }
+      else{
+        m_currentState = HoodState.MOVING_TO_POSITION;
+      }
+    }
+  }
+
+  public HoodState getHoodState(){
+    return m_currentState;
   }
 
   public double getHoodRotation(){
@@ -92,10 +130,8 @@ public class HoodSubsystem extends SubsystemBase {
     System.out.println("Hood configed");
   }
 
-  public void setHoodDegrees(){
-    double target = degreesToSRX(SmartDashboard.getNumber("Hood Target Degrees", 0));
-    SmartDashboard.putNumber("Actual Hood Target", target);
-    m_hoodMotor.set(ControlMode.Position, target);
+  public void setHoodDegrees(double reference){
+    m_hoodMotor.set(ControlMode.Position, reference);
   }
 
   public void setPower(double power){

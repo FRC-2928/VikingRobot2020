@@ -136,6 +136,10 @@ public final class Constants {
         public static final double kSetPowerTrench = 0.75;
     }
 
+    public static final class HoodConstants{
+        public static final double kPositionErrorThreshold = 1;
+    }
+
     public static final class TurretConstants {
         public static final double kTurretLockedThreshold = 1;
         public static final double kTurretLeftLimit = 360;
