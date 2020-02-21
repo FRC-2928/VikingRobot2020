@@ -19,8 +19,8 @@ public final class Constants {
         //Drivetrain
         public static final int kDrivetrainLeftFrontTalonFX = 14;
         public static final int kDrivetrainLeftBackTalonFX = 15;
-        public static final int kDrivetrainRightFrontTalonFX = 0;
-        public static final int kDrivetrainRightBackTalonFX = 1;
+        public static final int kDrivetrainRightFrontTalonFX = 1;
+        public static final int kDrivetrainRightBackTalonFX = 0;
 
         //Feeder
         public static final int kFeederSparkMax = 5;
@@ -38,21 +38,21 @@ public final class Constants {
         public static final int kTurretSparkMax = 4;
 
         //Climber
-        public static final int kClimberTalonFX = 12; //Placeholder
+        public static final int kClimberTalonFX = 12; 
         public static final int kClimberSolenoidBrake = 1;
 
         //Control Panel
-        public static final int kControlPanelTalonSRX = 6; //Placeholder
+        public static final int kControlPanelTalonSRX = 9;
 
         //Intake
         public static final int kIntakeVictorSPX = 10; //placeholder
 
         //Solenoids
-        public static final int kDrivetrainShiftSolenoid = 0; //Placeholder
-        public static final int kIntakeSoleniodRightOne = 2; //place holder
-        public static final int kIntakeSoleniodRightTwo = 3;
-        public static final int kIntakeSoleniodLeftOne = 4;
-        public static final int kIntakeSoleniodLeftTwo = 5;
+        public static final int kDrivetrainShiftSolenoid = 6; 
+        public static final int kIntakeSoleniodRightOne = 5; //place holder
+        public static final int kIntakeSoleniodRightTwo = 2;
+        public static final int kIntakeSoleniodLeftOne = 7;
+        public static final int kIntakeSoleniodLeftTwo = 0;
 
         //Sensors
         public static final int kPigeonIMU = 3;
@@ -154,10 +154,10 @@ public final class Constants {
         // Motor control constants
         public static final double kIndexFastForwardPower = 0.6;
         public static final double kIndexPower = 0.4;
-        public static final double kIndexReversePower = 0.85;
+        public static final double kIndexReversePower = -0.5;
         public static final double kHopperFastForwardPower = 0.6;
-        public static final double kHopperPower = 0.4;
-        public static final double kHopperReversePower = 0.85;
+        public static final double kHopperPower = 0.5;
+        public static final double kHopperReversePower = -0.5;
     }
 
     public static final class ClimberConstants {
