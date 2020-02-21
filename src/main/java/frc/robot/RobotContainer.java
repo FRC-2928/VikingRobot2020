@@ -39,7 +39,9 @@ import frc.robot.subsystems.intake.FeederSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.turret.TargetEstimator;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretControlState;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.trajectories.Test1Trajectory;
 import frc.robot.utilities.Limelight;
@@ -94,9 +96,10 @@ public class RobotContainer {
     m_robotDrive.setDefaultCommand(
         // A split-stick arcade command, with forward/backward controlled by the left
         // hand, and turning controlled by the right.
-        new RunCommand(() -> m_robotDrive
-            .drive(m_driverOI.getMoveSupplier(),
-                   m_driverOI.getRotateSupplier()), m_robotDrive));
+      new RunCommand(() -> m_robotDrive
+          .drive(m_driverOI.getMoveSupplier(),
+                 m_driverOI.getRotateSupplier()), m_robotDrive)
+    );
   }
 
   public void onInitialize(){
@@ -128,9 +131,7 @@ public class RobotContainer {
   }
 
   public void configureTurretButtons(){
-    turretPositionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.SETPOINT));
-    turretFieldCentricControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.SEARCHING_FIELD));
-    turretVisionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretState.TRACKING_TARGET));
+    turretVisionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretControlState.VISION_TRACKING, 0));
 
     turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.4)));
     turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.4)));

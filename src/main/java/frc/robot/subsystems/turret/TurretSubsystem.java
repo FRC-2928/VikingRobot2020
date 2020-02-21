@@ -10,11 +10,13 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.types.LimelightData;
+import frc.robot.types.TargetEstimate;
 import frc.robot.utilities.Limelight;
 import frc.robot.utilities.Pigeon;
 import frc.robot.utilities.Limelight.Limelights;
@@ -33,10 +35,9 @@ public class TurretSubsystem extends SubsystemBase {
   private LimelightData m_limelightData;
 
   private TurretState m_turretState;
-  private TurretRangeState m_turretRangeState;
+  private TurretSafetyRangeState m_turretRangeState;
 
   private double m_correctionReference;
-  private double m_setpointReference;
 
   private RunCommand correctTurretCommand;
 
@@ -56,10 +57,14 @@ public class TurretSubsystem extends SubsystemBase {
   private double m_robotStartAngle;
 
   public enum TurretState {
-    IDLE, SETPOINT, SEARCHING_FIELD, CORRECTING_RANGE, TRACKING_TARGET, TARGET_LOCKED;
+    IDLE, MANUAL, MOVING_TO_REFERENCE, AT_REFERENCE, SEARCHING_FIELD, GHOSTING_TARGET, CORRECTING_RANGE;
   }
 
-  public enum TurretRangeState {
+  public enum TurretControlState{
+    IDLE, OPEN_LOOP, POSITION_CONTROL, VISION_TRACKING;
+  }
+
+  public enum TurretSafetyRangeState {
     NORMAL, CORRECTING_LEFT, CORRECTING_RIGHT;
   }
 
@@ -84,19 +89,13 @@ public class TurretSubsystem extends SubsystemBase {
 
     resetTurretEncoder();
     m_correctionReference = 0;
-    m_turretRangeState = TurretRangeState.NORMAL;
+    m_turretRangeState = TurretSafetyRangeState.NORMAL;
     m_turretState = TurretState.IDLE;
 
     setDefaultCommand(new RunCommand(() -> {
-      this.stopMotor();
-      this.m_turretState = TurretState.IDLE;
+      setTurretState(TurretControlState.IDLE, 0, null);
     }, this));
 
-    // Used to config PIDF gains
-    SmartDashboard.putNumber("Turret Reference", 0);
-    SmartDashboard.putNumber("Turret kP", kP);
-    SmartDashboard.putNumber("Turret kF", kF);
-    SmartDashboard.putNumber("Turret kD", kD);
     SmartDashboard.putNumber("Robot Start Angle", 0);
   }
 
@@ -109,7 +108,6 @@ public class TurretSubsystem extends SubsystemBase {
     configTurretFeedbackGains();
     m_robotYaw = m_pigeon.getYaw();
     m_robotStartAngle = SmartDashboard.getNumber("Robot Start Angle", 0);
-    m_setpointReference = SmartDashboard.getNumber("Turret Reference", 0);
     m_limelightData = m_limelight.getLimelightData();
 
     SmartDashboard.putNumber("Robot yaw", m_robotYaw);
@@ -121,32 +119,39 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Target distance", m_limelightData.getTargetDistance());
   }
 
+  public boolean inSafetyRange(){
+    if(Math.abs(getTurretDegrees()) > leftMaxLimit){
+      return false;
+    }
+    return true;
+  }
+
   // Checks if turret is out of bounds, and corrects it
   public void correctTurretRange() {
     double degrees = getTurretDegrees();
 
     // Checks if turret is beyond limits, and corrects 360 degrees the opposite way
-    if (m_turretRangeState == TurretRangeState.NORMAL) {
+    if (m_turretRangeState == TurretSafetyRangeState.NORMAL) {
       if (degrees < rightMaxLimit) {
-        m_turretRangeState = TurretRangeState.CORRECTING_RIGHT;
+        m_turretRangeState = TurretSafetyRangeState.CORRECTING_RIGHT;
         m_turretState = TurretState.CORRECTING_RANGE;
         m_correctionReference = rightMaxLimit + 360;
-        setPosition(m_correctionReference);
+        setValidAngle(m_correctionReference);
       }
 
       else if (degrees > leftMaxLimit) {
-        m_turretRangeState = TurretRangeState.CORRECTING_LEFT;
+        m_turretRangeState = TurretSafetyRangeState.CORRECTING_LEFT;
         m_turretState = TurretState.CORRECTING_RANGE;
         m_correctionReference = leftMaxLimit - 360;
-        setPosition(m_correctionReference);
+        setValidAngle(m_correctionReference);
       }
     }
 
     // Checks if we've finished correcting
-    if (m_turretRangeState == TurretRangeState.CORRECTING_LEFT
-        || m_turretRangeState == TurretRangeState.CORRECTING_RIGHT) {
+    if (m_turretRangeState == TurretSafetyRangeState.CORRECTING_LEFT
+        || m_turretRangeState == TurretSafetyRangeState.CORRECTING_RIGHT) {
       if (Math.abs(degrees - m_correctionReference) <= 10) {
-        m_turretRangeState = TurretRangeState.NORMAL;
+        m_turretRangeState = TurretSafetyRangeState.NORMAL;
         correctTurretCommand.cancel();
       }
     }
@@ -155,65 +160,59 @@ public class TurretSubsystem extends SubsystemBase {
   // Field relative turret tracking, depends on starting position
   public void searchForTarget() {
     double reference = (-m_robotYaw % 360) - m_robotStartAngle;
-    setPosition(reference);
+    setValidAngle(reference);;
   }
 
-  public void setTurretState(TurretState desiredState) {
+  //Main state setter for Turret, feed a targetEstimate for vision tracking
+  public void setTurretState(TurretControlState desiredState, double reference, TargetEstimate targetEstimate) {
     double visionReference = getTurretDegrees() - m_limelightData.getHorizontalOffset();
     SmartDashboard.putString("Turret Desired State", desiredState.toString());
     boolean isTargetFound = m_limelightData.getTargetFound();
 
-    correctTurretRange();
+    switch (desiredState) {
+    case IDLE:
+      stopMotor();
+      m_turretState = TurretState.IDLE;
+      break;
 
-    if (m_turretState != TurretState.CORRECTING_RANGE) {
-      switch (desiredState) {
-      case IDLE:
-        stopMotor();
-        m_turretState = desiredState;
-        break;
-
-      case SETPOINT:
-        setPosition(m_setpointReference);
-        m_turretState = desiredState;
-        break;
-
-      case SEARCHING_FIELD:
-        searchForTarget();
-        m_turretState = desiredState;
-        break;
-
-      case CORRECTING_RANGE:
-        break;
-
-      case TRACKING_TARGET:
-        if (!isTargetFound) {
-          searchForTarget();
-          m_turretState = TurretState.SEARCHING_FIELD;
-        } else if (Math.abs(visionReference) < TurretConstants.kTurretLockedThreshold) {
-          setPosition(visionReference);
-          m_turretState = TurretState.TARGET_LOCKED;
-        } else if(isTargetFound){
-          setPosition(visionReference);
-          m_turretState = TurretState.TRACKING_TARGET;
-        }
-        break;
-
-      case TARGET_LOCKED:
-        if (!isTargetFound) {
-          searchForTarget();
-          m_turretState = TurretState.SEARCHING_FIELD;
-        } else if (Math.abs(visionReference) < TurretConstants.kTurretLockedThreshold) {
-          setPosition(visionReference);
-          m_turretState = TurretState.TARGET_LOCKED;
-        } else if(isTargetFound) {
-          setPosition(visionReference);
-          m_turretState = TurretState.TRACKING_TARGET;
-        }
-        break;
+    case OPEN_LOOP:
+      if(inSafetyRange()){
+        setPower(reference);
       }
+      else{
+        correctTurretRange();
+      }
+      m_turretState = TurretState.MANUAL;
+      break;
+
+    case POSITION_CONTROL:
+      if(atReference(reference)){
+        m_turretState = TurretState.AT_REFERENCE;
+      }
+      else{
+        m_turretState = TurretState.MOVING_TO_REFERENCE;
+      }
+      setValidAngle(reference);
+      break;
+
+    case VISION_TRACKING:
+      if(isTargetFound){
+        setValidAngle(visionReference);
+        m_turretState = TurretState.AT_REFERENCE;
+      }
+      else{
+        if(!targetEstimate.isEstimateValid() || targetEstimate == null){
+          searchForTarget();
+          m_turretState = TurretState.SEARCHING_FIELD;
+        }
+        else{
+          setValidAngle(targetEstimate.getAngle());
+          m_turretState = TurretState.GHOSTING_TARGET;
+        }
+      }
+      break;
     }
   }
-
   //Returns an angle which is valid and fastest to reference
   public double checkValidAngle(double reference){
     double currentAngle = getTurretDegrees();
@@ -244,12 +243,34 @@ public class TurretSubsystem extends SubsystemBase {
     return newReference;
   }
 
+  public boolean isAngleValid(double reference){
+    if(checkValidAngle(reference) != reference){
+      return false;
+    }
+    return true;
+  }
+
+  public void setValidAngle(double reference){
+    double newReference = checkValidAngle(reference);
+    if(newReference != reference && !atReference(newReference)){
+      m_turretState = TurretState.CORRECTING_RANGE;
+    }
+    setPosition(newReference);
+  }
+
   public TurretState getTurretState() {
     return m_turretState;
   }
 
-  public TurretRangeState getTurretRangeState() {
+  public TurretSafetyRangeState getTurretRangeState() {
     return m_turretRangeState;
+  }
+
+  public boolean atReference(double reference){
+    if(Math.abs(reference - getTurretDegrees()) < TurretConstants.kTurretErrorThreshold){
+      return true;
+    }
+    return false;
   }
 
   // -----------------------------------------------------------
@@ -308,9 +329,6 @@ public class TurretSubsystem extends SubsystemBase {
 
   // Grabs the PIDF values from Smartdashboard/Shuffboard
   public void configTurretFeedbackGains() {
-    kP = SmartDashboard.getNumber("Turret kP", kP);
-    kD = SmartDashboard.getNumber("Turret kD", kD);
-
     m_turretPID.setP(kP, 0);
     m_turretPID.setI(0, 0);
     m_turretPID.setIZone(0, 0);

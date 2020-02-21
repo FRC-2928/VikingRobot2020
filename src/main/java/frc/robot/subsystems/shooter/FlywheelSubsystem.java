@@ -87,7 +87,7 @@ public class FlywheelSubsystem extends SubsystemBase {
 
       case VELOCITY_CONTROL:
       setFlywheelRPM(reference);
-      if(Math.abs(reference - getFlywheelVelocityRPM()) < FlywheelConstants.kVelocityErrorThreshold){
+      if(atReference(reference)){
         m_currentState = FlywheelState.AT_VELOCITY;
       }
       else{
@@ -102,6 +102,13 @@ public class FlywheelSubsystem extends SubsystemBase {
 
   public void setPower(double power){
     m_flywheelMotor.set(ControlMode.PercentOutput, power);
+  }
+
+  public boolean atReference(double reference){
+    if(Math.abs(reference - getFlywheelVelocityRPM()) < FlywheelConstants.kFlywheelErrorThreshold){
+      return true;
+    }
+    return false;
   }
 
   public double getFlywheelVelocityRPM(){

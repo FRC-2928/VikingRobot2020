@@ -3,7 +3,7 @@ package frc.robot.commands.turret;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretRangeState;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretSafetyRangeState;
 import frc.robot.utilities.Limelight;
 
 public class TurretLimelightSetPosition extends CommandBase {
@@ -29,7 +29,7 @@ public class TurretLimelightSetPosition extends CommandBase {
     reference = m_turret.getTurretDegrees() + m_limelight.getHorizontalOffset();
     SmartDashboard.putNumber("Limelight offset", reference);
 
-    if(m_turret.getTurretRangeState() == TurretRangeState.NORMAL){
+    if(m_turret.getTurretRangeState() == TurretSafetyRangeState.NORMAL){
       m_turret.setPosition(reference);
     }
   }

@@ -94,7 +94,7 @@ public class HoodSubsystem extends SubsystemBase {
 
       case POSITION_CONTROL:
       setHoodDegrees(reference);
-      if(Math.abs(reference - getHoodDegrees()) < HoodConstants.kPositionErrorThreshold){
+      if(atReference(reference)){
         m_currentState = HoodState.AT_POSITION;
       }
       else{
@@ -105,6 +105,13 @@ public class HoodSubsystem extends SubsystemBase {
 
   public HoodState getHoodState(){
     return m_currentState;
+  }
+
+  public boolean atReference(double reference){
+    if(Math.abs(reference - getHoodDegrees()) < HoodConstants.kHoodErrorThreshold){
+      return true;
+    }
+    return false;
   }
 
   public double getHoodRotation(){
