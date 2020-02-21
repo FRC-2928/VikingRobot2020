@@ -12,11 +12,16 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 public class Test1Trajectory {
     
     // private Trajectory m_trajectory;
+    private TrajectoryConfig m_config;
 
     public Test1Trajectory(TrajectoryConfig config) {
+        m_config = config;      
+    }
+
+    public Trajectory getTrajectory() {
 
         // An example trajectory to follow.  All units in meters.
-        TrajectoryGenerator.generateTrajectory(
+        Trajectory trajectory = TrajectoryGenerator.generateTrajectory(
             // Start at the origin facing the +X direction
             new Pose2d(0, 0, new Rotation2d(0)),
             // Pass through these two interior waypoints, making an 's' curve path
@@ -27,8 +32,8 @@ public class Test1Trajectory {
             // End 3 meters straight ahead of where we started, facing forward
             new Pose2d(3, 0, new Rotation2d(0)),
             // Pass config
-            config
-        );
-        
+            m_config
+        );       
+        return trajectory;
     }
 }            

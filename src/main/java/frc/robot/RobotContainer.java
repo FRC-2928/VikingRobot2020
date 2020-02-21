@@ -243,11 +243,10 @@ public class RobotContainer {
           // Apply the voltage constraint
           .addConstraint(autoVoltageConstraint);
 
-    // Create a trajectory
-    Test1Trajectory test1 = new Test1Trajectory(config);
-    Trajectory trajectory1 = Trajectory.class.cast(test1);
+    // Get a trajectory
+    Test1Trajectory trajectory1 = new Test1Trajectory(config);
 
-    RamseteTrajectoryCommand trajectoryCommand = new RamseteTrajectoryCommand(m_robotDrive, trajectory1);
+    RamseteTrajectoryCommand trajectoryCommand = new RamseteTrajectoryCommand(m_robotDrive, trajectory1.getTrajectory());
 
     // Run path following command, then stop at the end.
     return trajectoryCommand.andThen(() -> m_robotDrive.stopDrivetrain());
