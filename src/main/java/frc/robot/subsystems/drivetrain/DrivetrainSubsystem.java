@@ -74,7 +74,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         m_rightSlave.follow(m_rightMaster, FollowerType.PercentOutput);
         m_rightSlave.setInverted(InvertType.FollowMaster);
 
-        m_rightMaster.setInverted(InvertType.InvertMotorOutput);
+        m_leftMaster.setInverted(InvertType.InvertMotorOutput);
 
         // Configure the motors
         for(TalonFX fx : new TalonFX[] {m_leftMaster, m_leftSlave, m_rightMaster, m_rightSlave}){
@@ -95,7 +95,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             fx.configNeutralDeadband(0.01);
 
             //Set to brake mode, will brake the motor when no power is sent
-            fx.setNeutralMode(NeutralMode.Brake);
+            fx.setNeutralMode(NeutralMode.Coast);
 
             /** 
              * Setting input side current limit (amps)
@@ -149,6 +149,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
         m_yaw = m_pigeon.getYaw();
         SmartDashboard.putNumber("Robot yaw", m_yaw);
         m_pose = m_odometry.update(new Rotation2d(m_yaw), getLeftEncoders(), getRightEncoders());
+
+        SmartDashboard.putNumber("Left Drivetrain Encoders", getLeftEncoders());
+        SmartDashboard.putNumber("Right Drivetrain Encoders", getRightEncoders());
+        SmartDashboard.putNumber("Left Wheel Speed", getWheelSpeeds().leftMetersPerSecond);
+        SmartDashboard.putNumber("Right wheel speed", getWheelSpeeds().rightMetersPerSecond);
     }
 
     public void outputMetersPerSecond(double leftMetersPerSecond, double rightMetersPerSecond) {

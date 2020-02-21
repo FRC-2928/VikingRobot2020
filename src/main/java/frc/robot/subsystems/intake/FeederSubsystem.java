@@ -11,6 +11,7 @@ import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -32,9 +33,9 @@ public class FeederSubsystem extends SubsystemBase {
   private WPI_VictorSPX m_towerMotor;
 
   //IR sensors to detect ball positions
-  private DigitalOutput m_bottomSensor;
-  private DigitalOutput m_middleSensor;
-  private DigitalOutput m_topSensor;
+  private DigitalInput m_bottomSensor;
+  private DigitalInput m_middleSensor;
+  private DigitalInput m_topSensor;
 
   private double m_indexPower = FeederConstants.kIndexPower;
 
@@ -75,9 +76,9 @@ public class FeederSubsystem extends SubsystemBase {
     m_towerMotor.setInverted(InvertType.InvertMotorOutput);
     m_towerMotor.setNeutralMode(NeutralMode.Coast);
 
-    m_bottomSensor = new DigitalOutput(RobotMap.kIRSensorBottom);
-    m_middleSensor = new DigitalOutput(RobotMap.kIRSensorMiddle);
-    m_topSensor = new DigitalOutput(RobotMap.kIRSensorTop);
+    m_bottomSensor = new DigitalInput(RobotMap.kIRSensorBottom);
+    m_middleSensor = new DigitalInput(RobotMap.kIRSensorMiddle);
+    m_topSensor = new DigitalInput(RobotMap.kIRSensorTop);
 
     resetIndexEncoder();
 
@@ -276,15 +277,15 @@ public class FeederSubsystem extends SubsystemBase {
   // Sensor Input
   // -----------------------------------------------------------
   public boolean bottomSensorTripped(){
-    return m_bottomSensor.get();
+    return !m_bottomSensor.get();
   }
 
   public boolean middleSensorTripped(){
-    return m_middleSensor.get();
+    return !m_middleSensor.get();
   }
 
   public boolean topSensorTripped(){
-    return m_topSensor.get();
+    return !m_topSensor.get();
   }
 
   // Returns true if the tower is clear of balls

@@ -31,11 +31,11 @@ public class TransmissionSubsystem extends SubsystemBase {
     switch (state) {
 
     case HIGH:
-      setTrue();
+      setFalse();
       break;
 
     case LOW:
-      setFalse();
+      setTrue();
       break;
     }
   }

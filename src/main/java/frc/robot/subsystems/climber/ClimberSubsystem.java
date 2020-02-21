@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
-import frc.robot.Constants.ClimberConstants;
 import frc.robot.Constants.RobotMap;
 
 /**
@@ -30,7 +29,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
   //Statemachine for overall climber state
   public enum ClimberState{
-    STOWED, READY_TO_LATCH, LATCHED, LOW, MID, HIGH, LOWERING, INTERRUPTED,DEPLOYING, ASSENT_COMPLETE, DEPLOYED;
+    STOWED, READY_TO_LATCH, LATCHED, LOW, MID, HIGH, LOWERING, INTERRUPTED, DEPLOYING, ASSENT_COMPLETE, DEPLOYED;
   }
 
   //Statemachine for pneumatic brake in the gearbox
