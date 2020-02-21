@@ -16,24 +16,32 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.DrivetrainConstants;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.trajectories.Test1Trajectory;
+import frc.robot.commands.controlpanel.RotateSegments;
+import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
+import frc.robot.utilities.Limelight;
+import frc.robot.commands.controlpanel.RotateToColor;
+import frc.robot.commands.turret.TurretLimelightSetPosition;
+import frc.robot.commands.turret.TurretSetStateCommand;
+import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.auto.RamseteTrajectoryCommand;
 import frc.robot.commands.climber.ClimbHigh;
 import frc.robot.commands.climber.ClimbLow;
 import frc.robot.commands.climber.ClimbMid;
 import frc.robot.commands.climber.DeployClimber;
-import frc.robot.commands.controlpanel.RotateSegments;
-import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
-import frc.robot.commands.turret.TurretSetStateCommand;
 import frc.robot.oi.DriverOI;
 import frc.robot.oi.OperatorOI;
 import frc.robot.oi.impl.AbbiOperatorOI;
 import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
-import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.drivetrain.TransmissionSubsystem;
 import frc.robot.subsystems.intake.FeederSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
@@ -70,15 +78,15 @@ public class RobotContainer {
   private final JoystickButton turretOpenLoopLeft = new JoystickButton(driveController, 5);
   private final JoystickButton turretOpenLoopRight = new JoystickButton(driveController, 6);
 
-  private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
-  private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
-  private final JoystickButton positionControlHood = new JoystickButton(driveController, 1);
+  // private final JoystickButton openLoopFlywheel = new JoystickButton(driveController, 5);
+  // private final JoystickButton velocityControlFlywheel = new JoystickButton(driveController, 6);
+  // private final JoystickButton positionControlHood = new JoystickButton(driveController, 1);
 
   private final DriverOI m_driverOI;
   private final OperatorOI m_operatorOI;
 
   // Autonomous 
-  private Trajectory m_trajectory;
+  // private Trajectory m_trajectory;
 
   /**
    * The container for the robot.  Contains subsystems, OI devices, and commands.
@@ -185,8 +193,7 @@ public class RobotContainer {
       .whenPressed(new DeployClimber(m_climber)
       .andThen(new ClimbLow(m_climber)));
     m_operatorOI.deployToTop()
-      .whenPressed(new DeployClimber(m_climber));
-    
+      .whenPressed(new DeployClimber(m_climber));  
   }
 
 
@@ -212,13 +219,6 @@ public class RobotContainer {
       new RunCommand(m_intake::startMotor, m_intake)
     ));
 
-    // TODO Stow the intake
-    // new JoystickButton(m_driverController, Button.kB.value).whenReleased(new SequentialCommandGroup(
-    //   //stop motors
-    //   new InstantCommand(m_intake::stopMotor, m_intake),
-    //   //retract intake
-    //   new InstantCommand(m_intake::Stowed, m_intake )
-    // ));
   }
 
   /**
@@ -227,7 +227,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
+    
     // Create a voltage constraint to ensure we don't accelerate too fast
     var autoVoltageConstraint =
         new DifferentialDriveVoltageConstraint(
@@ -246,60 +246,13 @@ public class RobotContainer {
           // Apply the voltage constraint
           .addConstraint(autoVoltageConstraint);
 
-    // String trajectoryJSON = "trajectories/test.wpilib.json";
-    // try {
-    //   Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJSON);
-    //   m_trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    // } catch (IOException ex) {
-    //   DriverStation.reportError("Unable to open trajectory: " + trajectoryJSON, ex.getStackTrace());
-    // }
+    // Get a trajectory
+    Test1Trajectory trajectory1 = new Test1Trajectory(config);
 
-    // An example trajectory to follow.  All units in meters.
-    // Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-    //   // Start at the origin facing the +X direction
-    //   new Pose2d(0, 0, new Rotation2d(0)),
-    //   // Pass through these two interior waypoints, making an 's' curve path
-    //   List.of(
-    //       new Translation2d(1, 1),
-    //       new Translation2d(2, -1)
-    //   ),
-    //   // End 3 meters straight ahead of where we started, facing forward
-    //   new Pose2d(3, 0, new Rotation2d(0)),
-    //   // Pass config
-    //   config
-    // );
-
-    // Create a trajectory
-    Test1Trajectory test1 = new Test1Trajectory(config);
-    Trajectory trajectory1 = Trajectory.class.cast(test1);
-
-    RamseteTrajectoryCommand trajectoryCommand = new RamseteTrajectoryCommand(m_robotDrive, trajectory1);
+    RamseteTrajectoryCommand trajectoryCommand = new RamseteTrajectoryCommand(m_robotDrive, trajectory1.getTrajectory());
 
     // Run path following command, then stop at the end.
     return trajectoryCommand.andThen(() -> m_robotDrive.stopDrivetrain());
 
-    // // Ramsete command will use PID within the TalonFX
-    // RamseteCommand ramseteCommand = new RamseteCommand(
-    //     // Where we're going
-    //     m_trajectory,
-
-    //     // Where we are currently.  Input from the drivetrain
-    //     m_robotDrive::getPose,
-
-    //     // The controller. Computes the wheel speeds for the next spline
-    //     new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta), 
-        
-    //     // Kinematics, defined in the Constants file
-    //     DrivetrainConstants.kDriveKinematics,
-
-    //     // Consumed in the drivetrain to pass to PID loop
-    //     m_robotDrive::outputMetersPerSecond,
-
-    //     // Required subsystem
-    //     m_robotDrive
-    // );
-
-    // // Run path following command, then stop at the end.
-    // return ramseteCommand.andThen(() -> m_robotDrive.stopDrivetrain());
   }
 }

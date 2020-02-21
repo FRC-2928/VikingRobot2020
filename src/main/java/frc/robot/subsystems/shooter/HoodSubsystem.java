@@ -32,6 +32,9 @@ public class HoodSubsystem extends SubsystemBase {
     IDLE, OPEN_LOOP, POSITION_CONTROL;
   }
   
+  // -----------------------------------------------------------
+  // Initialization
+  // -----------------------------------------------------------
   public HoodSubsystem() {
     m_hoodMotor = new WPI_TalonSRX(RobotMap.kHoodTalonSRX);
 
@@ -74,6 +77,9 @@ public class HoodSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Hood Target Degrees", 0);
   }
   
+  // -----------------------------------------------------------
+  // Process Logic
+  // -----------------------------------------------------------
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Hood Native Units", m_hoodMotor.getSelectedSensorPosition());
@@ -122,6 +128,13 @@ public class HoodSubsystem extends SubsystemBase {
     return getHoodRotation() * 360;
   }
 
+  public void resetHoodEncoder(){
+    m_hoodMotor.setSelectedSensorPosition(0);
+  }
+
+  // -----------------------------------------------------------
+  // Testing and Configuration
+  // -----------------------------------------------------------
   //For tuning gains, will take out once we've finalized everything
   public void configPIDGains(){
     double newkP = SmartDashboard.getNumber("Hood kP", kP);
@@ -147,10 +160,6 @@ public class HoodSubsystem extends SubsystemBase {
 
   public void stopHood(){
     m_hoodMotor.set(ControlMode.PercentOutput, 0);
-  }
-
-  public void resetHoodEncoder(){
-    m_hoodMotor.setSelectedSensorPosition(0);
   }
 
   private double srxToDegrees(double srx){
