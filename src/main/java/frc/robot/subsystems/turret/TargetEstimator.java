@@ -2,6 +2,7 @@ package frc.robot.subsystems.turret;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import frc.robot.types.LimelightData;
 import frc.robot.types.TargetEstimate;
 
 /**
@@ -17,13 +18,13 @@ public class TargetEstimator {
 
     }
 
-    public void update(Pose2d pose, double turretFieldAngle, double limelightAngle, double limelightDistance, boolean validTarget){
-        if(validTarget){
-            double initialTheta = turretFieldAngle + limelightAngle;
+    public void update(Pose2d pose, double turretFieldAngle, LimelightData limelightData){
+        if(limelightData.getTargetFound()){
+            double initialTheta = turretFieldAngle + limelightData.getHorizontalOffset();
             m_updateTime = Timer.getFPGATimestamp();
             m_initialPose = pose;
-            m_xLimelight = Math.cos(Math.toRadians(initialTheta)) * limelightDistance;
-            m_yLimelight = Math.sin(Math.toRadians(initialTheta)) * limelightDistance;
+            m_xLimelight = Math.cos(Math.toRadians(initialTheta)) * limelightData.getTargetDistance();
+            m_yLimelight = Math.sin(Math.toRadians(initialTheta)) * limelightData.getTargetDistance();
         }
         else{
             m_pose = pose;
@@ -37,9 +38,10 @@ public class TargetEstimator {
         double yEstimate;
         double estimatedDistance;
         double estimatedAngle;
+        boolean validEstimate = true;
 
         if(currentTime - m_updateTime > 5 || Math.abs(m_initialPose.getTranslation().getDistance(m_pose.getTranslation())) > 10){
-            return null;
+            validEstimate = false;
         }
 
         xEstimate = (m_pose.getTranslation().getX() - m_initialPose.getTranslation().getX ()) + m_xLimelight;
@@ -48,6 +50,6 @@ public class TargetEstimator {
         estimatedAngle = Math.toDegrees(Math.atan(yEstimate/xEstimate));
         estimatedDistance = Math.sqrt(Math.pow(xEstimate, 2) + Math.pow(yEstimate, 2));
         
-        return new TargetEstimate(estimatedAngle, estimatedDistance);
+        return new TargetEstimate(estimatedAngle, estimatedDistance, validEstimate);
     }
 }
