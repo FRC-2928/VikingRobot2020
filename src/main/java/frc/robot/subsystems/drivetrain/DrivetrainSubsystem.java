@@ -74,7 +74,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
         m_rightSlave.follow(m_rightMaster, FollowerType.PercentOutput);
         m_rightSlave.setInverted(InvertType.FollowMaster);
 
-        m_leftMaster.setInverted(InvertType.InvertMotorOutput);
+        m_rightMaster.setInverted(InvertType.InvertMotorOutput);
 
         // Configure the motors
         for(TalonFX fx : new TalonFX[] {m_leftMaster, m_leftSlave, m_rightMaster, m_rightSlave}){
