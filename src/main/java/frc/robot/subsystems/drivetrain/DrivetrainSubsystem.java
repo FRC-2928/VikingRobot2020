@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drivetrain;
 
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -22,6 +23,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.RobotMap;
   /**
@@ -55,10 +57,16 @@ public class DrivetrainSubsystem extends SubsystemBase {
     private DifferentialDriveWheelSpeeds m_prevSpeeds;
     private double m_targetVelocityRotationsPerSecond;
 
+    private double m_leftPosition, m_rightPosition;
+    private Supplier<TransmissionSubsystem.GearState> m_gearStateSupplier;
+    private double m_prevLeftEncoder, m_prevRightEncoder;
+
     // -----------------------------------------------------------
     // Initialization
     // -----------------------------------------------------------
-    public DrivetrainSubsystem() {
+    public DrivetrainSubsystem(Supplier<TransmissionSubsystem.GearState> gearStateSupplier) {
+
+        m_gearStateSupplier = gearStateSupplier;
 
         m_pigeon = new Pigeon();
         m_pigeon.resetGyro();
@@ -149,6 +157,21 @@ public class DrivetrainSubsystem extends SubsystemBase {
         m_yaw = m_pigeon.getYaw();
         SmartDashboard.putNumber("Robot yaw", m_yaw);
         m_pose = m_odometry.update(new Rotation2d(m_yaw), getLeftEncoders(), getRightEncoders());
+
+        double leftEncoderCount = getLeftEncoders();
+        double rightEncoderCount = getRightEncoders();
+        double deltaLeftCount = leftEncoderCount - m_prevLeftEncoder;
+        double deltaRightCount = rightEncoderCount - m_prevRightEncoder;
+        double deltaLeftPosition = deltaLeftCount/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kLowGearRatio);
+        double deltaRightPosition = deltaRightCount/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kLowGearRatio);
+
+        if (m_gearStateSupplier.get() == TransmissionSubsystem.GearState.HIGH){
+            deltaLeftPosition = deltaLeftCount/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kHighGearRatio);
+            deltaRightPosition = deltaRightCount/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kHighGearRatio);
+        }
+
+        m_leftPosition += deltaLeftPosition;
+        m_rightPosition += deltaRightPosition;
 
         SmartDashboard.putNumber("Left Drivetrain Encoders", getLeftEncoders());
         SmartDashboard.putNumber("Right Drivetrain Encoders", getRightEncoders());
@@ -269,6 +292,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // Gyro readings
     public double getHeading() {
         return Math.IEEEremainder(m_pigeon.getYaw(), 360) * (DrivetrainConstants.kGyroReversed ? -1.0 : 1.0);
+    }
+
+    public double getLeftPosition() {
+        return m_leftPosition;
+    }
+
+    public double getRightPosition() {
+        return m_rightPosition;
     }
 
     public void resetOdometry(Pose2d pose) {

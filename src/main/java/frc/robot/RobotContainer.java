@@ -58,8 +58,9 @@ import frc.robot.utilities.Limelight.Limelights;
 public class RobotContainer {
 
   // The robot's subsystems
-  private final DrivetrainSubsystem m_robotDrive = new DrivetrainSubsystem();
+  
   private final TransmissionSubsystem m_transmission = new TransmissionSubsystem();
+  private final DrivetrainSubsystem m_robotDrive = new DrivetrainSubsystem(m_transmission::getGearState);
   private final FlywheelSubsystem m_flywheelsubsystem = new FlywheelSubsystem();
   private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
