@@ -14,6 +14,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
@@ -23,10 +24,8 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.RobotMap;
-import frc.robot.subsystems.drivetrain.TransmissionSubsystem.GearState;
 /**
    * DrivetrainSubsystem handles all subsystem level logic for the drivetrain.
    * Possibly also Ramsete idfk I haven't finished this class yet.
@@ -61,6 +60,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     private double m_leftPosition, m_rightPosition;
     private Supplier<TransmissionSubsystem.GearState> m_gearStateSupplier;
     private double m_prevLeftEncoder, m_prevRightEncoder;
+    private double m_prevSetOutputTime; 
 
     private double m_leftVelocity, m_rightVelocity; 
 
@@ -186,30 +186,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Robot yaw", m_yaw);
     }
 
-    public void outputMetersPerSecond(double leftMetersPerSecond, double rightMetersPerSecond) {
-        
-        // Calculate feedforward for the left and right wheels.
-        double leftAcceleration = (leftMetersPerSecond - m_prevSpeeds.leftMetersPerSecond) / 0.001;
-        double leftFeedForward = m_feedForward.calculate(leftMetersPerSecond, leftAcceleration);
-
-        double rightAcceleration = (rightMetersPerSecond - m_prevSpeeds.rightMetersPerSecond) / 0.001;
-        double rightFeedForward = m_feedForward.calculate(rightMetersPerSecond, rightAcceleration);
-        
-        // Convert meters per second to rotations per second
-        double leftVelocityRotationsPerSecond = metersToRotations(leftMetersPerSecond);
-        double rightVelocityRotationsPerSecond = metersToRotations(rightMetersPerSecond);
-
-        // Feed these to the drivetrain...
-        setDriveTrainVelocity(leftVelocityRotationsPerSecond, leftFeedForward,
-                              rightVelocityRotationsPerSecond, rightFeedForward);
-
-        // Save previous speeds
-        m_prevSpeeds.leftMetersPerSecond = leftMetersPerSecond;
-        m_prevSpeeds.rightMetersPerSecond = rightMetersPerSecond;
+    public double metersToWheelRotations(double metersPerSecond) {
+        return metersPerSecond / (DrivetrainConstants.kWheelDiameterMeters * Math.PI);
     }
 
-    public double metersToRotations(double metersPerSecond) {
-        return metersPerSecond / (DrivetrainConstants.kWheelDiameterMeters * Math.PI);
+    public double wheelRotationsToMotorRotations(double wheelRotations, TransmissionSubsystem.GearState gearState) {
+        if (gearState == TransmissionSubsystem.GearState.HIGH) {
+            return wheelRotations * DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kHighGearRatio;
+        }
+        return wheelRotations * DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kLowGearRatio;
     }
 
     public double motorRotationsToWheelRotations(double motorRotations, TransmissionSubsystem.GearState gearState) {
@@ -244,32 +229,33 @@ public class DrivetrainSubsystem extends SubsystemBase {
         m_differentialDrive.feed();
     }
 
-    // Sets velocity for the left motor
-    public void setLeftVelocity(double velocityRotationsPerSecond) {
-        setLeftVelocity(velocityRotationsPerSecond, 0.0);
-    }
+    public void setOutputMetersPerSecond(double leftMetersPerSecond, double rightMetersPerSecond) {
+        double currentTime = Timer.getFPGATimestamp();
+        double deltaTime = currentTime - m_prevSetOutputTime;
+        double leftAcceleration = 0;
+        double rightAcceleration = 0;
+        
+        if (deltaTime > 0 && deltaTime < 0.1) {
+            leftAcceleration = (leftMetersPerSecond - m_prevSpeeds.leftMetersPerSecond)/deltaTime;
+            rightAcceleration = (rightMetersPerSecond - m_prevSpeeds.rightMetersPerSecond)/deltaTime;
+        }
 
-    // Sets velocity for the right motor
-    public void setRightVelocity(double velocityRotationsPerSecond) {
-        setRightVelocity(velocityRotationsPerSecond, 0.0);
-    }
+        // Calculate feedforward for the left and right wheels.
+        double leftFeedForward = m_feedForward.calculate(leftMetersPerSecond, leftAcceleration);
+        double rightFeedForward = m_feedForward.calculate(rightMetersPerSecond, rightAcceleration);
+        
+        // Convert meters per second to rotations per second
+        var gearState = m_gearStateSupplier.get();
+        double leftVelocityTicksPerSec = wheelRotationsToMotorRotations(metersToWheelRotations(leftMetersPerSecond), gearState);
+        double rightVelocityTicksPerSec = wheelRotationsToMotorRotations(metersToWheelRotations(leftMetersPerSecond), gearState);
 
-    // Sets velocity and feedforward for the left motor
-    public void setLeftVelocity(double velocityRotationsPerSecond, double feedforwardVolts) {
-        m_leftMaster.set(ControlMode.Velocity, (velocityRotationsPerSecond * DrivetrainConstants.kUnitsPerRevolution) / 10.0, DemandType.ArbitraryFeedForward,
-                feedforwardVolts / kNominalVoltageVolts);
-    }
+        m_leftMaster.set(ControlMode.Velocity, leftVelocityTicksPerSec/10.0, DemandType.ArbitraryFeedForward, leftFeedForward/12.0);
+        m_rightMaster.set(ControlMode.Velocity, rightVelocityTicksPerSec/10.0, DemandType.ArbitraryFeedForward, rightFeedForward/12.0);
 
-    // Sets velocity and feedforward for the right motor
-    public void setRightVelocity(double velocityRotationsPerSecond, double feedforwardVolts) {
-        m_rightMaster.set(ControlMode.Velocity, (velocityRotationsPerSecond * DrivetrainConstants.kUnitsPerRevolution) / 10.0, DemandType.ArbitraryFeedForward,
-                feedforwardVolts / kNominalVoltageVolts);
-    }
+        // Save previous speeds
+        m_prevSpeeds.leftMetersPerSecond = leftMetersPerSecond;
+        m_prevSpeeds.rightMetersPerSecond = rightMetersPerSecond;
 
-    // Sets velocity and feedforward for the drivetrain
-    public void setDriveTrainVelocity(double leftVelocity, double leftFeedforward, double rightVelocity, double rightFeedforward) {
-        setLeftVelocity(leftVelocity, leftFeedforward);
-        setRightVelocity(rightVelocity, rightFeedforward);
         m_differentialDrive.feed();
     }
 

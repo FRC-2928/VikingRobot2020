@@ -17,7 +17,7 @@ public class RamseteTrajectoryCommand extends RamseteCommand {
       drivetrain::getPose,
       new RamseteController(AutoConstants.kRamseteB, AutoConstants.kRamseteZeta),
       DrivetrainConstants.kDriveKinematics,
-      drivetrain::outputMetersPerSecond,
+      drivetrain::setOutputMetersPerSecond,
       drivetrain
     );
   }
