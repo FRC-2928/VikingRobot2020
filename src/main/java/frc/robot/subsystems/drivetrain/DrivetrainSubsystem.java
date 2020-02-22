@@ -26,7 +26,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.RobotMap;
-  /**
+import frc.robot.subsystems.drivetrain.TransmissionSubsystem.GearState;
+/**
    * DrivetrainSubsystem handles all subsystem level logic for the drivetrain.
    * Possibly also Ramsete idfk I haven't finished this class yet.
    */
@@ -60,6 +61,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     private double m_leftPosition, m_rightPosition;
     private Supplier<TransmissionSubsystem.GearState> m_gearStateSupplier;
     private double m_prevLeftEncoder, m_prevRightEncoder;
+
+    private double m_leftVelocity, m_rightVelocity; 
 
     // -----------------------------------------------------------
     // Initialization
@@ -153,30 +156,34 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // -----------------------------------------------------------
     @Override
     public void periodic() {
-        // Update the odometry in the periodic block
-        m_yaw = m_pigeon.getYaw();
-        SmartDashboard.putNumber("Robot yaw", m_yaw);
-        m_pose = m_odometry.update(new Rotation2d(m_yaw), getLeftEncoders(), getRightEncoders());
-
-        double leftEncoderCount = getLeftEncoders();
-        double rightEncoderCount = getRightEncoders();
+    
+        double leftEncoderCount = m_leftMaster.getSelectedSensorPosition();
+        double rightEncoderCount = m_rightMaster.getSelectedSensorPosition();
         double deltaLeftCount = leftEncoderCount - m_prevLeftEncoder;
         double deltaRightCount = rightEncoderCount - m_prevRightEncoder;
-        double deltaLeftPosition = deltaLeftCount/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kLowGearRatio);
-        double deltaRightPosition = deltaRightCount/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kLowGearRatio);
 
-        if (m_gearStateSupplier.get() == TransmissionSubsystem.GearState.HIGH){
-            deltaLeftPosition = deltaLeftCount/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kHighGearRatio);
-            deltaRightPosition = deltaRightCount/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kHighGearRatio);
-        }
+        var gearState = m_gearStateSupplier.get();
+        m_leftPosition += wheelRotationsToMeters(motorRotationsToWheelRotations(deltaLeftCount, gearState));
+        m_rightPosition += wheelRotationsToMeters(motorRotationsToWheelRotations(deltaRightCount, gearState));
 
-        m_leftPosition += deltaLeftPosition;
-        m_rightPosition += deltaRightPosition;
+        double leftEncoderVelocity = m_leftMaster.getSelectedSensorVelocity();
+        double rightEncoderVelocity = m_rightMaster.getSelectedSensorVelocity();
+        m_leftVelocity = wheelRotationsToMeters(motorRotationsToWheelRotations(leftEncoderVelocity, gearState)) * 10;
+        m_rightVelocity = wheelRotationsToMeters(motorRotationsToWheelRotations(rightEncoderVelocity, gearState)) * 10;
 
-        SmartDashboard.putNumber("Left Drivetrain Encoders", getLeftEncoders());
-        SmartDashboard.putNumber("Right Drivetrain Encoders", getRightEncoders());
-        SmartDashboard.putNumber("Left Wheel Speed", getWheelSpeeds().leftMetersPerSecond);
-        SmartDashboard.putNumber("Right wheel speed", getWheelSpeeds().rightMetersPerSecond);
+        // Update the odometry in the periodic block
+        m_yaw = m_pigeon.getYaw();
+        m_pose = m_odometry.update(Rotation2d.fromDegrees(m_yaw), m_leftPosition, m_rightPosition);
+
+        //Stores current values for next run through
+        m_prevLeftEncoder = leftEncoderCount;
+        m_prevRightEncoder = rightEncoderCount;
+
+        SmartDashboard.putNumber("Left Wheel Position", m_leftPosition);
+        SmartDashboard.putNumber("Right Wheel Position", m_rightPosition);
+        SmartDashboard.putNumber("Left Wheel Speed", m_leftVelocity);
+        SmartDashboard.putNumber("Right Wheel Speed", m_rightVelocity);
+        SmartDashboard.putNumber("Robot yaw", m_yaw);
     }
 
     public void outputMetersPerSecond(double leftMetersPerSecond, double rightMetersPerSecond) {
@@ -203,6 +210,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     public double metersToRotations(double metersPerSecond) {
         return metersPerSecond / (DrivetrainConstants.kWheelDiameterMeters * Math.PI);
+    }
+
+    public double motorRotationsToWheelRotations(double motorRotations, TransmissionSubsystem.GearState gearState) {
+        if (gearState == TransmissionSubsystem.GearState.HIGH) {
+            return motorRotations/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kHighGearRatio);
+        }
+        return motorRotations/(DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kLowGearRatio);
+    }
+
+    public double wheelRotationsToMeters(double wheelRotations) {
+        return DrivetrainConstants.kWheelDiameterMeters * Math.PI * wheelRotations;
     }
 
     // -----------------------------------------------------------
@@ -267,17 +285,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // Sensor Input
     // -----------------------------------------------------------
 
-    // Encoder readings
-    public double getLeftEncoders(){
-        return m_leftMaster.getSelectedSensorPosition();
-    }
-
-    public double getRightEncoders(){
-        return m_rightMaster.getSelectedSensorPosition();
-    }
-
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-        return new DifferentialDriveWheelSpeeds(getLeftEncoders(), getRightEncoders());
+        return new DifferentialDriveWheelSpeeds(m_leftVelocity, m_rightVelocity);
     }
 
     public Pose2d getPose() {
