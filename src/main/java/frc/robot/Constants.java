@@ -145,8 +145,8 @@ public final class Constants {
 
     public static final class TurretConstants {
         public static final double kTurretErrorThreshold = 1;
-        public static final double kTurretLeftLimit = 360;
-        public static final double kTurretRightLimit = -360;
+        public static final double kTurretLeftLimit = 320;
+        public static final double kTurretRightLimit = -320;
     }
 
     public static final class FeederConstants {

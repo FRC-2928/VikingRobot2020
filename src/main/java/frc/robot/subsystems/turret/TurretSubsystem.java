@@ -35,7 +35,7 @@ public class TurretSubsystem extends SubsystemBase {
   private LimelightData m_limelightData;
 
   private TurretState m_turretState;
-  private TurretSafetyRangeState m_turretRangeState;
+  private TurretSafetyRangeState m_turretSafetyRangeState;
 
   private double m_correctionReference;
 
@@ -65,7 +65,7 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public enum TurretSafetyRangeState {
-    NORMAL, CORRECTING_LEFT, CORRECTING_RIGHT;
+    NORMAL, CORRECTING;
   }
 
   // -----------------------------------------------------------
@@ -89,11 +89,11 @@ public class TurretSubsystem extends SubsystemBase {
 
     resetTurretEncoder();
     m_correctionReference = 0;
-    m_turretRangeState = TurretSafetyRangeState.NORMAL;
+    m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
     m_turretState = TurretState.IDLE;
 
     setDefaultCommand(new RunCommand(() -> {
-      setTurretState(TurretControlState.IDLE, 0, null);
+      setTurretState(TurretControlState.IDLE, 0, new TargetEstimate(0, 0, false));
     }, this));
 
     SmartDashboard.putNumber("Robot Start Angle", 0);
@@ -131,16 +131,16 @@ public class TurretSubsystem extends SubsystemBase {
     double degrees = getTurretDegrees();
 
     // Checks if turret is beyond limits, and corrects 360 degrees the opposite way
-    if (m_turretRangeState == TurretSafetyRangeState.NORMAL) {
+    if (m_turretSafetyRangeState == TurretSafetyRangeState.NORMAL) {
       if (degrees < rightMaxLimit) {
-        m_turretRangeState = TurretSafetyRangeState.CORRECTING_RIGHT;
+        m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
         m_turretState = TurretState.CORRECTING_RANGE;
         m_correctionReference = rightMaxLimit + 360;
         setValidAngle(m_correctionReference);
       }
 
       else if (degrees > leftMaxLimit) {
-        m_turretRangeState = TurretSafetyRangeState.CORRECTING_LEFT;
+        m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
         m_turretState = TurretState.CORRECTING_RANGE;
         m_correctionReference = leftMaxLimit - 360;
         setValidAngle(m_correctionReference);
@@ -148,10 +148,10 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     // Checks if we've finished correcting
-    if (m_turretRangeState == TurretSafetyRangeState.CORRECTING_LEFT
-        || m_turretRangeState == TurretSafetyRangeState.CORRECTING_RIGHT) {
+    if (m_turretSafetyRangeState == TurretSafetyRangeState.CORRECTING
+        || m_turretSafetyRangeState == TurretSafetyRangeState.CORRECTING) {
       if (Math.abs(degrees - m_correctionReference) <= 10) {
-        m_turretRangeState = TurretSafetyRangeState.NORMAL;
+        m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
         correctTurretCommand.cancel();
       }
     }
@@ -197,22 +197,29 @@ public class TurretSubsystem extends SubsystemBase {
 
     case VISION_TRACKING:
       if(isTargetFound){
-        setValidAngle(visionReference);
-        m_turretState = TurretState.AT_REFERENCE;
-      }
-      else{
-        if(!targetEstimate.isEstimateValid() || targetEstimate == null){
-          searchForTarget();
-          m_turretState = TurretState.SEARCHING_FIELD;
+        if(atReference(visionReference)){
+          m_turretState = TurretState.AT_REFERENCE;
         }
         else{
-          setValidAngle(targetEstimate.getAngle());
+          m_turretState = TurretState.MOVING_TO_REFERENCE;
+        }
+        setValidAngle(visionReference);
+      }
+      else{
+        if(targetEstimate.isValid()){
           m_turretState = TurretState.GHOSTING_TARGET;
+          reference = targetEstimate.getAngle();
+          setValidAngle(reference);
+        }
+        else{
+          m_turretState = TurretState.SEARCHING_FIELD;
+          searchForTarget();
         }
       }
       break;
     }
   }
+  
   //Returns an angle which is valid and fastest to reference
   public double checkValidAngle(double reference){
     double currentAngle = getTurretDegrees();
@@ -250,10 +257,15 @@ public class TurretSubsystem extends SubsystemBase {
     return true;
   }
 
+  //Takes a reference and uses checkValidAngle to create a valid path
+  //See @checkValidAngle()
   public void setValidAngle(double reference){
     double newReference = checkValidAngle(reference);
-    if(newReference != reference && !atReference(newReference)){
-      m_turretState = TurretState.CORRECTING_RANGE;
+    if(newReference != reference && !clearedSafetlyRange()){
+      m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
+    }
+    else{
+      m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
     }
     setPosition(newReference);
   }
@@ -263,11 +275,20 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public TurretSafetyRangeState getTurretRangeState() {
-    return m_turretRangeState;
+    return m_turretSafetyRangeState;
   }
 
+  //Checks if we're within the error threshold of our reference
   public boolean atReference(double reference){
     if(Math.abs(reference - getTurretDegrees()) < TurretConstants.kTurretErrorThreshold){
+      return true;
+    }
+    return false;
+  }
+
+  //Checks if more than 180 degrees from limits
+  public boolean clearedSafetlyRange(){
+    if(Math.abs(getTurretDegrees() - leftMaxLimit) > 180){
       return true;
     }
     return false;

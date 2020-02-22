@@ -22,7 +22,7 @@ public class TargetEstimate {
         return m_distance;
     }
 
-    public boolean isEstimateValid(){
+    public boolean isValid(){
         return m_validEstimate;
     }
 }
