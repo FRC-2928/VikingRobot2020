@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.types.LimelightData;
 import frc.robot.utilities.LimelightUtility;
 
-public class TargetEstimator extends SubsystemBase {
+public class PowerPortEstimator extends SubsystemBase {
   private final Runnable kUpdateRunnable;
 
   private Pose2d m_pose;
@@ -20,7 +20,8 @@ public class TargetEstimator extends SubsystemBase {
   private double m_turretAngle;
   private double m_updateTime;
 
-  public TargetEstimator(Supplier<Pose2d> poseSupplier, Supplier<LimelightData> limelightDataSupplier, DoubleSupplier turretAngleSupplier) {
+  public PowerPortEstimator(Supplier<Pose2d> poseSupplier, Supplier<LimelightData> limelightDataSupplier,
+      DoubleSupplier turretAngleSupplier) {
     kUpdateRunnable = () ->  {
       var limelightData = limelightDataSupplier.get();
       if (!limelightData.isTargetFound()) {
