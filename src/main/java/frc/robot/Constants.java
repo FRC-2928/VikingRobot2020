@@ -130,16 +130,24 @@ public final class Constants {
     }
     
     public static final class FlywheelConstants {
-        //Setpoints
-        public static final double kSetPowerWall = 0.2;
-        public static final double kSetPowerLine = 0.4;
-        public static final double kSetPowerWheel = 0.6;
-        public static final double kSetPowerTrench = 0.75;
+        //Setpoints in RPM
+        public static final double kSetpointWall = 3000;
+        public static final double kSetpointInitiationLine = 4000;
+        public static final double kSetpointCloseTrench = 5000;
+        public static final double kSetpointFarTrench = 6000;
 
         public static final double kFlywheelErrorThreshold = 75;
     }
 
     public static final class HoodConstants{
+        public static final double kSetpointWall = 40;
+        public static final double kSetpointInitiationLine = 50;
+        public static final double kSetpointCloseTrench = 60;
+        public static final double kSetpointFarTrench = 60;
+
+        public static final double kHoodLowerLimit = 30;
+        public static final double kHoodUpperLimit = 70;
+
         public static final double kHoodErrorThreshold = 1;
     }
 

@@ -20,6 +20,7 @@ import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.trajectories.Test1Trajectory;
+import frc.robot.types.TargetEstimate;
 import frc.robot.commands.controlpanel.RotateSegments;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
@@ -139,7 +140,8 @@ public class RobotContainer {
   }
 
   public void configureTurretButtons(){
-    turretVisionControl.whileHeld(new TurretSetStateCommand(m_turretSubsystem, TurretControlState.VISION_TRACKING, 0));
+    turretVisionControl.whileHeld(new TurretSetStateCommand(
+      m_turretSubsystem, TurretControlState.VISION_TRACKING, 0, new TargetEstimate(0, 0, false)));
 
     turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.4)));
     turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.4)));

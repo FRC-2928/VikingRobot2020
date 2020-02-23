@@ -2,10 +2,8 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -120,12 +118,8 @@ public class HoodSubsystem extends SubsystemBase {
     return false;
   }
 
-  public double getHoodRotation(){
-    return m_hoodMotor.getSelectedSensorPosition() / ConversionConstants.kHoodEncoderTicksPerRotation / ConversionConstants.kHoodGearRatio;
-  }
-
   public double getHoodDegrees(){
-    return getHoodRotation() * 360;
+    return srxToDegrees(m_hoodMotor.getSelectedSensorPosition());
   }
 
   public void resetHoodEncoder(){
@@ -150,8 +144,18 @@ public class HoodSubsystem extends SubsystemBase {
     System.out.println("Hood configed");
   }
 
+  //In total degrees of the hood, ex 30 degrees is hood all the way down
   public void setHoodDegrees(double reference){
-    m_hoodMotor.set(ControlMode.Position, reference);
+    if(reference < HoodConstants.kHoodLowerLimit){
+      reference = HoodConstants.kHoodLowerLimit;
+      System.out.println("Hood setpoint exceeded lower limit");
+    }
+    else if(reference > HoodConstants.kHoodUpperLimit){
+      reference = HoodConstants.kHoodUpperLimit;
+      System.out.println("Hood setpoint exceeded upper limit");
+    }
+    reference =- 30;
+    m_hoodMotor.set(ControlMode.Position, degreesToSRX(reference));
   }
 
   public void setPower(double power){
