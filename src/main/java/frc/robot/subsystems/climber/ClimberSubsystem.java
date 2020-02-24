@@ -103,7 +103,7 @@ public class ClimberSubsystem extends SubsystemBase {
       setElevatorPosition(setpoint);
     }
   }
-
+/*
   public void deployToLow() {
     double currentPosition = getElevatorPosition();
     m_setpointTarget = ClimberConstants.kLowPositionSetpoint;
@@ -130,7 +130,7 @@ public class ClimberSubsystem extends SubsystemBase {
       setElevatorPosition(setpoint);
     }
   } 
-
+*/
   public boolean atSetpoint() {
     if (m_setpointTarget - getElevatorPosition() <= 0.1) {
       return true;
