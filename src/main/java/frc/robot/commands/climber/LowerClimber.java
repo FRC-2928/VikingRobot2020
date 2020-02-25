@@ -1,7 +1,6 @@
 package frc.robot.commands.climber;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.climber.ClimberSubsystem.ClimberState;
@@ -23,7 +22,7 @@ public class LowerClimber extends CommandBase {
     public void initialize() {
         m_climber.setClimberState(ClimberState.LOWERING);
 
-        m_power = ClimberConstants.kCLimberPower;
+        m_power = ClimberConstants.kClimberPower;
     }
 
     @Override

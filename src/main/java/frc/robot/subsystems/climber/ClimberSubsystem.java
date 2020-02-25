@@ -1,5 +1,7 @@
 package frc.robot.subsystems.climber;
 
+import javax.swing.text.Position;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
@@ -58,6 +60,7 @@ public class ClimberSubsystem extends SubsystemBase {
     setDefaultCommand(
       new RunCommand(() -> {
         SetElevatorPower(0);
+        SetElevatorPosition(0);
       }, this)
     );
   }
@@ -72,12 +75,15 @@ public class ClimberSubsystem extends SubsystemBase {
   }
 
   public void deployToTop() {
-    double currentPosition = getElevatorPosition();
+    setSolenoid(false); // Release Ratchet to allow elevator to UP 
+    
+    double currentPosition = getElevatorPosition(); 
     m_setpointTarget = ClimberConstants.kDeployedPositionSetpoint;
 
     // If not deployed to top then go there, otherwise command isFinished
     if (!atSetpoint()) {
       double setpoint = m_setpointTarget - currentPosition;
+      SetElevatorPosition(setpoint);
     }
   }
 
@@ -120,6 +126,11 @@ public class ClimberSubsystem extends SubsystemBase {
   public double getElevatorNativeEncoder(){
     m_nativeEncoder = m_climberMotor.getEncoder();
     return  m_nativeEncoder.getPosition();
+  }
+
+  public double SetElevatorPosition(double position){
+    m_nativeEncoder.setPosition(position);
+    return m_nativeEncoder.getPosition();
   }
 
   // Returns position in meters.

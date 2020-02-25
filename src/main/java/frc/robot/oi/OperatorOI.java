@@ -8,7 +8,7 @@ public interface OperatorOI {
 
     Button deployToTop(); //no longer just for testing
 
-    Button retractClimber(); 
+    Button lowerClimber(); 
 
     Button getEnableAutoTargetButton();
 

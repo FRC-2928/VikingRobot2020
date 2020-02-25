@@ -15,6 +15,7 @@ public class DeployClimber extends CommandBase {
 
     @Override
     public void initialize() {
+        m_climber.setSolenoid(true);
     }
 
     @Override

@@ -25,7 +25,7 @@ public class AbbiOperatorOI implements OperatorOI {
     }
 
     @Override 
-    public Button retractClimber(){
+    public Button lowerClimber(){
         return new JoystickButton(m_controller, XboxController.Button.kY.value); //placeholder
     }
 

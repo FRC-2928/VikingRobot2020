@@ -175,10 +175,7 @@ public final class Constants {
 
         public static final double kStowedPositionSetpoint = 0.0; // Meters
         public static final double kDeployedPositionSetpoint = 1.6; // Meters
-        public static final double kLowPositionSetpoint = 1.0; //placeholder
-        public static final double kMidPositionSetpoint = 1.2;
-        public static final double kHighPositionSetpoint = 1.4;
-        public static final double kCLimberPower = 0.4; // Power Percent
+        public static final double kClimberPower = 0.4; // Power Percent
 
         // TODO figure number of clicks per meter (assuming meters are used in above Setpoints)
         public static final double kClimberEncoderTicksPerRotation = 2048; // correct!
