@@ -2,26 +2,38 @@ package frc.robot.subsystems.shooter;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
+import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 /**
-   * Creates a new ShooterHoodSubsystem.
+   * Creates a new HoodSubsystem.
    */
-public class ShooterHoodSubsystem extends SubsystemBase {
+public class HoodSubsystem extends SubsystemBase {
   private WPI_TalonSRX m_hoodMotor;
+
+  private HoodState m_currentState;
 
   private final double kP = PIDConstants.kHoodkP;
   private final double kD = PIDConstants.kHoodkD;
+
+  public enum HoodState{
+    IDLE, MANUAL, MOVING_TO_POSITION, AT_POSITION;
+  }
+
+  public enum HoodControlState{
+    IDLE, OPEN_LOOP, POSITION_CONTROL;
+  }
   
-  public ShooterHoodSubsystem() {
+  // -----------------------------------------------------------
+  // Initialization
+  // -----------------------------------------------------------
+  public HoodSubsystem() {
     m_hoodMotor = new WPI_TalonSRX(RobotMap.kHoodTalonSRX);
 
     m_hoodMotor.configFactoryDefault();
@@ -54,7 +66,7 @@ public class ShooterHoodSubsystem extends SubsystemBase {
 
     resetHoodEncoder();
 
-    setDefaultCommand(new RunCommand(this::stopHood, this));
+    setDefaultCommand(new RunCommand(() -> this.setHoodState(HoodControlState.IDLE, 0), this));
 
     //Placing the hood gains on ShuffleBoard
     SmartDashboard.putNumber("Hood kP", kP);
@@ -63,20 +75,60 @@ public class ShooterHoodSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Hood Target Degrees", 0);
   }
   
+  // -----------------------------------------------------------
+  // Process Logic
+  // -----------------------------------------------------------
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Hood Native Units", m_hoodMotor.getSelectedSensorPosition());
     SmartDashboard.putNumber("Hood Position", getHoodDegrees());
   }
 
-  public double getHoodRotation(){
-    return m_hoodMotor.getSelectedSensorPosition() / ConversionConstants.kHoodEncoderTicksPerRotation / ConversionConstants.kHoodGearRatio;
+  public void setHoodState(HoodControlState desiredState, double reference){
+    switch(desiredState){
+      case IDLE:
+      stopHood();
+      m_currentState = HoodState.IDLE;
+      break;
+
+      case OPEN_LOOP:
+      setPower(reference);
+      m_currentState = HoodState.MANUAL;
+      break;
+
+      case POSITION_CONTROL:
+      setHoodDegrees(reference);
+      if(atReference(reference)){
+        m_currentState = HoodState.AT_POSITION;
+      }
+      else{
+        m_currentState = HoodState.MOVING_TO_POSITION;
+      }
+    }
+  }
+
+  public HoodState getHoodState(){
+    return m_currentState;
+  }
+
+  public boolean atReference(double reference){
+    if(Math.abs(reference - getHoodDegrees()) < HoodConstants.kHoodErrorThreshold){
+      return true;
+    }
+    return false;
   }
 
   public double getHoodDegrees(){
-    return getHoodRotation() * 360;
+    return srxToDegrees(m_hoodMotor.getSelectedSensorPosition());
   }
 
+  public void resetHoodEncoder(){
+    m_hoodMotor.setSelectedSensorPosition(0);
+  }
+
+  // -----------------------------------------------------------
+  // Testing and Configuration
+  // -----------------------------------------------------------
   //For tuning gains, will take out once we've finalized everything
   public void configPIDGains(){
     double newkP = SmartDashboard.getNumber("Hood kP", kP);
@@ -92,10 +144,18 @@ public class ShooterHoodSubsystem extends SubsystemBase {
     System.out.println("Hood configed");
   }
 
-  public void setHoodDegrees(){
-    double target = degreesToSRX(SmartDashboard.getNumber("Hood Target Degrees", 0));
-    SmartDashboard.putNumber("Actual Hood Target", target);
-    m_hoodMotor.set(ControlMode.Position, target);
+  //In total degrees of the hood, ex 30 degrees is hood all the way down
+  public void setHoodDegrees(double reference){
+    if(reference < HoodConstants.kHoodLowerLimit){
+      reference = HoodConstants.kHoodLowerLimit;
+      System.out.println("Hood setpoint exceeded lower limit");
+    }
+    else if(reference > HoodConstants.kHoodUpperLimit){
+      reference = HoodConstants.kHoodUpperLimit;
+      System.out.println("Hood setpoint exceeded upper limit");
+    }
+    reference =- 30;
+    m_hoodMotor.set(ControlMode.Position, degreesToSRX(reference));
   }
 
   public void setPower(double power){
@@ -104,10 +164,6 @@ public class ShooterHoodSubsystem extends SubsystemBase {
 
   public void stopHood(){
     m_hoodMotor.set(ControlMode.PercentOutput, 0);
-  }
-
-  public void resetHoodEncoder(){
-    m_hoodMotor.setSelectedSensorPosition(0);
   }
 
   private double srxToDegrees(double srx){
