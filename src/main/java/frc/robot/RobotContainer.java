@@ -188,20 +188,8 @@ public class RobotContainer {
 
   public void ConfigureClimberButtons() {
   
-    // m_operatorOI.deployClimberHigh()
-    //   .whenPressed(new DeployClimber(m_climber)
-    //   .andThen(new ClimbHigh(m_climber)));
-    // m_operatorOI.deployClimberMid()
-    //   .whenPressed(new DeployClimber(m_climber)
-    //   .andThen(new ClimbMid(m_climber)));
-    // m_operatorOI.deployClimberMidTwo()
-    //   .whenPressed(new DeployClimber(m_climber)
-    //   .andThen(new ClimbMid(m_climber)));
-    // m_operatorOI.deployClimberLow()
-    //   .whenPressed(new DeployClimber(m_climber)
-    //   .andThen(new ClimbLow(m_climber)));
-    // m_operatorOI.deployToTop()
-    //   .whenPressed(new DeployClimber(m_climber));  
+    m_operatorOI.deployToTop()
+      .whenPressed(new DeployClimber(m_climber));  
   }
 
 

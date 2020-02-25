@@ -38,8 +38,8 @@ public final class Constants {
         public static final int kTurretSparkMax = 4;
 
         //Climber
-        public static final int kClimberTalonFX = 12; 
-        public static final int kClimberSolenoidBrake = 1;
+        public static final int kClimberMotor = 12; 
+        public static final int kRatchetSolenoid = 1;
 
         //Control Panel
         public static final int kControlPanelTalonSRX = 9;
@@ -173,25 +173,14 @@ public final class Constants {
 
     public static final class ClimberConstants {
 
-        // PID constants
-        public static double kClimberP = 0.1;
-        public static double kClimberI = 1e-4;
-        public static double kClimberD = 1;
-        public static int kClimberIzone = 0;
-        public static double kClimberFF = 0;
-        public static int kClimberTimeout = 0; // place holders
-
         public static final double kStowedPositionSetpoint = 0.0; // Meters
         public static final double kDeployedPositionSetpoint = 1.6; // Meters
-        public static final double kLowPositionSetpoint = 1.0; //placeholder
-        public static final double kMidPositionSetpoint = 1.2;
-        public static final double kHighPositionSetpoint = 1.4;
-        public static final double kCLimberPower = 0.4; // Power Percent
+        public static final double kClimberPower = 0.4; // Power Percent
 
         // TODO figure number of clicks per meter (assuming meters are used in above Setpoints)
         public static final double kClimberEncoderTicksPerRotation = 2048; // correct!
-        public static final double kClimberGearRatio = 54 / 1; // moter to intermediate pulley,correct!
-        // meters climber movement per intermediate pulley rev,correct!
+        public static final double kClimberGearRatio = 54 / 1; // moter to intermediate pulley, correct!
+        // meters climber movement per intermediate pulley rev, correct!
         public static final double kDistancePerPullyRotation = .18; // 18 cm
     }
 
