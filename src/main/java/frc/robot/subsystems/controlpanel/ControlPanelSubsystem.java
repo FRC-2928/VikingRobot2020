@@ -39,18 +39,21 @@ public class ControlPanelSubsystem extends SubsystemBase implements SmartSubsyst
   //Initization
   //----------------------------------------------------
   public ControlPanelSubsystem() {
-    m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
-    m_colorMatcher = new ColorMatcher();
+    m_motor = new CANSparkMax(RobotMap.kControlPanelSparkMax, MotorType.kBrushless);
 
-    m_motor = new CANSparkMax(RobotMap.kFeederSparkMax, MotorType.kBrushless);
-    m_motorPID = m_motor.getPIDController();
-
-    // Config hopper motor
+    // Config motor
     m_motor.restoreFactoryDefaults();
     m_motor.enableVoltageCompensation(12);
     m_motor.setIdleMode(IdleMode.kBrake);
     m_motor.setSmartCurrentLimit(35, 45, 0);
     m_motor.setInverted(false);
+
+    // Setup encoder and PID
+    m_motorEncoder = m_motor.getEncoder();
+    m_motorPID = m_motor.getPIDController(); 
+
+    m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
+    m_colorMatcher = new ColorMatcher();
 
      // set PID coefficients
      configPanelFeedbackGains();

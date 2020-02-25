@@ -26,13 +26,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.RobotMap;
+import frc.robot.subsystems.SmartSubsystem;
 /**
    * DrivetrainSubsystem handles all subsystem level logic for the drivetrain.
    * Possibly also Ramsete idfk I haven't finished this class yet.
    */
 import frc.robot.utilities.Pigeon;
 
-public class DrivetrainSubsystem extends SubsystemBase {
+public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem{
     private WPI_TalonFX m_leftMaster, m_rightMaster;
     private WPI_TalonFX m_leftSlave, m_rightSlave;
 
@@ -209,7 +210,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     }
 
     // -----------------------------------------------------------
-    // Actuator Output
+    // Control Input
     // -----------------------------------------------------------
     public void drive(DoubleSupplier move, DoubleSupplier rotate){
         drive(move.getAsDouble(), rotate.getAsDouble(), true);
@@ -267,8 +268,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
         m_differentialDrive.setMaxOutput(maxOutput);
     }
 
+    // Required methods for SmartSubsystem
+    public void setPower(double power){}
+    public void setPosition(double position){}
+    public void setVelocity(double velocity){}
+    public void setMotion(double position){}
+    public void stop(){}
+
     // -----------------------------------------------------------
-    // Sensor Input
+    // System State
     // -----------------------------------------------------------
 
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
@@ -300,6 +308,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
     public void resetOdometry(Pose2d pose) {
         resetEncoders();
         m_odometry.resetPosition(pose, Rotation2d.fromDegrees(getHeading()));
+    }
+
+    // Required methods for SmartSubsystem
+    public double getPosition(){
+        return 0;
+    }
+    public double getVelocity(){
+        return 0;
+    }
+    public boolean atReference(){
+        return true;
     }
 
     // -----------------------------------------------------------

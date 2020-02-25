@@ -23,8 +23,8 @@ public final class Constants {
         public static final int kDrivetrainRightBackTalonFX = 0;
 
         //Feeder
-        public static final int kFeederSparkMax = 5;
-        public static final int kTowerVictorSPX = 11; //Placerholder
+        public static int kIndexSparkMax = 11;
+		public static int kHopperSparkMax = 5;
 
         public static final int kIRSensorBottom = 9;
         public static final int kIRSensorMiddle = 8;
@@ -42,7 +42,8 @@ public final class Constants {
         public static final int kRatchetSolenoid = 1;
 
         //Control Panel
-        public static final int kControlPanelTalonSRX = 9;
+        // public static final int kControlPanelTalonSRX = 9;
+        public static int kControlPanelSparkMax = 9;
 
         //Intake
         public static final int kIntakeVictorSPX = 10; //placeholder
@@ -56,6 +57,7 @@ public final class Constants {
 
         //Sensors
         public static final int kPigeonIMU = 3;
+		
     }
 
     public static final class OIConstants {
@@ -173,6 +175,10 @@ public final class Constants {
 
     public static final class ClimberConstants {
 
+        public static double kP = 0.055;
+        public static double kD = 0.5;
+        public static double kF = 0.4;
+
         public static final double kStowedPositionSetpoint = 0.0; // Meters
         public static final double kDeployedPositionSetpoint = 1.6; // Meters
         public static final double kClimberPower = 0.4; // Power Percent
@@ -182,6 +188,14 @@ public final class Constants {
         public static final double kClimberGearRatio = 54 / 1; // moter to intermediate pulley, correct!
         // meters climber movement per intermediate pulley rev, correct!
         public static final double kDistancePerPullyRotation = .18; // 18 cm
+		public static double kClimberErrorThreshold = 0.5; // 5 cm
+    }
+
+    public static final class IntakeConstants {
+        public static double kP = 0.055;
+        public static double kD = 0.5;
+        public static double kF = 0.4;
+		public static double kClimberErrorThreshold = 0.5; // 5 cm
     }
 
     public static final class LimelightConstants{

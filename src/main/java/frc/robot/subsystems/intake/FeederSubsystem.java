@@ -1,10 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
@@ -18,7 +13,9 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.FeederConstants;
-import frc.robot.Constants.RobotMap;;
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.RobotMap;
+import frc.robot.subsystems.SmartSubsystem;;
 
 /**
  * Feedersubsystem is responsible for feeding balls into the shoote
@@ -26,11 +23,12 @@ import frc.robot.Constants.RobotMap;;
  * We can't have too many in the hopper or they'll jam
 */
 
-public class FeederSubsystem extends SubsystemBase {
+public class FeederSubsystem extends SubsystemBase implements SmartSubsystem{
 
   private CANSparkMax m_hopperMotor;
   private CANPIDController m_hopperPID;
-  private WPI_VictorSPX m_towerMotor;
+  private CANSparkMax m_indexMotor;
+  private CANPIDController m_indexPID;
 
   //IR sensors to detect ball positions
   private DigitalInput m_bottomSensor;
@@ -55,8 +53,8 @@ public class FeederSubsystem extends SubsystemBase {
   // -----------------------------------------------------------
   public FeederSubsystem() {
 
-    m_towerMotor = new WPI_VictorSPX(RobotMap.kTowerVictorSPX);
-    m_hopperMotor = new CANSparkMax(RobotMap.kFeederSparkMax, MotorType.kBrushless);
+    m_hopperMotor = new CANSparkMax(RobotMap.kHopperSparkMax, MotorType.kBrushless);
+    m_indexMotor = new CANSparkMax(RobotMap.kIndexSparkMax, MotorType.kBrushless);
     m_hopperPID = m_hopperMotor.getPIDController();
 
     // Config hopper motor
@@ -66,24 +64,19 @@ public class FeederSubsystem extends SubsystemBase {
     m_hopperMotor.setSmartCurrentLimit(35, 45, 0);
     m_hopperMotor.setInverted(false);
 
-    // Config tower motor
-    m_towerMotor.configFactoryDefault();
-    m_towerMotor.configVoltageCompSaturation(12);
-    m_towerMotor.enableVoltageCompensation(true);
-    m_towerMotor.configNominalOutputForward(0);
-    m_towerMotor.configNominalOutputReverse(0);
-    m_towerMotor.configNeutralDeadband(0.01);
-    m_towerMotor.setInverted(InvertType.InvertMotorOutput);
-    m_towerMotor.setNeutralMode(NeutralMode.Coast);
+    // Config index motor
+    m_indexMotor.restoreFactoryDefaults();
+    m_indexMotor.enableVoltageCompensation(12);
+    m_indexMotor.setIdleMode(IdleMode.kBrake);
+    m_indexMotor.setSmartCurrentLimit(35, 45, 0);
+    m_indexMotor.setInverted(false);
 
     m_bottomSensor = new DigitalInput(RobotMap.kIRSensorBottom);
     m_middleSensor = new DigitalInput(RobotMap.kIRSensorMiddle);
     m_topSensor = new DigitalInput(RobotMap.kIRSensorTop);
 
-    resetIndexEncoder();
-
     // Set default command
-    setDefaultCommand(new RunCommand(this::stopFeeder, this));    
+    setDefaultCommand(new RunCommand(this::stop, this));    
 
     //Placing the indexing values on ShuffleBoard
     SmartDashboard.putNumber("Index Power", FeederConstants.kIndexPower);
@@ -209,8 +202,9 @@ public class FeederSubsystem extends SubsystemBase {
   }
 
   // -----------------------------------------------------------
-  // Actuator Output
+  // Control Input
   // -----------------------------------------------------------
+  
 
   public void setHopperPower(double power) {
     m_hopperPID.setReference(power, ControlType.kDutyCycle);
@@ -218,7 +212,7 @@ public class FeederSubsystem extends SubsystemBase {
 
   // Set power to the tower motor
   public void setIndexPower(double power){
-    m_towerMotor.set(ControlMode.PercentOutput, power);
+    m_indexPID.setReference(power, ControlType.kDutyCycle);
   } 
 
   // Start the hopper
@@ -255,6 +249,19 @@ public class FeederSubsystem extends SubsystemBase {
     setIndexPower(0);
   }
 
+  public void setPower(double power){
+    m_hopperPID.setReference(power, ControlType.kDutyCycle);
+  }
+
+  public void setPosition(double position){
+    m_hopperPID.setReference(position, ControlType.kPosition, 0, IntakeConstants.kF);
+  }
+
+  public void stop() {
+    stopIndex();
+    stopHopper();
+  }
+
   // Toggle the hopper on and off while in FEEDING state.
   public void toggleFeedingHopper() {
     if (m_hopperState == HopperState.FEEDING) {
@@ -271,6 +278,12 @@ public class FeederSubsystem extends SubsystemBase {
     } else {
       startHopper();
     }  
+  }
+
+  public void setVelocity(double velocity){
+  }
+
+  public void setMotion(double position) {
   }
 
   // -----------------------------------------------------------
@@ -297,8 +310,18 @@ public class FeederSubsystem extends SubsystemBase {
     }
   }
 
-  public void resetIndexEncoder(){
-    m_towerMotor.setSelectedSensorPosition(0);
+  public double getPosition(){
+    return 0;
+  }
+
+  // TODO compute velocity
+  public double getVelocity() {
+    return 0;
+  }
+  
+  // Not using encoders
+  public boolean atReference(){
+    return true;
   }
 
   // -----------------------------------------------------------

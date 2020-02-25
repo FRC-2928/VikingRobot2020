@@ -27,7 +27,7 @@ public class LowerClimber extends CommandBase {
 
     @Override
     public void execute() {
-        m_climber.SetElevatorPower(m_power);
+        m_climber.setPower(m_power);
     }
 
     @Override

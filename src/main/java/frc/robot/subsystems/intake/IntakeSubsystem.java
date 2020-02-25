@@ -1,25 +1,21 @@
-/*----------------------------------------------------------------------------*/
-/* Copyright (c) 2019 FIRST. All Rights Reserved.                             */
-/* Open Source Software - may be modified and shared by FRC teams. The code   */
-/* must be accompanied by the FIRST BSD license file in the root directory of */
-/* the project.                                                               */
-/*----------------------------------------------------------------------------*/
-
 package frc.robot.subsystems.intake;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotMap;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
+import frc.robot.subsystems.SmartSubsystem;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   /**
    * Creates a new intake.
    */
@@ -29,13 +25,16 @@ public class IntakeSubsystem extends SubsystemBase {
   private Solenoid kIntakeSolenoidLeftBase;
   private Solenoid kIntakeSolenoidLeftArm;
 
-  private WPI_VictorSPX m_intakeMotor;
+  private CANSparkMax m_motor; //new 
+  private CANEncoder m_motorEncoder; //new 
+  private CANPIDController m_motorPID;
 
   public enum IntakeState {
     GROUND_PICKUP, STATION_PICKUP, STOWED;
   }
 
   private IntakeState currentState;
+  private double m_setpoint;
 
   // -----------------------------------------------------------
   // Initialization
@@ -46,16 +45,16 @@ public class IntakeSubsystem extends SubsystemBase {
     kIntakeSolenoidLeftBase = new Solenoid(RobotMap.kIntakeSoleniodLeftOne);
     kIntakeSolenoidLeftArm = new Solenoid(RobotMap.kIntakeSoleniodLeftTwo);
 
-    m_intakeMotor = new WPI_VictorSPX(RobotMap.kIntakeVictorSPX);
+    //These settings are set by default but it's good practice to set them
+    m_motor.restoreFactoryDefaults();
+    m_motor.enableVoltageCompensation(12);
+    m_motor.setSmartCurrentLimit(45, 80); //last value should be 0.04? 
+    m_motor.setIdleMode(IdleMode.kBrake);
+    m_motor.setInverted(false);
 
-    m_intakeMotor.configFactoryDefault();
-
-    m_intakeMotor.configVoltageCompSaturation(12);
-    m_intakeMotor.enableVoltageCompensation(true);
-    m_intakeMotor.configNominalOutputForward(0);
-    m_intakeMotor.configNominalOutputReverse(0);
-    m_intakeMotor.configNeutralDeadband(0.01);
-    m_intakeMotor.setNeutralMode(NeutralMode.Coast);
+    // Setup encoder and PID
+    m_motorEncoder = m_motor.getEncoder();
+    m_motorPID = m_motor.getPIDController();
 
     currentState = IntakeState.STOWED;
 
@@ -121,10 +120,24 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
   // -----------------------------------------------------------
-  // Actuator Output
+  // Control Input
   // -----------------------------------------------------------  
-  public void setPower (double power) {
-    m_intakeMotor.set(ControlMode.PercentOutput, power);
+  public void setPower(double power){
+    m_motorPID.setReference(power, ControlType.kDutyCycle);
+  }
+
+  public void setPosition(double position){
+    m_motorPID.setReference(position, ControlType.kPosition, 0, IntakeConstants.kF);
+  }
+
+  public void setVelocity(double velocity){
+  }
+
+  public void setMotion(double position) {
+  }
+
+  public void stop() {
+    setPower(0);
   }
 
   public void startMotor () {
@@ -133,5 +146,30 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public void stopMotor () {
     setPower(0);
+  }
+
+  // -----------------------------------------------------------
+  // System State
+  // -----------------------------------------------------------
+  // Acts as a flywheel so there's no linear or rotational position
+  public double getPosition(){
+    return 0;
+  }
+
+  // TODO compute velocity
+  public double getVelocity() {
+    return 0;
+  }
+  
+  public boolean atReference(){
+    if(Math.abs(m_setpoint - getPosition()) < IntakeConstants.kClimberErrorThreshold){
+      return true;
+    }
+    return false;
+  }
+
+  public double getNativeEncoderTicks(){
+    m_motorEncoder = m_motor.getEncoder();
+    return  m_motorEncoder.getPosition();
   }
 }
