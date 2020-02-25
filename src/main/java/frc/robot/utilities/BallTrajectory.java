@@ -3,7 +3,8 @@ package frc.robot.utilities;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
-import frc.robot.subsystems.shooter.ShooterHoodSubsystem;
+import frc.robot.Constants.LimelightConstants;
+import frc.robot.subsystems.shooter.HoodSubsystem;
 
 /**
  * This class will take a distance and generate an optimal trajectory for the ball
@@ -22,7 +23,7 @@ public class BallTrajectory{
         double theta = Math.abs(Math.toRadians(angleDegrees));
 
         // Distance y is the height of the target
-        double y = ConversionConstants.kRelativeTargetHeight;
+        double y = LimelightConstants.kHighGoalRelativeHeight;
         double x = distance;
 
         // Now run the magic formular to get velocity

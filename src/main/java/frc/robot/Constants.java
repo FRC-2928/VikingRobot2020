@@ -209,6 +209,7 @@ public final class Constants {
 
         public static final double kHighLimelightHeight = 37.5;
         public static final double kHighGoalHeight = 90;
+        public static final double kHighGoalRelativeHeight = kHighGoalHeight - kHighLimelightHeight;
     }
 
     public static final class ConversionConstants{
