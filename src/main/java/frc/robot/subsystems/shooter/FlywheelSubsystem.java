@@ -81,28 +81,28 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
     SmartDashboard.putNumber("Flywheel FPS", getFlywheelVelocityFPS());
   }
 
-  // public void setFlywheelState(FlywheelControlState desiredState, double reference){
-  //   switch(desiredState){
-  //     case IDLE:
-  //     stop();
-  //     m_currentState = FlywheelState.IDLE;
-  //     break;
+  public void setFlywheelState(FlywheelControlState desiredState, double reference){
+    switch(desiredState){
+      case IDLE:
+      stop();
+      m_currentState = FlywheelState.IDLE;
+      break;
 
-  //     case OPEN_LOOP:
-  //     setPower(reference);
-  //     m_currentState = FlywheelState.MANUAL;
-  //     break;
+      case OPEN_LOOP:
+      setPower(reference);
+      m_currentState = FlywheelState.MANUAL;
+      break;
 
-  //     case VELOCITY_CONTROL:
-  //     setFlywheelRPM(reference);
-  //     if(atReference()){
-  //       m_currentState = FlywheelState.AT_VELOCITY;
-  //     }
-  //     else{
-  //       m_currentState = FlywheelState.SPINNING_UP;
-  //     }
-  //   }
-  // }
+      case VELOCITY_CONTROL:
+      setFlywheelRPM(reference);
+      if(atReference()){
+        m_currentState = FlywheelState.AT_VELOCITY;
+      }
+      else{
+        m_currentState = FlywheelState.SPINNING_UP;
+      }
+    }
+  }
 
   public FlywheelState getFlywheelState(){
     return m_currentState;

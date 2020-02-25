@@ -175,59 +175,59 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
 
   //Main state setter for Turret, feed a targetEstimate for vision tracking
   public void setTurretState(TurretControlState desiredState, double reference, TargetEstimate targetEstimate) {
-    // double visionReference = getTurretDegrees() - m_limelightData.getHorizontalOffset();
-    // SmartDashboard.putString("Turret Desired State", desiredState.toString());
-    // boolean isTargetFound = m_limelightData.getTargetFound();
+    double visionReference = getTurretDegrees() - m_limelightData.getHorizontalOffset();
+    SmartDashboard.putString("Turret Desired State", desiredState.toString());
+    boolean isTargetFound = m_limelightData.getTargetFound();
 
     switch (desiredState) {
     case IDLE:
-    //   stopMotor();
-    //   m_turretState = TurretState.IDLE;
+      stop();
+      m_turretState = TurretState.IDLE;
       break;
 
     case OPEN_LOOP:
-      // if(inSafetyRange()){
-      //   setPower(reference);
-      // }
-      // else{
-      //   correctTurretRange();
-      // }
-      // m_turretState = TurretState.MANUAL;
+      if(inSafetyRange()){
+        setPower(reference);
+      }
+      else{
+        correctTurretRange();
+      }
+      m_turretState = TurretState.MANUAL;
       break;
 
     case POSITION_CONTROL:
-      // if(atReference()){
-      //   m_turretState = TurretState.AT_REFERENCE;
-      // }
-      // else{
-      //   m_turretState = TurretState.MOVING_TO_REFERENCE;
-      // }
-      // setValidAngle(reference);
+      if(atReference()){
+        m_turretState = TurretState.AT_REFERENCE;
+      }
+      else{
+        m_turretState = TurretState.MOVING_TO_REFERENCE;
+      }
+      setValidAngle(reference);
       break;
 
     case VISION_TRACKING:
-      // if(isTargetFound){
-      //   // if(atReference()){
-      //   //   m_turretState = TurretState.AT_REFERENCE;
-      //   // }
-      //   // else{
-      //   //   m_turretState = TurretState.MOVING_TO_REFERENCE;
-      //   // }
-      //   // setValidAngle(visionReference);
-      //   setPosition(visionReference);
-      // }
-      // else{
-      //   if(targetEstimate.isValid()){
-      //     m_turretState = TurretState.GHOSTING_TARGET;
-      //     reference = targetEstimate.getAngle();
-      //     setPosition(reference);
-      //     // setValidAngle(reference);
-      //   }
-      //   else{
-      //     // m_turretState = TurretState.SEARCHING_FIELD;
-      //     searchForTarget();
-      //   }
-      // }
+      if(isTargetFound){
+        if(atReference()){
+          m_turretState = TurretState.AT_REFERENCE;
+        }
+        else{
+          m_turretState = TurretState.MOVING_TO_REFERENCE;
+        }
+        setValidAngle(visionReference);
+        setPosition(visionReference);
+      }
+      else{
+        if(targetEstimate.isValid()){
+          m_turretState = TurretState.GHOSTING_TARGET;
+          reference = targetEstimate.getAngle();
+          setPosition(reference);
+          // setValidAngle(reference);
+        }
+        else{
+          // m_turretState = TurretState.SEARCHING_FIELD;
+          searchForTarget();
+        }
+      }
       break;
     }
   }
@@ -269,18 +269,18 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
     return true;
   }
 
-  //Takes a reference and uses checkValidAngle to create a valid path
-  //See @checkValidAngle()
-  // public void setValidAngle(double reference){
-  //   double newReference = checkValidAngle(reference);
-  //   if(newReference != reference && !clearedSafetlyRange()){
-  //     m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
-  //   }
-  //   else{
-  //     m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
-  //   }
-  //   setPosition(newReference);
-  // }
+  // Takes a reference and uses checkValidAngle to create a valid path
+  // See @checkValidAngle()
+  public void setValidAngle(double reference){
+    double newReference = checkValidAngle(reference);
+    if(newReference != reference && !clearedSafetyRange()){
+      m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
+    }
+    else{
+      m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
+    }
+    setPosition(newReference);
+  }
 
   public TurretState getTurretState() {
     return m_turretState;

@@ -18,6 +18,8 @@ import frc.robot.subsystems.SmartSubsystem;
 public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   private WPI_TalonSRX m_hoodMotor;
 
+  private HoodState m_currentState;
+
   // private HoodState m_currentState;
   private double m_setpoint;
 
@@ -28,9 +30,9 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
     IDLE, MANUAL, MOVING_TO_POSITION, AT_POSITION;
   }
 
-  // public enum HoodControlState{
-  //   IDLE, OPEN_LOOP, POSITION_CONTROL;
-  // }
+  public enum HoodControlState{
+    IDLE, OPEN_LOOP, POSITION_CONTROL;
+  }
   
   // -----------------------------------------------------------
   // Initialization
@@ -89,28 +91,32 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
     SmartDashboard.putBoolean("Hood atReference", atReference());
   }
 
-  // public void setHoodState(HoodControlState desiredState, double position){
-  //   switch(desiredState){
-  //     case IDLE:
-  //     stopHood();
-  //     m_currentState = HoodState.IDLE;
-  //     break;
+  public void setHoodState(HoodControlState desiredState, double position){
+    switch(desiredState){
+      case IDLE:
+      stop();
+      m_currentState = HoodState.IDLE;
+      break;
 
-  //     case OPEN_LOOP:
-  //     setPower(position);
-  //     m_currentState = HoodState.MANUAL;
-  //     break;
+      case OPEN_LOOP:
+      setPower(position);
+      m_currentState = HoodState.MANUAL;
+      break;
 
-  //     case POSITION_CONTROL:
-  //     setPosition(position);
-  //     if(atReference()){
-  //       m_currentState = HoodState.AT_POSITION;
-  //     }
-  //     else{
-  //       m_currentState = HoodState.MOVING_TO_POSITION;
-  //     }
-  //   }
-  // }
+      case POSITION_CONTROL:
+      setPosition(position);
+      if(atReference()){
+        m_currentState = HoodState.AT_POSITION;
+      }
+      else{
+        m_currentState = HoodState.MOVING_TO_POSITION;
+      }
+    }
+  }
+
+  public HoodState getHoodState(){
+    return m_currentState;
+  }
 
   // -----------------------------------------------------------
   // Control Input
