@@ -25,8 +25,8 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   private Solenoid kIntakeSolenoidLeftBase;
   private Solenoid kIntakeSolenoidLeftArm;
 
-  private CANSparkMax m_motor; //new 
-  private CANEncoder m_motorEncoder; //new 
+  private CANSparkMax m_motor;  
+  private CANEncoder m_motorEncoder; 
   private CANPIDController m_motorPID;
 
   public enum IntakeState {

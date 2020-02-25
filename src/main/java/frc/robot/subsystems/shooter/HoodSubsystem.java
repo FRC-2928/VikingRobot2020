@@ -1,30 +1,34 @@
 package frc.robot.subsystems.shooter;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.HoodConstants;
-import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 import frc.robot.subsystems.SmartSubsystem;
 /**
    * Creates a new HoodSubsystem.
    */
 public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
-  private WPI_TalonSRX m_hoodMotor;
+  private CANSparkMax m_motor;  
+  private CANEncoder m_motorEncoder; 
+  private CANPIDController m_motorPID;
 
   private HoodState m_currentState;
 
   // private HoodState m_currentState;
   private double m_setpoint;
 
-  private final double kP = PIDConstants.kHoodkP;
-  private final double kD = PIDConstants.kHoodkD;
+  private final double kP = HoodConstants.kP;
+  private final double kD = HoodConstants.kD;
 
   public enum HoodState{
     IDLE, MANUAL, MOVING_TO_POSITION, AT_POSITION;
@@ -38,33 +42,46 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   // Initialization
   // -----------------------------------------------------------
   public HoodSubsystem() {
-    m_hoodMotor = new WPI_TalonSRX(RobotMap.kHoodTalonSRX);
+    m_motor = new CANSparkMax(RobotMap.kHoodSparkMax, MotorType.kBrushless);
 
-    m_hoodMotor.configFactoryDefault();
+    // Config motor
+    m_motor.restoreFactoryDefaults();
+    m_motor.enableVoltageCompensation(12);
+    m_motor.setIdleMode(IdleMode.kBrake);
+    m_motor.setSmartCurrentLimit(35, 45, 0);
+    m_motor.setInverted(false);
 
-    //6 volts is 100% enough
-    m_hoodMotor.configVoltageCompSaturation(6);
-    m_hoodMotor.enableVoltageCompensation(true);
+    // Setup encoder and PID
+    m_motorEncoder = m_motor.getEncoder();
+    m_motorPID = m_motor.getPIDController(); 
+
+    // m_motor = new WPI_TalonSRX(RobotMap.kHoodTalonSRX);
+
+    // m_motor.configFactoryDefault();
+
+    // //6 volts is 100% enough
+    // m_motor.configVoltageCompSaturation(6);
+    // m_motor.enableVoltageCompensation(true);
     
-    //Minimum output is 0.1 so the PD loop can do small adjustments
-    m_hoodMotor.configNominalOutputForward(0.1);
-    m_hoodMotor.configNominalOutputReverse(0.1);
+    // //Minimum output is 0.1 so the PD loop can do small adjustments
+    // m_motor.configNominalOutputForward(0.1);
+    // m_motor.configNominalOutputReverse(0.1);
 
-    //No need to have a deadband since we have a nominal output
-    m_hoodMotor.configNeutralDeadband(0);
+    // //No need to have a deadband since we have a nominal output
+    // m_motor.configNeutralDeadband(0);
 
-    m_hoodMotor.setNeutralMode(NeutralMode.Brake);
+    // m_motor.setNeutralMode(NeutralMode.Brake);
 
-    //Invert the sensors so up is positive
-    m_hoodMotor.setSensorPhase(true);
+    // //Invert the sensors so up is positive
+    // m_motor.setSensorPhase(true);
 
-    //Hood literally draws 12 amps at max but better safe than sorry
-    m_hoodMotor.configPeakCurrentLimit(40);
-    m_hoodMotor.enableCurrentLimit(true);
-    m_hoodMotor.configPeakCurrentDuration(60);
-    m_hoodMotor.configContinuousCurrentLimit(30);
-    m_hoodMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
-    m_hoodMotor.configAllowableClosedloopError(0, 5);
+    // //Hood literally draws 12 amps at max but better safe than sorry
+    // m_motor.configPeakCurrentLimit(40);
+    // m_motor.enableCurrentLimit(true);
+    // m_motor.configPeakCurrentDuration(60);
+    // m_motor.configContinuousCurrentLimit(30);
+    // m_motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
+    // m_motor.configAllowableClosedloopError(0, 5);
 
     resetEncoder();
 
@@ -79,7 +96,7 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   
   // Reset the encoder
   public void resetEncoder(){
-    m_hoodMotor.setSelectedSensorPosition(0);
+    m_motorEncoder.setPosition(0);
   }
 
   // -----------------------------------------------------------
@@ -123,7 +140,7 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   // -----------------------------------------------------------
   public void setPower(double power){
     m_setpoint = power;
-    m_hoodMotor.set(ControlMode.PercentOutput, power);
+    m_motorPID.setReference(power, ControlType.kDutyCycle);
   }
 
   //In total degrees of the hood, ex 30 degrees is hood all the way down
@@ -138,17 +155,19 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
       System.out.println("Hood setpoint exceeded upper limit");
     }
     position =- 30;
-    m_hoodMotor.set(ControlMode.Position, degreesToSRX(position));
+    m_motorPID.setReference(degreesToSRX(position), ControlType.kPosition, 0, HoodConstants.kF);
+    // m_motor.set(ControlMode.Position, degreesToSRX(position));
   }
 
   public void setVelocity(double velocity){
     m_setpoint = velocity;
-    m_hoodMotor.set(ControlMode.Velocity, velocity);
+    m_motorPID.setReference(velocity, ControlType.kSmartVelocity);
   }
 
   public void setMotion(double position){
     m_setpoint = position;
-    m_hoodMotor.set(ControlMode.MotionMagic, position);
+    m_motorPID.setReference(position, ControlType.kSmartMotion);
+    // m_motor.set(ControlMode.MotionMagic, position);
   }
 
   public void stop(){
@@ -158,8 +177,13 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   // -----------------------------------------------------------
   // System State
   // -----------------------------------------------------------
+  public double getNativeEncoderTicks() {
+    return m_motorEncoder.getPosition();
+  }
+
   public double getPosition(){
-    return srxToDegrees(m_hoodMotor.getSelectedSensorPosition());
+    return srxToDegrees(getNativeEncoderTicks());
+    // return srxToDegrees(m_motor.getSelectedSensorPosition());
   }
 
   public double getVelocity(){
@@ -193,11 +217,10 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
     double newkD = SmartDashboard.getNumber("Hood kD", kD);
     double newkF = SmartDashboard.getNumber("Hood kF", 0);
 
-    m_hoodMotor.config_kP(0, newkP);
-    m_hoodMotor.config_kI(0, SmartDashboard.getNumber("Hood kI", 0));
-    m_hoodMotor.config_IntegralZone(0, (int)SmartDashboard.getNumber("Hood IntegralZone", 0));
-    m_hoodMotor.config_kD(0, newkD);
-    m_hoodMotor.config_kF(0, newkF);
+    m_motorPID.setP(kP, 0);
+    m_motorPID.setI(0, 0);
+    m_motorPID.setIZone(0, 0);
+    m_motorPID.setD(kD, 0);
 
     System.out.println("Hood configed");
   }

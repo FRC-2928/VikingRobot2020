@@ -27,7 +27,7 @@ import frc.robot.utilities.Limelight.Limelights;
  */
 public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   private CANSparkMax m_turretMotor;
-  private CANEncoder m_turretEncoder;
+  private CANEncoder m_motorEncoder;
   private CANPIDController m_turretPID;
 
   private Pigeon m_pigeon;
@@ -84,7 +84,7 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
 
     m_turretMotor.setInverted(false);
 
-    m_turretEncoder = m_turretMotor.getEncoder();
+    m_motorEncoder = m_turretMotor.getEncoder();
     m_turretPID = m_turretMotor.getPIDController();
     m_pigeon = new Pigeon();
     m_limelight = new Limelight(Limelights.TURRET);
@@ -103,7 +103,7 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public void resetTurretEncoder() {
-    m_turretEncoder.setPosition(0);
+    m_motorEncoder.setPosition(0);
   }
 
   // -----------------------------------------------------------
@@ -341,16 +341,16 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   // System State
   // -----------------------------------------------------------
 
-  public double getTurretNativeEncoder() {
-    return m_turretEncoder.getPosition();
+  public double getNativeEncoderTicks() {
+    return m_motorEncoder.getPosition();
   }
 
   public double getTurretPosition() {
-    return getTurretNativeEncoder() / ConversionConstants.kTurretGearRatio;
+    return getNativeEncoderTicks() / ConversionConstants.kTurretGearRatio;
   }
 
   public double getTurretDegrees() {
-    return maxToDegrees(getTurretNativeEncoder());
+    return maxToDegrees(getNativeEncoderTicks());
   }
 
   /**
@@ -366,7 +366,7 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public double getPosition() {
-    return maxToDegrees(getTurretNativeEncoder());
+    return maxToDegrees(getNativeEncoderTicks());
   }
 
   public double getVelocity() {

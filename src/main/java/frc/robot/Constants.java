@@ -32,7 +32,8 @@ public final class Constants {
 
         //Shooter
         public static final int kFlywheelTalonFX = 3;
-        public static final int kHoodTalonSRX = 5;
+        // public static final int kHoodTalonSRX = 5;
+        public static int kHoodSparkMax = 5;
 
         //Turret
         public static final int kTurretSparkMax = 4;
@@ -126,8 +127,8 @@ public final class Constants {
         //Shooter
         public static final double kFlywheelkP = 0.075;
         public static final double kFlywheelkF = (1023.0 * 0.75) / 16000.0;
-        public static final double kHoodkP = 2.5;
-        public static final double kHoodkD = 15;
+        // public static final double kHoodkP = 2.5;
+        // public static final double kHoodkD = 15;
 
         public static double kPTurret = 0.055;
         public static double kDTurret = 0.5;
@@ -145,6 +146,10 @@ public final class Constants {
     }
 
     public static final class HoodConstants{
+        public static final double kP = 2.5;
+        public static final double kD = 15;
+        public static final double kF = 0;
+
         public static final double kSetpointWall = 40;
         public static final double kSetpointInitiationLine = 50;
         public static final double kSetpointCloseTrench = 60;
