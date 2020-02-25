@@ -154,7 +154,10 @@ public class RobotContainer {
       
     // Spin the control panel three times
     m_operatorOI.turnWheelButton()
-      .whileHeld(new RunCommand(m_controlPanel::setPower, m_controlPanel));
+      .whileHeld(new SetPowerCommand(m_controlPanel, 0.4));
+
+      // m_operatorOI.turnWheelButton()
+      // .whileHeld(new RunCommand(m_controlPanel::setPower, m_controlPanel));
 
     // Spin the control panel three times
     m_operatorOI.turnWheelThreeTimes()

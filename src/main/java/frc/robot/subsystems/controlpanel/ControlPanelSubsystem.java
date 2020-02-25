@@ -2,11 +2,14 @@ package frc.robot.subsystems.controlpanel;
 
 import java.util.function.BooleanSupplier;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.ColorSensorV3;
+import com.revrobotics.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -14,20 +17,22 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.RobotMap;
+import frc.robot.subsystems.SmartSubsystem;
 import frc.robot.types.ControlPanelColor;
 import frc.robot.utilities.ColorMatcher;
 
 /**
  * ControlPanelSubsystem handles the control panel manipulator and sensor.
  */
-public class ControlPanelSubsystem extends SubsystemBase {
+public class ControlPanelSubsystem extends SubsystemBase implements SmartSubsystem{
 
-
+  private CANSparkMax m_motor;
+  private CANPIDController m_motorPID;
+  private CANEncoder m_motorEncoder;
   private final ColorSensorV3 m_colorSensor;
   private final ColorMatcher m_colorMatcher;
   private ControlPanelColor m_matchedColor;
 
-  private final WPI_TalonSRX m_motor;
   private double m_targetRotations;
  
   //----------------------------------------------------
@@ -36,27 +41,20 @@ public class ControlPanelSubsystem extends SubsystemBase {
   public ControlPanelSubsystem() {
     m_colorSensor = new ColorSensorV3(I2C.Port.kOnboard);
     m_colorMatcher = new ColorMatcher();
-    m_motor = new WPI_TalonSRX(RobotMap.kControlPanelTalonSRX);
 
-    m_motor.configFactoryDefault();
+    m_motor = new CANSparkMax(RobotMap.kFeederSparkMax, MotorType.kBrushless);
+    m_motorPID = m_motor.getPIDController();
 
-    m_motor.configVoltageCompSaturation(12);
-    m_motor.enableVoltageCompensation(true);
-    m_motor.configNominalOutputForward(0);
-    m_motor.configNominalOutputReverse(0);
-    m_motor.configNeutralDeadband(0.01);
-    m_motor.setNeutralMode(NeutralMode.Coast);
+    // Config hopper motor
+    m_motor.restoreFactoryDefaults();
+    m_motor.enableVoltageCompensation(12);
+    m_motor.setIdleMode(IdleMode.kBrake);
+    m_motor.setSmartCurrentLimit(35, 45, 0);
+    m_motor.setInverted(false);
 
-    //motion magic 
-		m_motor.configMotionCruiseVelocity(15000, ControlPanelConstants.kTimeoutMs);
-    m_motor.configMotionAcceleration(6000, ControlPanelConstants.kTimeoutMs);
-    // How much smoothing [0,8] to use during MotionMagic
-	  int m_smoothing = 0;
- 
      // set PID coefficients
      configPanelFeedbackGains();
  
-    m_motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 30, 35, 0.04));
   } 
 
   // -----------------------------------------------------------
@@ -133,24 +131,27 @@ public class ControlPanelSubsystem extends SubsystemBase {
     return sup;
   }
 
-  // Return true if we're within 5 degrees
-  public boolean atSetpoint() {
-    double currentRotations = getMotorRotations();
-    double degrees = 1/72; // 5 degrees
-    if (m_targetRotations - currentRotations <= degrees) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   // -----------------------------------------------------------
-  // Actuator Output
+  // Control Input
   // -----------------------------------------------------------
   
+  
+  public void setPosition(double position){
+
+  }
+  public void setVelocity(double velocity){
+
+  }
+  public void setMotion(double position){
+
+  }
+  public void stop(){
+    setPower(0);
+  }
+
   // Send a percent power to the motor
-  public void setPower() {
-    m_motor.set(ControlMode.PercentOutput, 0.5);
+  public void setPower(double power) {
+    m_motorPID.setReference(power, ControlType.kDutyCycle);
   }
 
   // Closed position loop using number of rotations as the setpoint
@@ -162,7 +163,7 @@ public class ControlPanelSubsystem extends SubsystemBase {
     // MotionMagic wants the setpoint in encoder ticks
     double setpoint = rotations * ControlPanelConstants.kPanelEncoderTicksPerRotation;
     
-    m_motor.set(ControlMode.MotionMagic, setpoint);
+    m_motorPID.setReference(setpoint, ControlType.kPosition);
   }
 
   // Rotate the control panel the number of specified segments
@@ -182,6 +183,24 @@ public class ControlPanelSubsystem extends SubsystemBase {
   // Sensor I/O
   //--------------------------------------------------------------
 
+  public double getPosition(){
+    return 0;
+  }
+  public double getVelocity(){
+    return 0;
+  }
+  
+  // Return true if we're within 5 degrees
+  public boolean atReference() {
+    double currentRotations = getMotorRotations();
+    double degrees = 1/72; // 5 degrees
+    if (m_targetRotations - currentRotations <= degrees) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   // Get the color detected by the color sensor
   public ControlPanelColor getMatchedColor() {
     return m_matchedColor;
@@ -189,8 +208,9 @@ public class ControlPanelSubsystem extends SubsystemBase {
 
   // Get raw encoder ticks
   public double getNativeEncoderTicks(){
-    return m_motor.getSelectedSensorPosition();
+    return m_motorEncoder.getPosition();
   }
+  
 
   // Converts encode ticks back into rotations
   public double getMotorRotations(){
@@ -200,7 +220,7 @@ public class ControlPanelSubsystem extends SubsystemBase {
 
   // Set encoders to zero
   void zeroSensors() {
-    m_motor.getSensorCollection().setQuadraturePosition(0, ControlPanelConstants.kTimeoutMs);
+    m_motorEncoder.setPosition(0);
   }  
     
   //--------------------------------------------------------------
@@ -208,16 +228,12 @@ public class ControlPanelSubsystem extends SubsystemBase {
   //--------------------------------------------------------------
   public void configPanelFeedbackGains() {
 
-    // double kP = SmartDashboard.getNumber("Turret kP", kP);
-    // double kF = SmartDashboard.getNumber("Turret kF", kF);
+    // Grabs the PIDF values from Smartdashboard/Shuffboard
+    // m_motorPID.setP(kP, 0);
+    // m_motorPID.setI(0, 0);
+    // m_motorPID.setIZone(0, 0);
+    // m_motorPID.setD(kD, 0);
 
-    m_motor.config_kP(0, ControlPanelConstants.kPanelP);
-    m_motor.config_kI(0, ControlPanelConstants.kPanelI);
-    m_motor.config_kD(0, ControlPanelConstants.kPanelD);
-    // m_motor.config_IntegralZone(0, ControlPanelConstants.kPanelIzone);
-    m_motor.config_kF(0, ControlPanelConstants.kPanelFF);
-
-   // m_motor.setOutputRange(ControlPanelConstants.kMinOutput, ControlPanelConstants.kMaxOutput);
   }
 
 }

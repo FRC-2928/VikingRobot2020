@@ -28,7 +28,7 @@ public class RotateToColor extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return m_controlPanel.atSetpoint();
+    return m_controlPanel.atReference();
   }
 
 }
