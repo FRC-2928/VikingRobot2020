@@ -20,22 +20,24 @@ import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.trajectories.Test1Trajectory;
+import frc.robot.types.DistanceMap;
+import frc.robot.types.LimelightData;
 import frc.robot.types.TargetEstimate;
 import frc.robot.commands.controlpanel.RotateSegments;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.utilities.Limelight;
 import frc.robot.commands.controlpanel.RotateToColor;
+import frc.robot.commands.turret.TrackTargetCommand;
 import frc.robot.commands.turret.TurretLimelightSetPosition;
 import frc.robot.commands.turret.TurretSetStateCommand;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.auto.RamseteTrajectoryCommand;
-import frc.robot.commands.climber.ClimbHigh;
-import frc.robot.commands.climber.ClimbLow;
-import frc.robot.commands.climber.ClimbMid;
 import frc.robot.commands.climber.DeployClimber;
+import frc.robot.commands.control.SetPositionCommand;
+import frc.robot.commands.control.SetPowerCommand;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
 import frc.robot.oi.DriverOI;
@@ -45,15 +47,6 @@ import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.drivetrain.TransmissionSubsystem;
 import frc.robot.subsystems.intake.FeederSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.subsystems.turret.TargetEstimator;
-import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretControlState;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
-import frc.robot.trajectories.Test1Trajectory;
-import frc.robot.utilities.Limelight;
 import frc.robot.utilities.Limelight.Limelights;
 
 public class RobotContainer {
@@ -61,14 +54,14 @@ public class RobotContainer {
   // The robot's subsystems
   
   private final TransmissionSubsystem m_transmission = new TransmissionSubsystem();
-  private final DrivetrainSubsystem m_robotDrive = new DrivetrainSubsystem(m_transmission::getGearState);
+  private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem(m_transmission::getGearState);
   private final FlywheelSubsystem m_flywheelsubsystem = new FlywheelSubsystem();
   private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
   private final ClimberSubsystem m_climber = new ClimberSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
-  private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
+  private final TurretSubsystem m_turret = new TurretSubsystem();
   private final Limelight m_driverLimelight = new Limelight(Limelights.DRIVER);
   private final Limelight m_turretLimelight = new Limelight(Limelights.TURRET);
 
@@ -98,17 +91,20 @@ public class RobotContainer {
     m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriverControllerPort));
     m_operatorOI = new AbbiOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
 
+    // Load the distance to target map
+    DistanceMap.getInstance().loadMaps();
+
     // Configure the button bindings
     configureButtonBindings();
 
     // Configure default commands
     // Set the default drive command to split-stick arcade drive
-    m_robotDrive.setDefaultCommand(
+    m_drivetrain.setDefaultCommand(
         // A split-stick arcade command, with forward/backward controlled by the left
         // hand, and turning controlled by the right.
-      new RunCommand(() -> m_robotDrive
+      new RunCommand(() -> m_drivetrain
           .drive(m_driverOI.getMoveSupplier(),
-                 m_driverOI.getRotateSupplier()), m_robotDrive)
+                 m_driverOI.getRotateSupplier()), m_drivetrain)
     );
   }
 
@@ -138,14 +134,20 @@ public class RobotContainer {
 
     m_driverOI.getShiftHighButton()
     .whenPressed(new InstantCommand(m_transmission::setHigh, m_transmission));
+
+    // Example of using the SetPositionCommand
+    turretPositionControl.whileHeld(new SetPositionCommand(m_hoodsubsystem, 30));
   }
 
   public void configureTurretButtons(){
-    turretVisionControl.whileHeld(new TurretSetStateCommand(
-      m_turretSubsystem, TurretControlState.VISION_TRACKING, 0, new TargetEstimate(0, 0, false)));
+    // turretVisionControl.whileHeld(new TurretSetStateCommand(
+    //   m_turret, TurretControlState.VISION_TRACKING, 0, new TargetEstimate(0, 0, false)));
 
-    turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.4)));
-    turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.4)));
+    m_operatorOI.getEnableAutoTargetButton()
+      .whenPressed(new TrackTargetCommand(m_turret, m_drivetrain, new TargetEstimate(0, 0, false)));
+
+    turretOpenLoopLeft.whileHeld(new SetPowerCommand(m_turret, 0.4));
+    turretOpenLoopRight.whileHeld(new SetPowerCommand(m_turret, -0.4));
   }
 
   public void configureControlPanelButtons() {
@@ -183,20 +185,20 @@ public class RobotContainer {
 
   public void ConfigureClimberButtons() {
   
-    m_operatorOI.deployClimberHigh()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbHigh(m_climber)));
-    m_operatorOI.deployClimberMid()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbMid(m_climber)));
-    m_operatorOI.deployClimberMidTwo()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbMid(m_climber)));
-    m_operatorOI.deployClimberLow()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbLow(m_climber)));
-    m_operatorOI.deployToTop()
-      .whenPressed(new DeployClimber(m_climber));  
+    // m_operatorOI.deployClimberHigh()
+    //   .whenPressed(new DeployClimber(m_climber)
+    //   .andThen(new ClimbHigh(m_climber)));
+    // m_operatorOI.deployClimberMid()
+    //   .whenPressed(new DeployClimber(m_climber)
+    //   .andThen(new ClimbMid(m_climber)));
+    // m_operatorOI.deployClimberMidTwo()
+    //   .whenPressed(new DeployClimber(m_climber)
+    //   .andThen(new ClimbMid(m_climber)));
+    // m_operatorOI.deployClimberLow()
+    //   .whenPressed(new DeployClimber(m_climber)
+    //   .andThen(new ClimbLow(m_climber)));
+    // m_operatorOI.deployToTop()
+    //   .whenPressed(new DeployClimber(m_climber));  
   }
 
 
@@ -252,10 +254,10 @@ public class RobotContainer {
     // Get a trajectory
     Test1Trajectory trajectory1 = new Test1Trajectory(config);
 
-    RamseteTrajectoryCommand trajectoryCommand = new RamseteTrajectoryCommand(m_robotDrive, trajectory1.getTrajectory());
+    RamseteTrajectoryCommand trajectoryCommand = new RamseteTrajectoryCommand(m_drivetrain, trajectory1.getTrajectory());
 
     // Run path following command, then stop at the end.
-    return trajectoryCommand.andThen(() -> m_robotDrive.stopDrivetrain());
+    return trajectoryCommand.andThen(() -> m_drivetrain.stopDrivetrain());
 
   }
 }

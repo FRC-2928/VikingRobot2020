@@ -31,8 +31,10 @@ public class SetShooter extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    m_flywheel.setFlywheelRPM(m_flywheelReference);
-    m_hood.setHoodDegrees(m_hoodReference);
+    // Set flywheel speed in RPM
+    m_flywheel.setVelocity(m_flywheelReference);
+    // Set hood position in degrees
+    m_hood.setPosition(m_hoodReference);
   }
 
   // Called once the command ends or is interrupted.

@@ -14,6 +14,7 @@ import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
 import frc.robot.Constants.TurretConstants;
+import frc.robot.subsystems.SmartSubsystem;
 import frc.robot.types.LimelightData;
 import frc.robot.types.TargetEstimate;
 import frc.robot.utilities.Limelight;
@@ -24,7 +25,7 @@ import frc.robot.utilities.Limelight.Limelights;
  * TurretSubsystem is responsible for subsystem level logic with the turret.
  * Positive power/encoder values is left, negative is right
  */
-public class TurretSubsystem extends SubsystemBase {
+public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   private CANSparkMax m_turretMotor;
   private CANEncoder m_turretEncoder;
   private CANPIDController m_turretPID;
@@ -67,6 +68,8 @@ public class TurretSubsystem extends SubsystemBase {
     NORMAL, CORRECTING;
   }
 
+  private double m_setpoint;
+
   // -----------------------------------------------------------
   // Initialization
   // -----------------------------------------------------------
@@ -91,17 +94,21 @@ public class TurretSubsystem extends SubsystemBase {
     m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
     m_turretState = TurretState.IDLE;
 
-    setDefaultCommand(new RunCommand(() -> {
-      setTurretState(TurretControlState.IDLE, 0, new TargetEstimate(0, 0, false));
-    }, this));
+    setDefaultCommand(new RunCommand(this::stop, this));
+    // setDefaultCommand(new RunCommand(() -> {
+    //   setTurretState(TurretControlState.IDLE, 0, new TargetEstimate(0, 0, false));
+    // }, this));
 
     SmartDashboard.putNumber("Robot Start Angle", 0);
+  }
+
+  public void resetTurretEncoder() {
+    m_turretEncoder.setPosition(0);
   }
 
   // -----------------------------------------------------------
   // Process Logic
   // -----------------------------------------------------------
-
   @Override
   public void periodic() {
     configTurretFeedbackGains();
@@ -135,14 +142,16 @@ public class TurretSubsystem extends SubsystemBase {
         m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
         m_turretState = TurretState.CORRECTING_RANGE;
         m_correctionReference = rightMaxLimit + 360;
-        setValidAngle(m_correctionReference);
+        setPosition(m_correctionReference);
+        // setValidAngle(m_correctionReference);
       }
 
       else if (degrees > leftMaxLimit) {
         m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
         m_turretState = TurretState.CORRECTING_RANGE;
         m_correctionReference = leftMaxLimit - 360;
-        setValidAngle(m_correctionReference);
+        setPosition(m_correctionReference);
+        // setValidAngle(m_correctionReference);
       }
     }
 
@@ -159,62 +168,66 @@ public class TurretSubsystem extends SubsystemBase {
   // Field relative turret tracking, depends on starting position
   public void searchForTarget() {
     double reference = (-m_robotYaw % 360) - m_robotStartAngle;
-    setValidAngle(reference);;
+    setPosition(reference);
+    m_turretState = TurretState.SEARCHING_FIELD;
+    // setValidAngle(reference);
   }
 
   //Main state setter for Turret, feed a targetEstimate for vision tracking
   public void setTurretState(TurretControlState desiredState, double reference, TargetEstimate targetEstimate) {
-    double visionReference = getTurretDegrees() - m_limelightData.getHorizontalOffset();
-    SmartDashboard.putString("Turret Desired State", desiredState.toString());
-    boolean isTargetFound = m_limelightData.getTargetFound();
+    // double visionReference = getTurretDegrees() - m_limelightData.getHorizontalOffset();
+    // SmartDashboard.putString("Turret Desired State", desiredState.toString());
+    // boolean isTargetFound = m_limelightData.getTargetFound();
 
     switch (desiredState) {
     case IDLE:
-      stopMotor();
-      m_turretState = TurretState.IDLE;
+    //   stopMotor();
+    //   m_turretState = TurretState.IDLE;
       break;
 
     case OPEN_LOOP:
-      if(inSafetyRange()){
-        setPower(reference);
-      }
-      else{
-        correctTurretRange();
-      }
-      m_turretState = TurretState.MANUAL;
+      // if(inSafetyRange()){
+      //   setPower(reference);
+      // }
+      // else{
+      //   correctTurretRange();
+      // }
+      // m_turretState = TurretState.MANUAL;
       break;
 
     case POSITION_CONTROL:
-      if(atReference(reference)){
-        m_turretState = TurretState.AT_REFERENCE;
-      }
-      else{
-        m_turretState = TurretState.MOVING_TO_REFERENCE;
-      }
-      setValidAngle(reference);
+      // if(atReference()){
+      //   m_turretState = TurretState.AT_REFERENCE;
+      // }
+      // else{
+      //   m_turretState = TurretState.MOVING_TO_REFERENCE;
+      // }
+      // setValidAngle(reference);
       break;
 
     case VISION_TRACKING:
-      if(isTargetFound){
-        if(atReference(visionReference)){
-          m_turretState = TurretState.AT_REFERENCE;
-        }
-        else{
-          m_turretState = TurretState.MOVING_TO_REFERENCE;
-        }
-        setValidAngle(visionReference);
-      }
-      else{
-        if(targetEstimate.isValid()){
-          m_turretState = TurretState.GHOSTING_TARGET;
-          reference = targetEstimate.getAngle();
-          setValidAngle(reference);
-        }
-        else{
-          m_turretState = TurretState.SEARCHING_FIELD;
-          searchForTarget();
-        }
-      }
+      // if(isTargetFound){
+      //   // if(atReference()){
+      //   //   m_turretState = TurretState.AT_REFERENCE;
+      //   // }
+      //   // else{
+      //   //   m_turretState = TurretState.MOVING_TO_REFERENCE;
+      //   // }
+      //   // setValidAngle(visionReference);
+      //   setPosition(visionReference);
+      // }
+      // else{
+      //   if(targetEstimate.isValid()){
+      //     m_turretState = TurretState.GHOSTING_TARGET;
+      //     reference = targetEstimate.getAngle();
+      //     setPosition(reference);
+      //     // setValidAngle(reference);
+      //   }
+      //   else{
+      //     // m_turretState = TurretState.SEARCHING_FIELD;
+      //     searchForTarget();
+      //   }
+      // }
       break;
     }
   }
@@ -258,16 +271,16 @@ public class TurretSubsystem extends SubsystemBase {
 
   //Takes a reference and uses checkValidAngle to create a valid path
   //See @checkValidAngle()
-  public void setValidAngle(double reference){
-    double newReference = checkValidAngle(reference);
-    if(newReference != reference && !clearedSafetlyRange()){
-      m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
-    }
-    else{
-      m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
-    }
-    setPosition(newReference);
-  }
+  // public void setValidAngle(double reference){
+  //   double newReference = checkValidAngle(reference);
+  //   if(newReference != reference && !clearedSafetlyRange()){
+  //     m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
+  //   }
+  //   else{
+  //     m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
+  //   }
+  //   setPosition(newReference);
+  // }
 
   public TurretState getTurretState() {
     return m_turretState;
@@ -277,31 +290,33 @@ public class TurretSubsystem extends SubsystemBase {
     return m_turretSafetyRangeState;
   }
 
-  //Checks if we're within the error threshold of our reference
-  public boolean atReference(double reference){
-    if(Math.abs(reference - getTurretDegrees()) < TurretConstants.kTurretErrorThreshold){
-      return true;
-    }
-    return false;
-  }
-
-  //Checks if more than 180 degrees from limits
-  public boolean clearedSafetlyRange(){
-    if(Math.abs(getTurretDegrees() - leftMaxLimit) > 180){
-      return true;
-    }
-    return false;
-  }
-
   // -----------------------------------------------------------
-  // Actuator Output
+  // Control Input
   // -----------------------------------------------------------
 
   public void setPower(double power) {
-    m_turretPID.setReference(power, ControlType.kDutyCycle);
+    m_setpoint = power;
+    if(inSafetyRange()){
+      m_turretPID.setReference(power, ControlType.kDutyCycle);
+    }
+    else{
+      correctTurretRange();
+    } 
+    m_turretState = TurretState.MANUAL;
   }
 
+  // Set the rotation degrees of the turret.
   public void setPosition(double degrees) {
+    m_setpoint = degrees;
+
+    double newReference = checkValidAngle(degrees);
+    if(newReference != degrees && !clearedSafetyRange()){
+      m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
+    }
+    else{
+      m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
+    }
+
     kF = SmartDashboard.getNumber("Turret kF", kF);
 
     if (degrees <= 0) {
@@ -311,17 +326,20 @@ public class TurretSubsystem extends SubsystemBase {
     m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition, 0, kF);
   }
 
-  public void stopMotor() {
-    setPower(0);
+  public void setVelocity(double velocity) {
+  }
+
+  public void setMotion(double position) {
+  }
+
+  public void stop() {
+    m_turretPID.setReference(0, ControlType.kDutyCycle);
+    m_turretState = TurretState.IDLE;
   }
 
   // -----------------------------------------------------------
-  // Sensor I/O
+  // System State
   // -----------------------------------------------------------
-
-  public void resetTurretEncoder() {
-    m_turretEncoder.setPosition(0);
-  }
 
   public double getTurretNativeEncoder() {
     return m_turretEncoder.getPosition();
@@ -341,6 +359,37 @@ public class TurretSubsystem extends SubsystemBase {
    */
   public double getTurretFieldDegrees() {
     return (m_robotYaw % 360) + getTurretDegrees();
+  }
+
+  public LimelightData getLimelightData() {
+    return m_limelightData;
+  }
+
+  public double getPosition() {
+    return maxToDegrees(getTurretNativeEncoder());
+  }
+
+  public double getVelocity() {
+    return 0;
+  }
+
+
+  //Checks if we're within the error threshold of our reference
+  public boolean atReference(){
+    if(Math.abs(m_setpoint - getTurretDegrees()) < TurretConstants.kTurretErrorThreshold){
+      m_turretState = TurretState.AT_REFERENCE;
+      return true;
+    }
+    m_turretState = TurretState.MOVING_TO_REFERENCE;
+    return false;
+  }
+
+  //Checks if more than 180 degrees from limits
+  public boolean clearedSafetyRange(){
+    if(Math.abs(getTurretDegrees() - leftMaxLimit) > 180){
+      return true;
+    }
+    return false;
   }
 
   // -----------------------------------------------------------

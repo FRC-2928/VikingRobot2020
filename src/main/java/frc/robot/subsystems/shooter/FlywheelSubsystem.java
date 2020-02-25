@@ -15,12 +15,14 @@ import frc.robot.Constants.ConversionConstants;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Constants.PIDConstants;
 import frc.robot.Constants.RobotMap;
+import frc.robot.subsystems.SmartSubsystem;
 /**
    * Test FlywheelSubsystem to handle shooting and velocity controls
    */
-public class FlywheelSubsystem extends SubsystemBase {
+public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
   private TalonFX m_flywheelMotor;
-  private double velocity;
+
+  private double m_setpoint;
 
   private FlywheelState m_currentState;
 
@@ -35,6 +37,9 @@ public class FlywheelSubsystem extends SubsystemBase {
     IDLE, OPEN_LOOP, VELOCITY_CONTROL;
   }
 
+  // -----------------------------------------------------------
+  // Initialization
+  // -----------------------------------------------------------
   public FlywheelSubsystem() {
    m_flywheelMotor = new TalonFX(RobotMap.kFlywheelTalonFX);
 
@@ -57,13 +62,16 @@ public class FlywheelSubsystem extends SubsystemBase {
    m_flywheelMotor.configVelocityMeasurementWindow(64);
    configFeedbackGains();
 
-   setDefaultCommand(new RunCommand(this::stopFlywheel, this));
+   setDefaultCommand(new RunCommand(this::stop, this));
 
    SmartDashboard.putNumber("Flywheel kP", kP);
    SmartDashboard.putNumber("Flywheel kF", kF);
    SmartDashboard.putNumber("Target RPM", 0);
   }
 
+  // -----------------------------------------------------------
+  // Process Logic
+  // -----------------------------------------------------------
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Flywheel RPM", getFlywheelVelocityRPM());
@@ -73,39 +81,78 @@ public class FlywheelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Flywheel FPS", getFlywheelVelocityFPS());
   }
 
-  public void setFlywheelState(FlywheelControlState desiredState, double reference){
-    switch(desiredState){
-      case IDLE:
-      stopFlywheel();
-      m_currentState = FlywheelState.IDLE;
-      break;
+  // public void setFlywheelState(FlywheelControlState desiredState, double reference){
+  //   switch(desiredState){
+  //     case IDLE:
+  //     stop();
+  //     m_currentState = FlywheelState.IDLE;
+  //     break;
 
-      case OPEN_LOOP:
-      setPower(reference);
-      m_currentState = FlywheelState.MANUAL;
-      break;
+  //     case OPEN_LOOP:
+  //     setPower(reference);
+  //     m_currentState = FlywheelState.MANUAL;
+  //     break;
 
-      case VELOCITY_CONTROL:
-      setFlywheelRPM(reference);
-      if(atReference(reference)){
-        m_currentState = FlywheelState.AT_VELOCITY;
-      }
-      else{
-        m_currentState = FlywheelState.SPINNING_UP;
-      }
-    }
-  }
+  //     case VELOCITY_CONTROL:
+  //     setFlywheelRPM(reference);
+  //     if(atReference()){
+  //       m_currentState = FlywheelState.AT_VELOCITY;
+  //     }
+  //     else{
+  //       m_currentState = FlywheelState.SPINNING_UP;
+  //     }
+  //   }
+  // }
 
   public FlywheelState getFlywheelState(){
     return m_currentState;
   }
 
+  // -----------------------------------------------------------
+  // Control Input
+  // -----------------------------------------------------------
   public void setPower(double power){
+    m_setpoint = power;
     m_flywheelMotor.set(ControlMode.PercentOutput, power);
   }
 
-  public boolean atReference(double reference){
-    if(Math.abs(reference - getFlywheelVelocityRPM()) < FlywheelConstants.kFlywheelErrorThreshold){
+  public void setPosition(double position) {
+    m_setpoint = position;
+    m_flywheelMotor.set(ControlMode.Position, position);
+  }
+
+  // Flywheel RPM
+  public void setVelocity(double velocity){
+    m_setpoint = velocity;
+    m_flywheelMotor.set(ControlMode.Velocity, rpmToFX(velocity));
+  }
+
+  public void setMotion(double position) {
+    m_setpoint = position;
+    m_flywheelMotor.set(ControlMode.MotionMagic, position);
+  }
+
+  public void stop(){
+    setPower(0);
+  }  
+
+  public void setFlywheelRPM(double rpm){
+    m_flywheelMotor.set(ControlMode.Velocity, rpmToFX(rpm));
+  }
+
+  // -----------------------------------------------------------
+  // System State
+  // -----------------------------------------------------------
+  public double getPosition() {
+    return 0;
+  }
+
+  public double getVelocity() {
+    return fxToRPM(m_flywheelMotor.getSelectedSensorVelocity());
+  }
+
+  public boolean atReference(){
+    if(Math.abs(m_setpoint - getFlywheelVelocityRPM()) < FlywheelConstants.kFlywheelErrorThreshold){
       return true;
     }
     return false;
@@ -119,14 +166,20 @@ public class FlywheelSubsystem extends SubsystemBase {
     return getFlywheelVelocityRPM() * 2 * Math.PI * 2 / 60;
   }
 
-  public void setFlywheelRPM(double rpm){
-    m_flywheelMotor.set(ControlMode.Velocity, rpmToFX(rpm));
+  // -----------------------------------------------------------
+  // Conversions
+  // -----------------------------------------------------------
+  private double rpmToFX(double rpm){
+    return rpm*ConversionConstants.kFlywheelEncoderTicksPerRotation * ConversionConstants.kFlywheelGearRatio / 600;
   }
 
-  public void stopFlywheel(){
-    setPower(0);
-  }  
+  private double fxToRPM(double fx){
+    return fx/ConversionConstants.kFlywheelEncoderTicksPerRotation * 600 / ConversionConstants.kFlywheelGearRatio;
+  }
 
+  // -----------------------------------------------------------
+  // Configuration and Testing
+  // -----------------------------------------------------------
   //Temp testing, will take out smartdashboard once fully tuned
   public void configFeedbackGains(){
     double newkP = SmartDashboard.getNumber("Flywheel kP", kP);
@@ -139,13 +192,5 @@ public class FlywheelSubsystem extends SubsystemBase {
     m_flywheelMotor.config_kF(0, newkD);
 
     System.out.println("Flywheel configed yay: kP: " + kP + " kF: " + kF);
-  }
-
-  private double rpmToFX(double rpm){
-    return rpm*ConversionConstants.kFlywheelEncoderTicksPerRotation * ConversionConstants.kFlywheelGearRatio / 600;
-  }
-
-  private double fxToRPM(double fx){
-    return fx/ConversionConstants.kFlywheelEncoderTicksPerRotation * 600 / ConversionConstants.kFlywheelGearRatio;
   }
 }

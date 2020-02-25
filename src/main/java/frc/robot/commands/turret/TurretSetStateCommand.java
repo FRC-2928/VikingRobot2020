@@ -36,7 +36,8 @@ public class TurretSetStateCommand extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    m_turret.setTurretState(TurretControlState.IDLE, 0, new TargetEstimate(0, 0, false));
+    // m_turret.setTurretState(TurretControlState.IDLE, 0, new TargetEstimate(0, 0, false));
+    m_turret.stop();
   }
 
   // Returns true when the command should end.
