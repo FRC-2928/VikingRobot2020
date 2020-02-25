@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants;
+import frc.robot.commands.climber.DeployClimber;
 import frc.robot.oi.OperatorOI;
 
 public class AbbiOperatorOI implements OperatorOI {
@@ -19,42 +20,13 @@ public class AbbiOperatorOI implements OperatorOI {
     // --------------- Climber ------------------
 
     @Override
-    public Button deployClimberHigh() {
-        return new Button(() -> {
-            return m_controller.getPOV() == Constants.OIConstants.kUp;
-        });
-    }
-
-    @Override
-    public Button deployClimberMid() {
-        return new Button(() -> {
-            return m_controller.getPOV() == Constants.OIConstants.kMid;
-        });
-       
-    }
-
-    @Override
-    public Button deployClimberMidTwo() {
-        return new Button(() -> {
-            return m_controller.getPOV() == Constants.OIConstants.kMidTwo;
-        });
-    }
-
-    @Override
-    public Button deployClimberLow() {
-        return new Button(() -> {
-            return m_controller.getPOV() == Constants.OIConstants.kDown;
-        });
-    }
-
-    @Override
     public Button deployToTop(){
         return new JoystickButton(m_controller, XboxController.Button.kX.value);
     }
-  
-    @Override
-    public DoubleSupplier climberAdjustmentButton() {
-        return() -> -m_controller.getY(Hand.kLeft);
+
+    @Override 
+    public Button retractClimber(){
+        return new JoystickButton(m_controller, XboxController.Button.kY.value); //placeholder
     }
 
     // ------------ Auto Targeting ------------------

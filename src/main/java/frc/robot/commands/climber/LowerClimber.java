@@ -5,7 +5,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.ClimberConstants;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.climber.ClimberSubsystem.ClimberState;
-import frc.robot.subsystems.climber.ClimberSubsystem.BrakeState;
 
 /**
  * Stops the feeder subsystem
@@ -22,7 +21,6 @@ public class LowerClimber extends CommandBase {
 
     @Override
     public void initialize() {
-        m_climber.setBrakePosition(BrakeState.OFF);
         m_climber.setClimberState(ClimberState.LOWERING);
 
         m_power = ClimberConstants.kCLimberPower;
@@ -30,7 +28,7 @@ public class LowerClimber extends CommandBase {
 
     @Override
     public void execute() {
-        m_climber.setElevatorPower(m_power);
+        m_climber.SetElevatorPower(m_power);
     }
 
     @Override

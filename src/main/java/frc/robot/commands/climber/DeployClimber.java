@@ -3,7 +3,6 @@ package frc.robot.commands.climber;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.climber.ClimberSubsystem.ClimberState;
-import frc.robot.subsystems.climber.ClimberSubsystem.BrakeState;
 
 public class DeployClimber extends CommandBase {
     // The subsystem the command runs on
@@ -16,7 +15,6 @@ public class DeployClimber extends CommandBase {
 
     @Override
     public void initialize() {
-        m_climber.setBrakePosition(BrakeState.OFF);
     }
 
     @Override
@@ -31,8 +29,6 @@ public class DeployClimber extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-
-        m_climber.setBrakePosition(BrakeState.ON);
 
         if (interrupted) {
             m_climber.setClimberState(ClimberState.INTERRUPTED);

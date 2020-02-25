@@ -32,9 +32,6 @@ import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.auto.RamseteTrajectoryCommand;
-import frc.robot.commands.climber.ClimbHigh;
-import frc.robot.commands.climber.ClimbLow;
-import frc.robot.commands.climber.ClimbMid;
 import frc.robot.commands.climber.DeployClimber;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
@@ -182,19 +179,6 @@ public class RobotContainer {
   }
 
   public void ConfigureClimberButtons() {
-  
-    m_operatorOI.deployClimberHigh()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbHigh(m_climber)));
-    m_operatorOI.deployClimberMid()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbMid(m_climber)));
-    m_operatorOI.deployClimberMidTwo()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbMid(m_climber)));
-    m_operatorOI.deployClimberLow()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbLow(m_climber)));
     m_operatorOI.deployToTop()
       .whenPressed(new DeployClimber(m_climber));  
   }
