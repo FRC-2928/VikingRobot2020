@@ -126,6 +126,7 @@ public final class Constants {
         public static final double kFlywheelkF = (1023.0 * 0.75) / 16000.0;
         public static final double kHoodkP = 2.5;
         public static final double kHoodkD = 15;
+        public static final double kHoodkF = 0.5;
 
         public static double kPTurret = 0.055;
         public static double kDTurret = 0.5;
@@ -219,8 +220,7 @@ public final class Constants {
         public static final double kFlywheelGearRatio = 1;
 
         // Hood
-        public static final double kHoodEncoderTicksPerRotation = 4096;
-        public static final double kHoodGearRatio = 60.0/24.0; 
+        public static final double kHoodGearRatio = (60.0/24.0) * (10*5); 
 
         // Turret
         public static final double kTurretGearRatio = 169.155; 

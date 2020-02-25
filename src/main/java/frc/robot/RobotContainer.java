@@ -3,55 +3,23 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.AutoConstants;
-import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.DrivetrainConstants;
-import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.trajectories.Test1Trajectory;
-import frc.robot.types.TargetEstimate;
-import frc.robot.commands.controlpanel.RotateSegments;
-import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
-import frc.robot.utilities.Limelight;
-import frc.robot.commands.controlpanel.RotateToColor;
-import frc.robot.commands.turret.TurretLimelightSetPosition;
-import frc.robot.commands.turret.TurretSetStateCommand;
-import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.auto.RamseteTrajectoryCommand;
-import frc.robot.commands.climber.ClimbHigh;
-import frc.robot.commands.climber.ClimbLow;
-import frc.robot.commands.climber.ClimbMid;
-import frc.robot.commands.climber.DeployClimber;
-import frc.robot.commands.intake.StartFeeder;
-import frc.robot.commands.intake.StopFeeder;
+import frc.robot.commands.shooter.SpinUpFlywheel;
 import frc.robot.oi.DriverOI;
-import frc.robot.oi.OperatorOI;
-import frc.robot.oi.impl.AbbiOperatorOI;
 import frc.robot.oi.impl.JettDriverOI;
-import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.drivetrain.TransmissionSubsystem;
-import frc.robot.subsystems.intake.FeederSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.subsystems.turret.TargetEstimator;
-import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretControlState;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.trajectories.Test1Trajectory;
 import frc.robot.utilities.Limelight;
 import frc.robot.utilities.Limelight.Limelights;
@@ -64,19 +32,15 @@ public class RobotContainer {
   private final DrivetrainSubsystem m_robotDrive = new DrivetrainSubsystem(m_transmission::getGearState);
   private final FlywheelSubsystem m_flywheelsubsystem = new FlywheelSubsystem();
   private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
-  private final IntakeSubsystem m_intake = new IntakeSubsystem();
-  private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
-  private final ClimberSubsystem m_climber = new ClimberSubsystem();
-  private final FeederSubsystem m_feeder = new FeederSubsystem();
-  private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
   private final Limelight m_driverLimelight = new Limelight(Limelights.DRIVER);
   private final Limelight m_turretLimelight = new Limelight(Limelights.TURRET);
 
   private final XboxController driveController = new XboxController(0);
 
-  private final JoystickButton turretPositionControl = new JoystickButton(driveController, 1);
-  private final JoystickButton turretFieldCentricControl = new JoystickButton(driveController, 2);
-  private final JoystickButton turretVisionControl = new JoystickButton(driveController, 3);
+  private final JoystickButton hoodUp = new JoystickButton(driveController, 6);
+  private final JoystickButton hoodDown = new JoystickButton(driveController, 5);
+  private final JoystickButton hoodPosition = new JoystickButton(driveController, 1);
+  private final JoystickButton shooterVelocityControl = new JoystickButton(driveController,4);
   private final JoystickButton turretOpenLoopLeft = new JoystickButton(driveController, 5);
   private final JoystickButton turretOpenLoopRight = new JoystickButton(driveController, 6);
 
@@ -85,7 +49,6 @@ public class RobotContainer {
   // private final JoystickButton positionControlHood = new JoystickButton(driveController, 1);
 
   private final DriverOI m_driverOI;
-  private final OperatorOI m_operatorOI;
 
   // Autonomous 
   // private Trajectory m_trajectory;
@@ -96,7 +59,6 @@ public class RobotContainer {
   public RobotContainer() {
 
     m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriverControllerPort));
-    m_operatorOI = new AbbiOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -115,6 +77,7 @@ public class RobotContainer {
   public void onInitialize(){
     m_flywheelsubsystem.configFeedbackGains();
     m_hoodsubsystem.configPIDGains();
+    SmartDashboard.putNumber("Shooter Reference", 0);
   }
 
   /**
@@ -126,101 +89,37 @@ public class RobotContainer {
    * 
    */
   private void configureButtonBindings() {
+    hoodUp.whileHeld(new RunCommand(m_hoodsubsystem::moveHoodUp, m_hoodsubsystem));
+    hoodDown.whileHeld(new RunCommand(m_hoodsubsystem::moveHoodDown, m_hoodsubsystem));
 
-    configureControlPanelButtons(); 
-    configureIntakeButtons();
-    configureFeederButtons();
-    ConfigureClimberButtons();
-    configureTurretButtons();
+    double reference = SmartDashboard.getNumber("Hood Reference", 0);
+    hoodPosition.whileHeld(new RunCommand(() -> 
+    m_hoodsubsystem.setHoodDegrees(reference), m_hoodsubsystem)
+    );
 
-    m_driverOI.getShiftLowButton()
-    .whenPressed(new InstantCommand(m_transmission::setLow, m_transmission));
-
-    m_driverOI.getShiftHighButton()
-    .whenPressed(new InstantCommand(m_transmission::setHigh, m_transmission));
+    double shooterReference = SmartDashboard.getNumber("Shooter Reference", 0);
+    shooterVelocityControl.whileHeld(new SpinUpFlywheel(m_flywheelsubsystem, shooterReference));
   }
 
   public void configureTurretButtons(){
-    turretVisionControl.whileHeld(new TurretSetStateCommand(
-      m_turretSubsystem, TurretControlState.VISION_TRACKING, 0, new TargetEstimate(0, 0, false)));
-
-    turretOpenLoopLeft.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(0.4)));
-    turretOpenLoopRight.whileHeld(new RunCommand(() -> m_turretSubsystem.setPower(-0.4)));
   }
 
   public void configureControlPanelButtons() {
       
-    // Spin the control panel three times
-    m_operatorOI.turnWheelButton()
-      .whileHeld(new RunCommand(m_controlPanel::setPower, m_controlPanel));
-
-    // Spin the control panel three times
-    m_operatorOI.turnWheelThreeTimes()
-      .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.threeTurns));
-
-    // Spin the control panel to target color
-    m_operatorOI.turnToColorButton()
-      .whenPressed(new ConditionalCommand(
-       // TRUE - the detected color is unknown so rotate half a segment 
-       new RotateSegments(m_controlPanel, 0.5)
-         // and then rotate to color
-         .andThen(new RotateToColor(m_controlPanel)),
-       // FALSE - the color is known so rotate to target color
-       new RotateToColor(m_controlPanel),
-       // CONDITION - is the color unknown?
-       m_controlPanel.unknownColor()
-     ));
   }
 
   public void configureFeederButtons() {
     // Also need to pass in the flywheel
     //m_driverOI.getAutoShootingButton().whenPressed(new FastForwardFeeder(m_feeder));
 
-    m_operatorOI.enableFeederButton().whenPressed(new StartFeeder(m_feeder));
-    m_operatorOI.disableFeederButton().whenPressed(new StopFeeder(m_feeder));
-    m_operatorOI.reverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
   }
 
   public void ConfigureClimberButtons() {
-  
-    m_operatorOI.deployClimberHigh()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbHigh(m_climber)));
-    m_operatorOI.deployClimberMid()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbMid(m_climber)));
-    m_operatorOI.deployClimberMidTwo()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbMid(m_climber)));
-    m_operatorOI.deployClimberLow()
-      .whenPressed(new DeployClimber(m_climber)
-      .andThen(new ClimbLow(m_climber)));
-    m_operatorOI.deployToTop()
-      .whenPressed(new DeployClimber(m_climber));  
   }
 
 
   private void configureIntakeButtons() {
 
-    // Pickup balls from the ground
-    m_driverOI.getGroundIntakeButton().whenPressed(new SequentialCommandGroup(
-      //extend intake
-      new InstantCommand(m_intake::groundPickup, m_intake ),
-      //wait until intake deploys
-      new WaitCommand(0.5),
-      // run motors
-      new RunCommand(m_intake::startMotor, m_intake)
-    ));
-
-    // Pickup balls from the Player Station
-    m_driverOI.getStationIntakeButton().whenPressed(new SequentialCommandGroup(
-      //extend intake
-      new InstantCommand(m_intake::stationPickup, m_intake ),
-      //wait until intake deploys
-      new WaitCommand(0.5),
-      // run motors
-      new RunCommand(m_intake::startMotor, m_intake)
-    ));
 
   }
 
