@@ -131,7 +131,7 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   // -----------------------------------------------------------
   public void setPower(double power){
     m_setpoint = power;
-    m_motorPID.setReference(power, ControlType.kDutyCycle);
+    m_motor.set(power);
   }
 
   //In total degrees of the hood, ex 30 degrees is hood all the way down
