@@ -207,25 +207,17 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
 
     case VISION_TRACKING:
       if(isTargetFound){
-        if(atReference()){
-          m_turretState = TurretState.AT_REFERENCE;
-        }
-        else{
-          m_turretState = TurretState.MOVING_TO_REFERENCE;
-        }
         setValidAngle(visionReference);
-        setPosition(visionReference);
+        m_turretState = TurretState.AT_REFERENCE;
       }
       else{
-        if(targetEstimate.isValid()){
-          m_turretState = TurretState.GHOSTING_TARGET;
-          reference = targetEstimate.getAngle();
-          setPosition(reference);
-          // setValidAngle(reference);
+        if(!targetEstimate.isValid() || targetEstimate == null){
+          searchForTarget();
+          m_turretState = TurretState.SEARCHING_FIELD;
         }
         else{
-          // m_turretState = TurretState.SEARCHING_FIELD;
-          searchForTarget();
+          setValidAngle(targetEstimate.getAngle());
+          m_turretState = TurretState.GHOSTING_TARGET;
         }
       }
       break;
@@ -295,16 +287,18 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   // -----------------------------------------------------------
 
   public void setPower(double power) { 
+      m_setpoint = power;
       m_turretPID.setReference(power, ControlType.kDutyCycle);
   }
 
   public void setPosition(double degrees) {
-    kF = SmartDashboard.getNumber("Turret kF", kF);
+      m_setpoint = degrees;
+      kF = SmartDashboard.getNumber("Turret kF", kF);
 
-    if (degrees <= 0) {
-      kF = -kF;
-    }
-    m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition, 0, kF);
+      if (degrees <= 0) {
+        kF = -kF;
+      }
+      m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition, 0, kF);
   }
 
   // public void setPower(double power) {
@@ -346,6 +340,7 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public void stop() {
+    m_setpoint = 0;
     m_turretPID.setReference(0, ControlType.kDutyCycle);
     m_turretState = TurretState.IDLE;
   }
