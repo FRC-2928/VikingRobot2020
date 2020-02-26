@@ -122,11 +122,12 @@ public final class Constants {
     public static final class PIDConstants{
        
         //Shooter
-        public static final double kFlywheelkP = 0.075;
+        public static final double kFlywheelkP = 0.04;
         public static final double kFlywheelkF = (1023.0 * 0.75) / 16000.0;
-        public static final double kHoodkP = 2.5;
-        public static final double kHoodkD = 15;
-        public static final double kHoodkF = 0.5;
+
+        public static final double kHoodkP = 0.5;
+        public static final double kHoodkD = 10;
+        public static final double kHoodkF = 0.25;
 
         public static double kPTurret = 0.055;
         public static double kDTurret = 0.5;

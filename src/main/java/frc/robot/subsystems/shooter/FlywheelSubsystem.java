@@ -62,6 +62,7 @@ public class FlywheelSubsystem extends SubsystemBase {
    SmartDashboard.putNumber("Flywheel kP", kP);
    SmartDashboard.putNumber("Flywheel kF", kF);
    SmartDashboard.putNumber("Target RPM", 0);
+   SmartDashboard.putNumber("Shooter Reference", 0);
   }
 
   @Override
@@ -120,6 +121,7 @@ public class FlywheelSubsystem extends SubsystemBase {
   }
 
   public void setFlywheelRPM(double rpm){
+    rpm = SmartDashboard.getNumber("Shooter Reference", 0);
     m_flywheelMotor.set(ControlMode.Velocity, rpmToFX(rpm));
   }
 
