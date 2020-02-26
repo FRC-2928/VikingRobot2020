@@ -60,7 +60,9 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
    m_flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
    m_flywheelMotor.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_1Ms);
    m_flywheelMotor.configVelocityMeasurementWindow(64);
-   configFeedbackGains();
+
+   // Configure PID
+   configPIDGains();
 
    setDefaultCommand(new RunCommand(this::stop, this));
 
@@ -181,7 +183,7 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
   // Configuration and Testing
   // -----------------------------------------------------------
   //Temp testing, will take out smartdashboard once fully tuned
-  public void configFeedbackGains(){
+  public void configPIDGains(){
     double newkP = SmartDashboard.getNumber("Flywheel kP", kP);
     double newkD = SmartDashboard.getNumber("Flywheel kF", kF);
 

@@ -54,6 +54,11 @@ public class JettDriverOI implements DriverOI {
     }
 
     @Override
+    public Button setHoodDegrees() {
+        return new JoystickButton(m_controller, XboxController.Button.kA.value);
+    }
+
+    @Override
     public DoubleSupplier getMoveSupplier() {
         return () -> -m_controller.getY(Hand.kLeft);
     }

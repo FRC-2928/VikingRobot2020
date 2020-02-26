@@ -149,6 +149,9 @@ public final class Constants {
         public static final double kP = 2.5;
         public static final double kD = 15;
         public static final double kF = 0;
+        public static final double kMaxOutput = 1;
+        public static final double kMinOutput = -1;
+
 
         public static final double kSetpointWall = 40;
         public static final double kSetpointInitiationLine = 50;
@@ -159,6 +162,12 @@ public final class Constants {
         public static final double kHoodUpperLimit = 70;
 
         public static final double kHoodErrorThreshold = 1;
+		public static double kMaxRPM = 5700;
+		public static double kMaxVel = 2000;
+		public static double kMinVel = 0;
+		public static double kMaxAcc = 1500;
+		public static double kAllowedError;
+	
     }
 
     public static final class TurretConstants {

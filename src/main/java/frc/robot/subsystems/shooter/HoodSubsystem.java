@@ -29,6 +29,14 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
 
   private final double kP = HoodConstants.kP;
   private final double kD = HoodConstants.kD;
+  private final double kF = HoodConstants.kF;
+  private final double kMaxOutput = HoodConstants.kMaxOutput;
+  private final double kMinOutput = HoodConstants.kMinOutput;
+  private final double kMaxRPM = HoodConstants.kMaxRPM;
+  private final double kMaxVel = HoodConstants.kMaxVel;
+  private final double kMinVel = HoodConstants.kMinVel;
+  private final double kMaxAcc = HoodConstants.kMaxAcc;
+  private final double kAllowedError = HoodConstants.kAllowedError;
 
   public enum HoodState{
     IDLE, MANUAL, MOVING_TO_POSITION, AT_POSITION;
@@ -55,35 +63,18 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
     m_motorEncoder = m_motor.getEncoder();
     m_motorPID = m_motor.getPIDController(); 
 
-    // m_motor = new WPI_TalonSRX(RobotMap.kHoodTalonSRX);
+    // Configure Smart Motion 
+    m_motorPID.setSmartMotionMaxVelocity(kMaxVel, 0);
+    m_motorPID.setSmartMotionMinOutputVelocity(kMinVel, 0);
+    m_motorPID.setSmartMotionMaxAccel(kMaxAcc, 0);
+    m_motorPID.setSmartMotionAllowedClosedLoopError(kAllowedError, 0);
 
-    // m_motor.configFactoryDefault();
+    // Apply conversions
+    // m_motorEncoder.setPositionConversionFactor(factor);
 
-    // //6 volts is 100% enough
-    // m_motor.configVoltageCompSaturation(6);
-    // m_motor.enableVoltageCompensation(true);
-    
-    // //Minimum output is 0.1 so the PD loop can do small adjustments
-    // m_motor.configNominalOutputForward(0.1);
-    // m_motor.configNominalOutputReverse(0.1);
-
-    // //No need to have a deadband since we have a nominal output
-    // m_motor.configNeutralDeadband(0);
-
-    // m_motor.setNeutralMode(NeutralMode.Brake);
-
-    // //Invert the sensors so up is positive
-    // m_motor.setSensorPhase(true);
-
-    // //Hood literally draws 12 amps at max but better safe than sorry
-    // m_motor.configPeakCurrentLimit(40);
-    // m_motor.enableCurrentLimit(true);
-    // m_motor.configPeakCurrentDuration(60);
-    // m_motor.configContinuousCurrentLimit(30);
-    // m_motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder); 
-    // m_motor.configAllowableClosedloopError(0, 5);
-
+    // Zero encoder and configure PID
     resetEncoder();
+    configPIDGains();
 
     setDefaultCommand(new RunCommand(() -> this.stop(), this));
 
@@ -155,6 +146,7 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
       System.out.println("Hood setpoint exceeded upper limit");
     }
     position =- 30;
+    // TODO position conversions
     m_motorPID.setReference(degreesToSRX(position), ControlType.kPosition, 0, HoodConstants.kF);
     // m_motor.set(ControlMode.Position, degreesToSRX(position));
   }
@@ -177,10 +169,12 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   // -----------------------------------------------------------
   // System State
   // -----------------------------------------------------------
+  // Returns rotations for SparkMax
   public double getNativeEncoderTicks() {
     return m_motorEncoder.getPosition();
   }
 
+  // TODO get the conversions
   public double getPosition(){
     return srxToDegrees(getNativeEncoderTicks());
     // return srxToDegrees(m_motor.getSelectedSensorPosition());
@@ -215,12 +209,15 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   public void configPIDGains(){
     double newkP = SmartDashboard.getNumber("Hood kP", kP);
     double newkD = SmartDashboard.getNumber("Hood kD", kD);
-    double newkF = SmartDashboard.getNumber("Hood kF", 0);
+    double newkF = SmartDashboard.getNumber("Hood kF", kF);
 
-    m_motorPID.setP(kP, 0);
+    m_motorPID.setP(newkP, 0);
     m_motorPID.setI(0, 0);
     m_motorPID.setIZone(0, 0);
-    m_motorPID.setD(kD, 0);
+    m_motorPID.setD(newkD, 0);
+    m_motorPID.setFF(newkF);
+
+    m_motorPID.setOutputRange(kMinOutput, kMaxOutput);
 
     System.out.println("Hood configed");
   }

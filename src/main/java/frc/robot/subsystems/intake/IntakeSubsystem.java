@@ -49,7 +49,7 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
     m_motor.restoreFactoryDefaults();
     m_motor.enableVoltageCompensation(12);
     m_motor.setSmartCurrentLimit(45, 80); //last value should be 0.04? 
-    m_motor.setIdleMode(IdleMode.kBrake);
+    m_motor.setIdleMode(IdleMode.kCoast);
     m_motor.setInverted(false);
 
     // Setup encoder and PID

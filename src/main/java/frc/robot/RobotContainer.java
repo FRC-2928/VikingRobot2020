@@ -109,8 +109,8 @@ public class RobotContainer {
   }
 
   public void onInitialize(){
-    m_flywheelsubsystem.configFeedbackGains();
-    m_hoodsubsystem.configPIDGains();
+    // m_flywheelsubsystem.configPIDGains();
+    // m_hoodsubsystem.configPIDGains();
   }
 
   /**
@@ -128,15 +128,17 @@ public class RobotContainer {
     configureFeederButtons();
     ConfigureClimberButtons();
     configureTurretButtons();
+    configureDrivetrainButtons();
 
+    // m_driverOI.setHoodDegrees().whileHeld(new SetPowerCommand(m_hoodsubsystem, 0.4));
+  }
+
+  public void configureDrivetrainButtons() {
     m_driverOI.getShiftLowButton()
     .whenPressed(new InstantCommand(m_transmission::setLow, m_transmission));
 
     m_driverOI.getShiftHighButton()
     .whenPressed(new InstantCommand(m_transmission::setHigh, m_transmission));
-
-    // Example of using the SetPositionCommand
-    turretPositionControl.whileHeld(new SetPositionCommand(m_hoodsubsystem, 30));
   }
 
   public void configureTurretButtons(){
@@ -148,6 +150,7 @@ public class RobotContainer {
 
     turretOpenLoopLeft.whileHeld(new SetPowerCommand(m_turret, 0.4));
     turretOpenLoopRight.whileHeld(new SetPowerCommand(m_turret, -0.4));
+    turretPositionControl.whileHeld(new SetPositionCommand(m_hoodsubsystem, 30));
   }
 
   public void configureControlPanelButtons() {
