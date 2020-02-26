@@ -28,7 +28,7 @@ public class SpinUpFlywheel extends CommandBase {
 
     @Override
     public void execute() {
-        m_flywheel.setFlywheelRPM(m_flywheelRPM);
+        m_flywheel.setPosition(m_flywheelRPM);
     }
 
     // Calculate the RPM based on the distance
