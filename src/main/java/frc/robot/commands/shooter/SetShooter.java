@@ -6,6 +6,7 @@ import frc.robot.Constants.HoodConstants;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.types.DistanceMap;
 /**
  * Sets flywheel RPM and hood angle
  */
@@ -34,13 +35,17 @@ public class SetShooter extends CommandBase {
     double hoodReference = 0;
     switch(m_shooterReference){
       case WALL:
-      flywheelReference = FlywheelConstants.kSetpointWall;
-      hoodReference = HoodConstants.kSetpointWall;
+      // flywheelReference = FlywheelConstants.kSetpointWall;
+      // hoodReference = HoodConstants.kSetpointWall;
+      flywheelReference = DistanceMap.getInstance().getFlywheelRPM(1);
+      hoodReference = DistanceMap.getInstance().getHoodDegrees(1);
       break;
 
       case INITIATION_LINE:
-      flywheelReference = FlywheelConstants.kSetpointInitiationLine;
-      hoodReference = HoodConstants.kSetpointInitiationLine;
+      // flywheelReference = FlywheelConstants.kSetpointInitiationLine;
+      // hoodReference = HoodConstants.kSetpointInitiationLine;
+      flywheelReference = DistanceMap.getInstance().getFlywheelRPM(10);
+      hoodReference = DistanceMap.getInstance().getHoodDegrees(10);
       break;
 
       case CLOSE_TRENCH:

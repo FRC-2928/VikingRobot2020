@@ -294,37 +294,50 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   // Control Input
   // -----------------------------------------------------------
 
-  public void setPower(double power) {
-    m_setpoint = power;
-    if(inSafetyRange()){
+  public void setPower(double power) { 
       m_turretPID.setReference(power, ControlType.kDutyCycle);
-    }
-    else{
-      correctTurretRange();
-    } 
-    m_turretState = TurretState.MANUAL;
   }
 
-  // Set the rotation degrees of the turret.
   public void setPosition(double degrees) {
-    m_setpoint = degrees;
-
-    double newReference = checkValidAngle(degrees);
-    if(newReference != degrees && !clearedSafetyRange()){
-      m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
-    }
-    else{
-      m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
-    }
-
     kF = SmartDashboard.getNumber("Turret kF", kF);
 
     if (degrees <= 0) {
       kF = -kF;
     }
-
     m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition, 0, kF);
   }
+
+  // public void setPower(double power) {
+  //   m_setpoint = power;
+  //   if(inSafetyRange()){
+  //     m_turretPID.setReference(power, ControlType.kDutyCycle);
+  //   }
+  //   else{
+  //     correctTurretRange();
+  //   } 
+  //   m_turretState = TurretState.MANUAL;
+  // }
+
+  // Set the rotation degrees of the turret.
+  // public void setPosition(double degrees) {
+  //   m_setpoint = degrees;
+
+  //   double newReference = checkValidAngle(degrees);
+  //   if(newReference != degrees && !clearedSafetyRange()){
+  //     m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
+  //   }
+  //   else{
+  //     m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
+  //   }
+
+  //   kF = SmartDashboard.getNumber("Turret kF", kF);
+
+  //   if (degrees <= 0) {
+  //     kF = -kF;
+  //   }
+
+  //   m_turretPID.setReference(degreesToMax(degrees), ControlType.kPosition, 0, kF);
+  // }
 
   public void setVelocity(double velocity) {
   }
