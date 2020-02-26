@@ -1,6 +1,8 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.FlywheelConstants;
+import frc.robot.Constants.HoodConstants;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
@@ -10,22 +12,55 @@ import frc.robot.subsystems.turret.TurretSubsystem;
 public class SetShooter extends CommandBase {
   private FlywheelSubsystem m_flywheel;
   private HoodSubsystem m_hood;
+  private ShooterSetpoint m_shooterReference;
 
   private double m_flywheelReference;
   private double m_hoodReference;
-  public SetShooter(FlywheelSubsystem flywheel, HoodSubsystem hood, double flywheelReference, double hoodReference) {
+
+  public enum ShooterSetpoint{
+    WALL, INITIATION_LINE, CLOSE_TRENCH, FAR_TRENCH;
+  }
+
+  public SetShooter(FlywheelSubsystem flywheel, HoodSubsystem hood, ShooterSetpoint shooterSetpoint) {
     m_flywheel = flywheel;
     m_hood = hood;
-
-    m_flywheelReference = flywheelReference;
-    m_hoodReference = hoodReference;
+    m_shooterReference = shooterSetpoint;
 
     addRequirements(m_flywheel, m_hood);
+  }
+  
+  private void setShooterSetpoint(){
+    double flywheelReference = 0;
+    double hoodReference = 0;
+    switch(m_shooterReference){
+      case WALL:
+      flywheelReference = FlywheelConstants.kSetpointWall;
+      hoodReference = HoodConstants.kSetpointWall;
+      break;
+
+      case INITIATION_LINE:
+      flywheelReference = FlywheelConstants.kSetpointInitiationLine;
+      hoodReference = HoodConstants.kSetpointInitiationLine;
+      break;
+
+      case CLOSE_TRENCH:
+      flywheelReference = FlywheelConstants.kSetpointCloseTrench;
+      hoodReference = HoodConstants.kSetpointCloseTrench;
+      break;
+
+      case FAR_TRENCH:
+      flywheelReference = FlywheelConstants.kSetpointFarTrench;
+      hoodReference = HoodConstants.kSetpointFarTrench;
+      break;
+    }
+    m_flywheelReference = flywheelReference;
+    m_hoodReference = hoodReference;
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    setShooterSetpoint();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -38,6 +73,7 @@ public class SetShooter extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    //Default commands will stop the motors
   }
 
   // Returns true when the command should end.

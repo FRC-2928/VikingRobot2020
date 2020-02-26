@@ -72,7 +72,7 @@ public final class Constants {
         public static final double kControlPanelCircumference = 0.81 * Math.PI;
         public static final double kColorArcLength = kControlPanelCircumference / 8;
         public static final double kManipulatorCircumference = 0.0508 * Math.PI;
-        public static final double threeTurns = 26.0; // Rotate 26 segments 
+        public static final double kRotationDistance = 26.0; // Rotate 26 segments 
         public static final double kPanelEncoderTicksPerRotation = 4096;
 
          // PID constants
@@ -122,10 +122,12 @@ public final class Constants {
     public static final class PIDConstants{
        
         //Shooter
-        public static final double kFlywheelkP = 0.075;
+        public static final double kFlywheelkP = 0.04;
         public static final double kFlywheelkF = (1023.0 * 0.75) / 16000.0;
-        public static final double kHoodkP = 2.5;
-        public static final double kHoodkD = 15;
+
+        public static final double kHoodkP = 0.5;
+        public static final double kHoodkD = 10;
+        public static final double kHoodkF = 0.25;
 
         public static double kPTurret = 0.055;
         public static double kDTurret = 0.5;
@@ -158,6 +160,9 @@ public final class Constants {
         public static final double kTurretErrorThreshold = 1;
         public static final double kTurretLeftLimit = 320;
         public static final double kTurretRightLimit = -320;
+
+        public static final double kTurretClimbPosition = 0; //Placeholders
+        public static final double kTurretControlPanelPosition = -90; //Placeholders
     }
 
     public static final class FeederConstants {

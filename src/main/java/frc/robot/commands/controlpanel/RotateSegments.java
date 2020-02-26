@@ -13,9 +13,11 @@ public class RotateSegments extends CommandBase {
 
     // The subsystem the command runs on
     private final ControlPanelSubsystem m_controlPanel;
+    private double m_reference;
 
-    public RotateSegments(ControlPanelSubsystem subsystem, double segments) {
+    public RotateSegments(ControlPanelSubsystem subsystem, double reference) {
     m_controlPanel = subsystem;
+    m_reference = reference;
     addRequirements(m_controlPanel);
   }
 
@@ -25,7 +27,7 @@ public class RotateSegments extends CommandBase {
 
   @Override
   public void execute() {
-    m_controlPanel.rotateSegments(ControlPanelConstants.threeTurns);
+    m_controlPanel.rotateSegments(m_reference);
   }
 
   @Override

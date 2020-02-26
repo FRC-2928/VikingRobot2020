@@ -153,7 +153,7 @@ public class RobotContainer {
 
     // Spin the control panel three times
     m_operatorOI.turnWheelThreeTimes()
-      .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.threeTurns));
+      .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.kRotationDistance));
 
     // Spin the control panel to target color
     m_operatorOI.turnToColorButton()
