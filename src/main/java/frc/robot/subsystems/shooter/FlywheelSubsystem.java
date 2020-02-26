@@ -76,7 +76,7 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
   // -----------------------------------------------------------
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Flywheel RPM", getFlywheelVelocityRPM());
+    SmartDashboard.putNumber("Flywheel RPM", getVelocity());
     SmartDashboard.putNumber("Flywheel native units", m_flywheelMotor.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Flywheel current draw", m_flywheelMotor.getSupplyCurrent());
     SmartDashboard.putNumber("Flywheel Voltage", m_flywheelMotor.getMotorOutputVoltage());
@@ -96,7 +96,7 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
       break;
 
       case VELOCITY_CONTROL:
-      setFlywheelRPM(reference);
+      setVelocity(reference);
       if(atReference()){
         m_currentState = FlywheelState.AT_VELOCITY;
       }
@@ -129,18 +129,19 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
     m_flywheelMotor.set(ControlMode.Velocity, rpmToFX(velocity));
   }
 
+  // public void setFlywheelRPM(double rpm){
+  //   m_flywheelMotor.set(ControlMode.Velocity, rpmToFX(rpm));
+  // }
+
   public void setMotion(double position) {
     m_setpoint = position;
     m_flywheelMotor.set(ControlMode.MotionMagic, position);
   }
 
   public void stop(){
+    m_setpoint = 0;
     setPower(0);
   }  
-
-  public void setFlywheelRPM(double rpm){
-    m_flywheelMotor.set(ControlMode.Velocity, rpmToFX(rpm));
-  }
 
   // -----------------------------------------------------------
   // System State
@@ -153,19 +154,19 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
     return fxToRPM(m_flywheelMotor.getSelectedSensorVelocity());
   }
 
+  // public double getFlywheelVelocityRPM(){
+  //   return fxToRPM(m_flywheelMotor.getSelectedSensorVelocity());
+  // }
+
   public boolean atReference(){
-    if(Math.abs(m_setpoint - getFlywheelVelocityRPM()) < FlywheelConstants.kFlywheelErrorThreshold){
+    if(Math.abs(m_setpoint - getVelocity()) < FlywheelConstants.kFlywheelErrorThreshold){
       return true;
     }
     return false;
   }
 
-  public double getFlywheelVelocityRPM(){
-    return fxToRPM(m_flywheelMotor.getSelectedSensorVelocity());
-  }
-
   public double getFlywheelVelocityFPS(){
-    return getFlywheelVelocityRPM() * 2 * Math.PI * 2 / 60;
+    return getVelocity() * 2 * Math.PI * 2 / 60;
   }
 
   // -----------------------------------------------------------
