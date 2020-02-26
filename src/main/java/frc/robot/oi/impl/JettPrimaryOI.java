@@ -6,12 +6,12 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.oi.DriverOI;
+import frc.robot.oi.PrimaryOI;
 
-public class JettDriverOI implements DriverOI {
+public class JettPrimaryOI implements PrimaryOI {
     private XboxController m_controller;
     
-    public JettDriverOI(XboxController controller) {
+    public JettPrimaryOI(XboxController controller) {
         m_controller = controller;
     }
 

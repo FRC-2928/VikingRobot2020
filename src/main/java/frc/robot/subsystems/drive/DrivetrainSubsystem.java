@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Robot;
@@ -49,6 +50,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public static DrivetrainSubsystem createReal() {
     var leftController = new SmartTalonFX(DriveConstants.kLeftMasterDeviceID);
     var rightController = new SmartTalonFX(DriveConstants.kRightMasterDeviceID);
+
+    leftController.setSensorPhase(true);
+
     var gyro = new WPI_PigeonIMU(DriveConstants.kPigeonDeviceID);
     return new DrivetrainSubsystem(leftController, rightController, gyro);
   }

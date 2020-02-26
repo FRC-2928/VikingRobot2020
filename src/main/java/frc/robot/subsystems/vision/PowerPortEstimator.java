@@ -49,6 +49,6 @@ public class PowerPortEstimator extends SubsystemBase {
 
     double angle = m_pose.getRotation().getDegrees() + m_turretAngle + m_limelightData.getHorizontalAngle();
     double distance = LimelightUtility.getEstimatedDistance(m_limelightData);
-    return TargetEstimationUtility.getTargetEstimate(currentPose, m_pose, distance, angle);
+    return TargetEstimationUtility.getTargetEstimate(currentPose.getTranslation(), m_pose.getTranslation(), distance, angle);
   }
 }

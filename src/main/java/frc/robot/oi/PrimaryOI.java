@@ -4,7 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.button.Button;
 
-public interface DriverOI {
+public interface PrimaryOI {
     Button getShiftLowButton();
 
     Button getShiftHighButton();

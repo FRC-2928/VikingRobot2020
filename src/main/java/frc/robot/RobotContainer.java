@@ -13,8 +13,8 @@ import frc.robot.commands.indexer.IndexerAutoFeedCommand;
 import frc.robot.commands.shooter.FlywheelAutoSetCommand;
 import frc.robot.commands.shooter.HoodAutoSetCommand;
 import frc.robot.commands.shooter.TurretAutoSetCommand;
-import frc.robot.oi.DriverOI;
-import frc.robot.oi.impl.JettDriverOI;
+import frc.robot.oi.PrimaryOI;
+import frc.robot.oi.impl.JettPrimaryOI;
 import frc.robot.subsystems.climber.ElevatorSubsystem;
 import frc.robot.subsystems.drive.DrivetrainSubsystem;
 import frc.robot.subsystems.drive.TransmissionSubsystem;
@@ -39,7 +39,7 @@ public class RobotContainer {
   private final Limelight m_shooterLimelight;
   private final PowerPortEstimator m_powerPortEstimator;
 
-  private final DriverOI m_driverOI;
+  private final PrimaryOI m_driverOI;
 
   public RobotContainer() {
     m_drivetrain = DrivetrainSubsystem.create();
@@ -53,7 +53,7 @@ public class RobotContainer {
 
     m_shooterLimelight = new Limelight(NetworkTableInstance.getDefault().getTable("limelight"));
     m_powerPortEstimator = new PowerPortEstimator(m_drivetrain::getPose, m_shooterLimelight::getData, m_turret::getMeasuredPosition);
-    m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriveControllerPort));
+    m_driverOI = new JettPrimaryOI(new XboxController(OIConstants.kDriveControllerPort));
 
     m_drivetrain.setDefaultCommand(
         new DrivetrainArcadeDriveCommand(m_drivetrain, m_driverOI.getMoveSupplier(), m_driverOI.getRotateSupplier()));
