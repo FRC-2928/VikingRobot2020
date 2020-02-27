@@ -220,8 +220,8 @@ public final class Constants {
     public static final class LimelightConstants{
 
         //Limelight names
-        public static final String kDriverLimelight = "Driver-Limelight";
-        public static final String kTurretLimelight = "Turret-Limelight";
+        public static final String kDriverLimelight = "limelight-driver";
+        public static final String kTurretLimelight = "limelight-turret";
 
         //Pipelines
         public static final int kLowLimelightTrackingPipeline = 0;
@@ -229,6 +229,7 @@ public final class Constants {
         public static final int kHighLimelightTrackingPipeline = 0;
         public static final int kHighLimelightDrivePipeline = 1;
 
+        public static final double kHighLimelightMountAngle = 12.5;
         public static final double kHighLimelightHeight = 37.5;
         public static final double kHighGoalHeight = 90;
     }
