@@ -6,9 +6,9 @@ import edu.wpi.first.wpilibj2.command.button.Button;
 
 public interface OperatorOI {
 
-    Button deployToTop(); //no longer just for testing
+    DoubleSupplier deployToTop(); //no longer just for testing
 
-    Button lowerClimber(); 
+    DoubleSupplier lowerClimber(); 
 
     Button getEnableAutoTargetButton();
 

@@ -20,13 +20,13 @@ public class AbbiOperatorOI implements OperatorOI {
     // --------------- Climber ------------------
 
     @Override
-    public Button deployToTop(){
-        return new JoystickButton(m_controller, XboxController.Button.kX.value);
+    public DoubleSupplier deployToTop(){
+        return() -> -Math.abs(m_controller.getY(Hand.kLeft));
     }
 
     @Override 
-    public Button lowerClimber(){
-        return new JoystickButton(m_controller, XboxController.Button.kY.value); //placeholder
+    public DoubleSupplier lowerClimber(){
+        return() -> -(-m_controller.getY(Hand.kLeft));
     }
 
     // ------------ Auto Targeting ------------------

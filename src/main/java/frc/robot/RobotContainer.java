@@ -38,6 +38,7 @@ import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.auto.RamseteTrajectoryCommand;
 import frc.robot.commands.climber.DeployClimber;
+import frc.robot.commands.climber.LowerClimber;
 import frc.robot.commands.control.SetPositionCommand;
 import frc.robot.commands.control.SetPowerCommand;
 import frc.robot.commands.intake.FastForwardFeeder;
@@ -211,7 +212,10 @@ public class RobotContainer {
   public void ConfigureClimberButtons() {
   
     m_operatorOI.deployToTop()
-      .whenPressed(new DeployClimber(m_climber));  
+      .whenPressed(new DeployClimber(m_climber));
+    m_operatorOI.lowerClimber()
+      .whileHeld(new LowerClimber(m_climber));
+
   }
 
 
