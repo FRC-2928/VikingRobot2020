@@ -7,10 +7,8 @@ import frc.robot.subsystems.shooter.HoodSubsystem;
 
 public class FastForwardFeeder extends CommandBase {
     private FeederSubsystem m_feeder;
-    private HoodSubsystem m_hood;
-    private FlywheelSubsystem m_flywheel;
 
-    public FastForwardFeeder(FeederSubsystem feeder, HoodSubsystem hood, FlywheelSubsystem flywheel) {
+    public FastForwardFeeder(FeederSubsystem feeder) {
     addRequirements(feeder);
     m_feeder = feeder;
   }
@@ -21,7 +19,5 @@ public class FastForwardFeeder extends CommandBase {
   }
 
   public void end() {
-    m_flywheel.stop();
-    m_hood.stop();
   }
 }

@@ -64,7 +64,7 @@ public class SuperstructureStatemachine{
   }
 
   public enum SuperstructureState{
-    IDLE, MANUAL_OVERRIDE,TRACKING_TARGET, SHOOTING_INIT, SHOOTING, CLIMBING_INIT, CLIMBING, CONTROL_PANEL_INIT,
+    IDLE, MANUAL_OVERRIDE, TRACKING_TARGET, SHOOTING_INIT, SHOOTING, CLIMBING_INIT, CLIMBING, CONTROL_PANEL_INIT,
     SPINNING_CONTROL_PANEL;
   }
 
@@ -86,7 +86,7 @@ public class SuperstructureStatemachine{
     m_shooterReference = ShooterSetpoint.CLOSE_TRENCH;
     m_turretReference = 0;
 
-    m_feedCommand = new FastForwardFeeder(m_feeder, m_hood, m_flywheel);
+    m_feedCommand = new FastForwardFeeder(m_feeder);
   }
 
   public void setSuperstructureState(SuperstructureControlState desiredState){

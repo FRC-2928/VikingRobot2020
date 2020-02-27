@@ -30,6 +30,7 @@ import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
 import frc.robot.utilities.Limelight;
 import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.commands.turret.TrackTargetCommand;
+import frc.robot.commands.turret.TurretAtReference;
 import frc.robot.commands.turret.TurretLimelightSetPosition;
 import frc.robot.commands.turret.TurretSetStateCommand;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
@@ -43,6 +44,7 @@ import frc.robot.commands.intake.FastForwardFeeder;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
 import frc.robot.commands.shooter.SetHoodPosition;
+import frc.robot.commands.shooter.ShooterAtReference;
 import frc.robot.commands.shooter.SpinUpFlywheel;
 import frc.robot.oi.DriverOI;
 import frc.robot.oi.OperatorOI;
@@ -135,11 +137,19 @@ public class RobotContainer {
     configureDrivetrainButtons();
 
     // Set the hood and flywheel
-    m_driverOI.setShooterButton().whenPressed(new ParallelCommandGroup(
-      new SetHoodPosition(m_hoodsubsystem, m_turretLimelight),
-      new SpinUpFlywheel(m_flywheelsubsystem, m_turretLimelight)));
+    m_driverOI.setShooterButton().whileHeld(
+      new ParallelCommandGroup(
+      new ParallelCommandGroup(
+        new SetHoodPosition(m_hoodsubsystem, m_turretLimelight),
+        new SpinUpFlywheel(m_flywheelsubsystem, m_turretLimelight)),
+      new SequentialCommandGroup(
+        new TurretAtReference(m_turret),
+        new ShooterAtReference(m_flywheelsubsystem, m_hoodsubsystem),
+        new FastForwardFeeder(m_feeder)
+      ))
+      );
 
-    m_driverOI.getAutoShootingButton().whileHeld(new FastForwardFeeder(m_feeder, m_hoodsubsystem, m_flywheelsubsystem)); 
+    m_driverOI.getAutoShootingButton().whileHeld(new FastForwardFeeder(m_feeder)); 
   }
 
   public void configureDrivetrainButtons() {
