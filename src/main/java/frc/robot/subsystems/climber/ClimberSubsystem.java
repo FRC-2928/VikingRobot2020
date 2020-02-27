@@ -5,6 +5,7 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.Solenoid;
@@ -20,7 +21,7 @@ import frc.robot.subsystems.SmartSubsystem;
  * It's deployed to 3 different setpoints and then brought down to climb
  */
 public class ClimberSubsystem extends SubsystemBase implements SmartSubsystem{
-  private CANSparkMax m_motor; //new 
+  public CANSparkMax m_motor; //new 
   private Solenoid m_ratchetSolenoid; //new 
   private CANEncoder m_motorEncoder; //new 
   private CANPIDController m_motorPID;
@@ -48,6 +49,8 @@ public class ClimberSubsystem extends SubsystemBase implements SmartSubsystem{
     m_motor.setSmartCurrentLimit(45, 80); //last value should be 0.04? 
     m_motor.setIdleMode(IdleMode.kBrake);
     m_motor.setInverted(false);
+    m_motor.setSoftLimit(SoftLimitDirection.kForward, 10); //Ten is a placeholder
+    m_motor.setSoftLimit(SoftLimitDirection.kReverse, 15); //placeholder value
 
     // Setup encoder and PID
     m_motorEncoder = m_motor.getEncoder();
