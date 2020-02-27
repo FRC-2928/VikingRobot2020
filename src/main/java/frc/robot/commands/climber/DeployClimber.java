@@ -20,6 +20,7 @@ public class DeployClimber extends CommandBase {
 
     @Override
     public void execute() {
+        m_climber.setSolenoid(false);
         m_climber.deployToTop();
     }
 

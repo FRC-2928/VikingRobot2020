@@ -196,15 +196,15 @@ public final class Constants {
 
         public static double kP = 0.055;
         public static double kD = 0.5;
-        public static double kF = 0.4;
+        public static double kF = 0.4; //Placeholders
 
-        public static final double kStowedPositionSetpoint = 0.0; // Meters
-        public static final double kDeployedPositionSetpoint = 1.6; // Meters
+        public static final double kStowedPositionSetpoint = 0.025; // Meters - Test this before use
+        public static final double kDeployedPositionSetpoint = 1.016; // Meters
         public static final double kClimberPower = 0.4; // Power Percent
 
         // TODO figure number of clicks per meter (assuming meters are used in above Setpoints)
         public static final double kClimberEncoderTicksPerRotation = 2048; // correct!
-        public static final double kClimberGearRatio = 54 / 1; // moter to intermediate pulley, correct!
+        public static final double kClimberGearRatio = 35 / 1; // moter to intermediate pulley, correct!
         // meters climber movement per intermediate pulley rev, correct!
         public static final double kDistancePerPullyRotation = .18; // 18 cm
 		public static double kClimberErrorThreshold = 0.5; // 5 cm

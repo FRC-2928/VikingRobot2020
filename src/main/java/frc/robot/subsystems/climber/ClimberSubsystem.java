@@ -70,8 +70,6 @@ public class ClimberSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public void deployToTop() {
-    setSolenoid(false); // Release Ratchet to allow elevator to UP 
-    
     double currentPosition = getPosition(); 
     m_setpointTarget = ClimberConstants.kDeployedPositionSetpoint;
 

@@ -21,12 +21,12 @@ public class LowerClimber extends CommandBase {
     @Override
     public void initialize() {
         m_climber.setClimberState(ClimberState.LOWERING);
-
         m_power = ClimberConstants.kClimberPower;
     }
 
     @Override
     public void execute() {
+        m_climber.setSolenoid(true);
         m_climber.setPower(m_power);
     }
 
