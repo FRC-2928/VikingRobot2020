@@ -59,8 +59,8 @@ public class Limelight{
   }
 
   public double getTargetDistance(){
-    double h = LimelightConstants.kHighGoalHeight - LimelightConstants.kHighLimelightHeight;
-    return h/Math.tan(Math.toRadians(getVerticalOffset()));
+    double h = (LimelightConstants.kHighGoalHeight - LimelightConstants.kHighLimelightHeight) / 12;
+    return h/Math.tan(Math.toRadians(getVerticalOffset() + LimelightConstants.kHighLimelightMountAngle));
   }
 
   public double getHorizontalOffset(){
