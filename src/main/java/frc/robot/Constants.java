@@ -206,7 +206,7 @@ public final class Constants {
         public static final double kClimberEncoderTicksPerRotation = 2048; // correct!
         public static final double kClimberGearRatio = 35 / 1; // moter to intermediate pulley, correct!
         // meters climber movement per intermediate pulley rev, correct!
-        public static final double kDistancePerPullyRotation = .18; // 18 cm
+        public static final double kDistancePerPullyRotation = 0.0762; // 7.62 
 		public static double kClimberErrorThreshold = 0.5; // 5 cm
     }
 
