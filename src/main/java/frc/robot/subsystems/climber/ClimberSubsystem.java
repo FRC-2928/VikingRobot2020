@@ -21,7 +21,7 @@ import frc.robot.subsystems.SmartSubsystem;
  * It's deployed to 3 different setpoints and then brought down to climb
  */
 public class ClimberSubsystem extends SubsystemBase implements SmartSubsystem{
-  public CANSparkMax m_motor; //new 
+  private CANSparkMax m_motor; //new 
   private Solenoid m_ratchetSolenoid; //new 
   private CANEncoder m_motorEncoder; //new 
   private CANPIDController m_motorPID;
