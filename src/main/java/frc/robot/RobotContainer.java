@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConst
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -38,8 +39,11 @@ import frc.robot.commands.auto.RamseteTrajectoryCommand;
 import frc.robot.commands.climber.DeployClimber;
 import frc.robot.commands.control.SetPositionCommand;
 import frc.robot.commands.control.SetPowerCommand;
+import frc.robot.commands.intake.FastForwardFeeder;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
+import frc.robot.commands.shooter.SetHoodPosition;
+import frc.robot.commands.shooter.SpinUpFlywheel;
 import frc.robot.oi.DriverOI;
 import frc.robot.oi.OperatorOI;
 import frc.robot.oi.impl.AbbiOperatorOI;
@@ -130,7 +134,12 @@ public class RobotContainer {
     configureTurretButtons();
     configureDrivetrainButtons();
 
-    // m_driverOI.setHoodDegrees().whileHeld(new SetPowerCommand(m_hoodsubsystem, 0.4));
+    // Set the hood and flywheel
+    m_driverOI.setShooterButton().whenPressed(new ParallelCommandGroup(
+      new SetHoodPosition(m_hoodsubsystem, m_turretLimelight),
+      new SpinUpFlywheel(m_flywheelsubsystem, m_turretLimelight)));
+
+    m_driverOI.getAutoShootingButton().whileHeld(new FastForwardFeeder(m_feeder, m_hoodsubsystem, m_flywheelsubsystem)); 
   }
 
   public void configureDrivetrainButtons() {

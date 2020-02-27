@@ -31,7 +31,7 @@ public class SetHoodPosition extends CommandBase {
         m_hood.setPosition(m_hoodDegrees);
     }
 
-    // Calculate the RPM based on the distance
+    // Calculate the Hood degrees based on the distance
     private static double calculatehoodDegrees(double distance) {
         double degrees = DistanceMap.getInstance().getHoodDegrees(distance);
         return degrees;

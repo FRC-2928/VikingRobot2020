@@ -86,7 +86,7 @@ public class SuperstructureStatemachine{
     m_shooterReference = ShooterSetpoint.CLOSE_TRENCH;
     m_turretReference = 0;
 
-    m_feedCommand = new FastForwardFeeder(m_feeder);
+    m_feedCommand = new FastForwardFeeder(m_feeder, m_hood, m_flywheel);
   }
 
   public void setSuperstructureState(SuperstructureControlState desiredState){

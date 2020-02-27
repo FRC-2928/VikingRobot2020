@@ -21,5 +21,5 @@ public interface DriverOI {
 
     Button getClimbTrigger();
 
-    Button setHoodDegrees();
+    Button setShooterButton();
 }
