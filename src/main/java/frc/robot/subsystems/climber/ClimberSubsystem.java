@@ -27,7 +27,6 @@ public class ClimberSubsystem extends SubsystemBase implements SmartSubsystem{
   private CANPIDController m_motorPID;
 
   private ClimberState m_climberState;
-  private double m_setpointTarget;
 
   //Statemachine for overall climber state
   public enum ClimberState{
@@ -35,6 +34,7 @@ public class ClimberSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   private double m_setpoint;
+  private double m_setpointTarget;
 
   // -----------------------------------------------------------
   // Initialization
@@ -77,18 +77,10 @@ public class ClimberSubsystem extends SubsystemBase implements SmartSubsystem{
     m_setpointTarget = ClimberConstants.kDeployedPositionSetpoint;
 
     // If not deployed to top then go there, otherwise command isFinished
-    if (!atSetpoint()) {
+    if (!atReference()) {
       double setpoint = m_setpointTarget - currentPosition;
       setPosition(setpoint);
     }
-  }
-
-  public boolean atSetpoint() {
-    if (m_setpointTarget - getPosition() <= 0.1) {
-      return true;
-    } else {
-      return false;
-    }  
   }
   
   public void setClimberState(ClimberState state) {
@@ -107,15 +99,17 @@ public class ClimberSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public void setPosition(double position){
+    m_setpoint = position;
     m_motorPID.setReference(position, ControlType.kPosition, 0, ClimberConstants.kF);
   }
 
   public void setVelocity(double velocity){
-
+    m_setpoint = velocity;
   }
   public void setMotion(double position) {
-
+    m_setpoint = position;
   }
+
   public void stop() {
     setPosition(0);
   }

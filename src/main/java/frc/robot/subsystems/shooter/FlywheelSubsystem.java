@@ -150,13 +150,23 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
     return 0;
   }
 
+  public boolean atPositionReference(){
+    if(Math.abs(m_setpoint - getPosition()) < FlywheelConstants.kFlywheelErrorThreshold){
+      return true;
+    }
+    return false;
+  }
+
   public double getVelocity() {
     return fxToRPM(m_flywheelMotor.getSelectedSensorVelocity());
   }
 
-  // public double getFlywheelVelocityRPM(){
-  //   return fxToRPM(m_flywheelMotor.getSelectedSensorVelocity());
-  // }
+  public boolean atVelocityReference(){
+    if(Math.abs(m_setpoint - getVelocity()) < FlywheelConstants.kFlywheelErrorThreshold){
+      return true;
+    }
+    return false;
+  }
 
   public boolean atReference(){
     if(Math.abs(m_setpoint - getVelocity()) < FlywheelConstants.kFlywheelErrorThreshold){

@@ -63,8 +63,8 @@ public class RobotContainer {
 
   private final TransmissionSubsystem m_transmission = new TransmissionSubsystem();
   private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem(m_transmission::getGearState);
-  private final FlywheelSubsystem m_flywheelsubsystem = new FlywheelSubsystem();
-  private final HoodSubsystem m_hoodsubsystem = new HoodSubsystem();
+  private final FlywheelSubsystem m_flywheel = new FlywheelSubsystem();
+  private final HoodSubsystem m_hood = new HoodSubsystem();
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
   private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
   private final ClimberSubsystem m_climber = new ClimberSubsystem();
@@ -142,10 +142,10 @@ public class RobotContainer {
     // Set the hood and flywheel
     m_driverOI.setShooterButton()
         .whileHeld(new ParallelCommandGroup(
-            new ParallelCommandGroup(new SetHoodPosition(m_hoodsubsystem, m_turretLimelight),
-                new SpinUpFlywheel(m_flywheelsubsystem, m_turretLimelight)),
+            new ParallelCommandGroup(new SetHoodPosition(m_hood, m_turretLimelight),
+                new SpinUpFlywheel(m_flywheel, m_turretLimelight)),
             new SequentialCommandGroup(new TurretAtReference(m_turret),
-                new ShooterAtReference(m_flywheelsubsystem, m_hoodsubsystem), new FastForwardFeeder(m_feeder))));
+                new ShooterAtReference(m_flywheel, m_hood), new FastForwardFeeder(m_feeder))));
 
     m_driverOI.getAutoShootingButton().whileHeld(new FastForwardFeeder(m_feeder));
   }
@@ -166,7 +166,7 @@ public class RobotContainer {
 
     turretOpenLoopLeft.whileHeld(new SetPowerCommand(m_turret, 0.4));
     turretOpenLoopRight.whileHeld(new SetPowerCommand(m_turret, -0.4));
-    turretPositionControl.whileHeld(new SetPositionCommand(m_hoodsubsystem, 30));
+    turretPositionControl.whileHeld(new SetPositionCommand(m_hood, 30));
   }
 
   public void configureControlPanelButtons() {
@@ -182,7 +182,12 @@ public class RobotContainer {
         .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.kRotationDistance));
 
     // Spin the control panel to target color
-    m_operatorOI.turnToColorButton().whenPressed(new ConditionalCommand(
+    m_operatorOI.turnToColorButton().whenPressed(new SequentialCommandGroup(
+      // Set the turret to the zero position
+      (new SetPositionCommand(m_turret, 0, true)),
+      
+      // Turn the color wheel
+      (new ConditionalCommand(
         // TRUE - the detected color is unknown so rotate half a segment
         new RotateSegments(m_controlPanel, 0.5)
             // and then rotate to color
@@ -190,7 +195,9 @@ public class RobotContainer {
         // FALSE - the color is known so rotate to target color
         new RotateToColor(m_controlPanel),
         // CONDITION - is the color unknown?
-        m_controlPanel.unknownColor()));
+        m_controlPanel.unknownColor()))
+      )
+    );
   }
 
   public void configureFeederButtons() {

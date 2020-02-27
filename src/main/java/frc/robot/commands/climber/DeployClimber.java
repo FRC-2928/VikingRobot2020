@@ -26,7 +26,7 @@ public class DeployClimber extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return m_climber.atSetpoint();
+        return m_climber.atReference();
     }
 
     @Override
