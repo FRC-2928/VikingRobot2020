@@ -4,6 +4,7 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.ControlType;
 
 import edu.wpi.first.wpilibj.Solenoid;
@@ -38,6 +39,7 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   public IntakeSubsystem() {
     m_solenoidArm = new Solenoid(RobotMap.kIntakeArmSolenoid);
     m_solenoidBase = new Solenoid(RobotMap.kIntakeBaseSolenoid);
+    m_motor = new CANSparkMax(RobotMap.kIntakeSparkMax, MotorType.kBrushless);
 
     //These settings are set by default but it's good practice to set them
     m_motor.restoreFactoryDefaults();

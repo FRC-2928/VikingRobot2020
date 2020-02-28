@@ -56,6 +56,7 @@ public class FeederSubsystem extends SubsystemBase implements SmartSubsystem{
     m_hopperMotor = new CANSparkMax(RobotMap.kHopperSparkMax, MotorType.kBrushless);
     m_indexMotor = new CANSparkMax(RobotMap.kIndexSparkMax, MotorType.kBrushless);
     m_hopperPID = m_hopperMotor.getPIDController();
+    m_indexPID = m_indexMotor.getPIDController();
 
     // Config hopper motor
     m_hopperMotor.restoreFactoryDefaults();

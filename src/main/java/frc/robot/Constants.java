@@ -23,8 +23,8 @@ public final class Constants {
         public static final int kDrivetrainRightBackTalonFX = 0;
 
         //Feeder
-        public static int kIndexSparkMax = 11;
-		public static int kHopperSparkMax = 5;
+        public static int kIndexSparkMax = 10;
+		public static int kHopperSparkMax = 11;
 
         public static final int kIRSensorBottom = 9;
         public static final int kIRSensorMiddle = 8;
@@ -32,21 +32,19 @@ public final class Constants {
 
         //Shooter
         public static final int kFlywheelTalonFX = 3;
-        // public static final int kHoodTalonSRX = 5;
-        public static int kHoodSparkMax = 5;
+        public static int kHoodSparkMax = 6;
 
         //Turret
-        public static final int kTurretSparkMax = 4;
+        public static final int kTurretSparkMax = 9;
 
         //Climber
         public static final int kClimberMotor = 12; 
 
         //Control Panel
-        // public static final int kControlPanelTalonSRX = 9;
-        public static int kControlPanelSparkMax = 9;
+        public static int kControlPanelSparkMax = 4;
 
         //Intake
-        public static final int kIntakeVictorSPX = 10; //placeholder
+        public static final int kIntakeSparkMax = 5; //placeholder
 
         //Solenoids
         public static final int kDrivetrainShiftSolenoid = 6; 

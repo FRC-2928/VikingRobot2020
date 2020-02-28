@@ -292,9 +292,17 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
         m_rightMaster.setSelectedSensorPosition(0);
     }
 
+    public double getLeftVoltage(){
+        return m_leftMaster.getMotorOutputVoltage();
+    }
+
+    public double getRightVoltage(){
+        return m_rightMaster.getMotorOutputVoltage();
+    }
+
     // Gyro readings
     public double getHeading() {
-        return Math.IEEEremainder(m_pigeon.getYaw(), 360) * (DrivetrainConstants.kGyroReversed ? -1.0 : 1.0);
+        return m_pigeon.getYaw();
     }
 
     public double getLeftPosition() {

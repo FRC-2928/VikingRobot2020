@@ -38,6 +38,7 @@ import frc.robot.commands.turret.TurretStopTracking;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.auto.DrivetrainCharacterizationCommand;
 import frc.robot.commands.auto.RamseteTrajectoryCommand;
 import frc.robot.commands.climber.DeployClimber;
 import frc.robot.commands.climber.LowerClimber;
@@ -212,31 +213,33 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+
+    return new DrivetrainCharacterizationCommand(m_drivetrain);
     
-    // Create a voltage constraint to ensure we don't accelerate too fast
-    var autoVoltageConstraint =
-        new DifferentialDriveVoltageConstraint(
-            new SimpleMotorFeedforward(DrivetrainConstants.ksVolts,
-                                       DrivetrainConstants.kvVoltSecondsPerMeter,
-                                       DrivetrainConstants.kaVoltSecondsSquaredPerMeter),
-            DrivetrainConstants.kDriveKinematics,
-            10);
+    // // Create a voltage constraint to ensure we don't accelerate too fast
+    // var autoVoltageConstraint =
+    //     new DifferentialDriveVoltageConstraint(
+    //         new SimpleMotorFeedforward(DrivetrainConstants.ksVolts,
+    //                                    DrivetrainConstants.kvVoltSecondsPerMeter,
+    //                                    DrivetrainConstants.kaVoltSecondsSquaredPerMeter),
+    //         DrivetrainConstants.kDriveKinematics,
+    //         10);
 
-    //Create config for trajectory
-    TrajectoryConfig config =
-      new TrajectoryConfig(AutoConstants.kMaxSpeedMetersPerSecond,
-                            AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-          // Add kinematics to ensure max speed is actually obeyed
-          .setKinematics(DrivetrainConstants.kDriveKinematics)
-          // Apply the voltage constraint
-          .addConstraint(autoVoltageConstraint);
+    // //Create config for trajectory
+    // TrajectoryConfig config =
+    //   new TrajectoryConfig(AutoConstants.kMaxSpeedMetersPerSecond,
+    //                         AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+    //       // Add kinematics to ensure max speed is actually obeyed
+    //       .setKinematics(DrivetrainConstants.kDriveKinematics)
+    //       // Apply the voltage constraint
+    //       .addConstraint(autoVoltageConstraint);
 
-    // Get a trajectory
-    Test1Trajectory trajectory1 = new Test1Trajectory(config);
+    // // Get a trajectory
+    // Test1Trajectory trajectory1 = new Test1Trajectory(config);
 
-    RamseteTrajectoryCommand trajectoryCommand = new RamseteTrajectoryCommand(m_drivetrain, trajectory1.getTrajectory());
+    // RamseteTrajectoryCommand trajectoryCommand = new RamseteTrajectoryCommand(m_drivetrain, trajectory1.getTrajectory());
 
-    // Run path following command, then stop at the end.
-    return trajectoryCommand.andThen(() -> m_drivetrain.stopDrivetrain());
+    // // Run path following command, then stop at the end.
+    // return trajectoryCommand.andThen(() -> m_drivetrain.stopDrivetrain());
   }
 }
