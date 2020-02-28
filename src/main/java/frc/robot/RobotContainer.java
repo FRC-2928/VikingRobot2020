@@ -158,22 +158,9 @@ public class RobotContainer {
         .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.kRotationDistance));
 
     // Spin the control panel to target color
-    m_operatorOI.turnToColorButton().whenPressed(new SequentialCommandGroup(
-      // Set the turret to the zero position
-      (new SetPositionCommand(m_turret, 0, true)),
-      
-      // Turn the color wheel
-      (new ConditionalCommand(
-        // TRUE - the detected color is unknown so rotate half a segment
-        new RotateSegments(m_controlPanel, 0.5)
-            // and then rotate to color
-            .andThen(new RotateToColor(m_controlPanel)),
-        // FALSE - the color is known so rotate to target color
-        new RotateToColor(m_controlPanel),
-        // CONDITION - is the color unknown?
-        m_controlPanel.unknownColor()))
-      )
-    );
+    m_operatorOI.turnToColorButton().whenPressed((new SetPositionCommand(m_turret, 0, true)));
+
+    m_operatorOI.turnToColorButton().whenReleased(new RotateToColor(m_controlPanel));
   }
 
   public void configureFeederButtons() {
