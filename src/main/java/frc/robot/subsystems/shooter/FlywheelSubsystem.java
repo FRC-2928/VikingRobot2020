@@ -129,10 +129,6 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
     m_flywheelMotor.set(ControlMode.Velocity, rpmToFX(velocity));
   }
 
-  // public void setFlywheelRPM(double rpm){
-  //   m_flywheelMotor.set(ControlMode.Velocity, rpmToFX(rpm));
-  // }
-
   public void setMotion(double position) {
     m_setpoint = position;
     m_flywheelMotor.set(ControlMode.MotionMagic, position);

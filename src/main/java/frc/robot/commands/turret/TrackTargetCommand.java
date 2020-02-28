@@ -6,28 +6,33 @@ import frc.robot.subsystems.turret.TargetEstimator;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.types.LimelightData;
 import frc.robot.types.TargetEstimate;
+import frc.robot.utilities.Limelight;
 
 // Turret track vision target
 public class TrackTargetCommand extends CommandBase {
 
     private TurretSubsystem m_turret;
     private DrivetrainSubsystem m_drivetrain;
+    private Limelight m_limelight;
     private LimelightData m_limelightData;
     private TargetEstimate m_targetEstimate;
     private TargetEstimator m_targetEstimator = new TargetEstimator();
     
 
     public TrackTargetCommand(TurretSubsystem turret, 
-                              DrivetrainSubsystem drivetrain) {
+                              DrivetrainSubsystem drivetrain,
+                              Limelight limelight) {
         addRequirements(turret);
 
         m_turret = turret;
         m_drivetrain = drivetrain;
+        m_limelight = limelight;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize() {
+        m_limelight.setPipeline(1);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

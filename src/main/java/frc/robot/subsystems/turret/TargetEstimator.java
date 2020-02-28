@@ -15,6 +15,12 @@ public class TargetEstimator {
     private double m_xLimelight, m_yLimelight;
 
     public TargetEstimator(){
+        m_initialPose = new Pose2d();
+        m_pose = new Pose2d();
+
+        m_updateTime = 0;
+        m_xLimelight = 0;
+        m_yLimelight = 0;
 
     }
 

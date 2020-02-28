@@ -19,7 +19,7 @@ public class JettDriverOI implements DriverOI {
 
     @Override
     public Button getGroundIntakeButton() {
-        return new JoystickButton(m_controller, XboxController.Axis.kLeftTrigger.value);
+        return new Button(() -> m_controller.getTriggerAxis(Hand.kLeft) > 0.1);
     }
 
     @Override

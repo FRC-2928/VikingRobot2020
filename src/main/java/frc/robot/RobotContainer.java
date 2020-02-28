@@ -2,61 +2,43 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
-import edu.wpi.first.wpilibj.trajectory.Trajectory;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.Button;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.ControlPanelConstants;
-import frc.robot.Constants.DrivetrainConstants;
-import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
-import frc.robot.subsystems.shooter.FlywheelSubsystem;
-import frc.robot.subsystems.shooter.HoodSubsystem;
-import frc.robot.trajectories.Test1Trajectory;
-import frc.robot.types.DistanceMap;
-import frc.robot.types.LimelightData;
-import frc.robot.types.TargetEstimate;
-import frc.robot.commands.controlpanel.RotateSegments;
-import frc.robot.subsystems.turret.TurretSubsystem;
-import frc.robot.subsystems.turret.TurretSubsystem.TurretState;
-import frc.robot.utilities.Limelight;
-import frc.robot.commands.controlpanel.RotateToColor;
-import frc.robot.commands.turret.TrackTargetCommand;
-import frc.robot.commands.turret.TurretAtReference;
-import frc.robot.commands.turret.TurretLimelightSetPosition;
-import frc.robot.commands.turret.TurretSetStateCommand;
-import frc.robot.commands.turret.TurretStopTracking;
-import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.auto.DrivetrainCharacterizationCommand;
-import frc.robot.commands.auto.RamseteTrajectoryCommand;
-import frc.robot.commands.climber.DeployClimber;
-import frc.robot.commands.climber.LowerClimber;
 import frc.robot.commands.control.SetPositionCommand;
 import frc.robot.commands.control.SetPowerCommand;
+import frc.robot.commands.controlpanel.RotateSegments;
+import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.commands.intake.FastForwardFeeder;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
 import frc.robot.commands.shooter.SetHoodPosition;
 import frc.robot.commands.shooter.ShooterAtReference;
 import frc.robot.commands.shooter.SpinUpFlywheel;
+import frc.robot.commands.turret.TrackTargetCommand;
+import frc.robot.commands.turret.TurretAtReference;
+import frc.robot.commands.turret.TurretStopTracking;
 import frc.robot.oi.DriverOI;
 import frc.robot.oi.OperatorOI;
 import frc.robot.oi.impl.AbbiOperatorOI;
 import frc.robot.oi.impl.JettDriverOI;
 import frc.robot.subsystems.climber.ClimberSubsystem;
+import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
+import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.drivetrain.TransmissionSubsystem;
 import frc.robot.subsystems.intake.FeederSubsystem;
+import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.shooter.FlywheelSubsystem;
+import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.types.DistanceMap;
+import frc.robot.utilities.Limelight;
 import frc.robot.utilities.Limelight.Limelights;
 
 public class RobotContainer {
@@ -77,6 +59,8 @@ public class RobotContainer {
 
   private final DriverOI m_driverOI;
   private final OperatorOI m_operatorOI;
+
+  private Command m_incrementShooterCommand;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -102,7 +86,7 @@ public class RobotContainer {
   }
 
   public void onTeleopInit() {
-    new TrackTargetCommand(m_turret, m_drivetrain).schedule();
+    // new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
   }
 
   /**
@@ -118,15 +102,8 @@ public class RobotContainer {
     configureFeederButtons();
     ConfigureClimberButtons();
     configureTurretButtons();
+    configureShooterButtons();
     configureDrivetrainButtons();
-
-    // Set the hood and flywheel
-    m_driverOI.getAutoShootingButton()
-        .whileHeld(new ParallelCommandGroup(
-            new ParallelCommandGroup(new SetHoodPosition(m_hood, m_turretLimelight),
-                new SpinUpFlywheel(m_flywheel, m_turretLimelight)),
-            new SequentialCommandGroup(new TurretAtReference(m_turret),
-                new ShooterAtReference(m_flywheel, m_hood), new FastForwardFeeder(m_feeder))));
 
   }
 
@@ -136,17 +113,28 @@ public class RobotContainer {
     m_driverOI.getShiftHighButton().whenPressed(new InstantCommand(m_transmission::setHigh, m_transmission));
   }
 
+  public void configureShooterButtons(){
+    // Set the hood and flywheel
+    m_driverOI.getAutoShootingButton()
+        .whileHeld(new ParallelCommandGroup(
+            new ParallelCommandGroup(new SetHoodPosition(m_hood, m_turretLimelight),
+                new SpinUpFlywheel(m_flywheel, m_turretLimelight)),
+            new SequentialCommandGroup(new TurretAtReference(m_turret),
+                new ShooterAtReference(m_flywheel, m_hood), new FastForwardFeeder(m_feeder))));
+
+    
+  }
+
   public void configureTurretButtons() {
 
     m_operatorOI.getEnableAutoTargetButton()
-        .whenPressed(new TrackTargetCommand(m_turret, m_drivetrain));
+        .whenPressed(new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight));
 
     m_operatorOI.getDisableAutoTargetButton()
         .whenPressed(new TurretStopTracking(m_turret));
 
     m_operatorOI.getMoveTurretButton()
         .whileHeld(new SetPowerCommand(m_turret, m_operatorOI.moveTurretSupplier()));
-        
   }
 
   public void configureControlPanelButtons() {
@@ -186,7 +174,7 @@ public class RobotContainer {
   private void configureIntakeButtons() {
 
     // Pickup balls from the ground
-    m_driverOI.getGroundIntakeButton().whenPressed(new SequentialCommandGroup(
+    m_driverOI.getGroundIntakeButton().whileHeld(new SequentialCommandGroup(
       //extend intake
       new InstantCommand(m_intake::groundPickup, m_intake),
       //wait until intake deploys
@@ -196,7 +184,7 @@ public class RobotContainer {
     ));
 
     // Pickup balls from the Player Station
-    m_driverOI.getStationIntakeButton().whenPressed(new SequentialCommandGroup(
+    m_driverOI.getStationIntakeButton().whileHeld(new SequentialCommandGroup(
       //extend intake
       new InstantCommand(m_intake::stationPickup, m_intake ),
       //wait until intake deploys

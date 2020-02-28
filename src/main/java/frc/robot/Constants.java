@@ -48,7 +48,7 @@ public final class Constants {
 
         //Solenoids
         public static final int kDrivetrainShiftSolenoid = 6; 
-        public static final int kIntakeArmSolenoid = 7;
+        public static final int kIntakeArmSolenoid = 4;
         public static final int kIntakeBaseSolenoid = 5;
         public static final int kRatchetSolenoid = 1;
 

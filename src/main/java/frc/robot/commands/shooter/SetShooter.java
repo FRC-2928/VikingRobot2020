@@ -18,8 +18,10 @@ public class SetShooter extends CommandBase {
   private double m_flywheelReference;
   private double m_hoodReference;
 
+  private double currentSetpoint;
+
   public enum ShooterSetpoint{
-    WALL, INITIATION_LINE, CLOSE_TRENCH, FAR_TRENCH;
+    WALL, INITIATION_LINE, CLOSE_TRENCH;
   }
 
   public SetShooter(FlywheelSubsystem flywheel, HoodSubsystem hood, ShooterSetpoint shooterSetpoint) {
@@ -35,27 +37,18 @@ public class SetShooter extends CommandBase {
     double hoodReference = 0;
     switch(m_shooterReference){
       case WALL:
-      // flywheelReference = FlywheelConstants.kSetpointWall;
-      // hoodReference = HoodConstants.kSetpointWall;
       flywheelReference = DistanceMap.getInstance().getFlywheelRPM(1);
       hoodReference = DistanceMap.getInstance().getHoodDegrees(1);
       break;
 
       case INITIATION_LINE:
-      // flywheelReference = FlywheelConstants.kSetpointInitiationLine;
-      // hoodReference = HoodConstants.kSetpointInitiationLine;
       flywheelReference = DistanceMap.getInstance().getFlywheelRPM(10);
       hoodReference = DistanceMap.getInstance().getHoodDegrees(10);
       break;
 
       case CLOSE_TRENCH:
-      flywheelReference = FlywheelConstants.kSetpointCloseTrench;
-      hoodReference = HoodConstants.kSetpointCloseTrench;
-      break;
-
-      case FAR_TRENCH:
-      flywheelReference = FlywheelConstants.kSetpointFarTrench;
-      hoodReference = HoodConstants.kSetpointFarTrench;
+      flywheelReference = DistanceMap.getInstance().getFlywheelRPM(17);
+      hoodReference = DistanceMap.getInstance().getHoodDegrees(17);
       break;
     }
     m_flywheelReference = flywheelReference;

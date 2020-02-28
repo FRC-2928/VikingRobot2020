@@ -70,7 +70,7 @@ public class FeederSubsystem extends SubsystemBase implements SmartSubsystem{
     m_indexMotor.enableVoltageCompensation(12);
     m_indexMotor.setIdleMode(IdleMode.kBrake);
     m_indexMotor.setSmartCurrentLimit(35, 45, 0);
-    m_indexMotor.setInverted(false);
+    m_indexMotor.setInverted(true);
 
     m_bottomSensor = new DigitalInput(RobotMap.kIRSensorBottom);
     m_middleSensor = new DigitalInput(RobotMap.kIRSensorMiddle);

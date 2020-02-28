@@ -14,6 +14,7 @@ public class Limelight{
   //Pulls values from network tables
   private NetworkTable m_limelightTable;
   private NetworkTableInstance m_limelightNI = NetworkTableInstance.getDefault();
+  private String m_limelight;
 
   //Creates variables to assign
   private double m_horizontalOffset;
@@ -32,10 +33,12 @@ public class Limelight{
     switch(camera){
       case DRIVER:
       m_limelightTable = m_limelightNI.getTable(LimelightConstants.kDriverLimelight);
+      m_limelight = LimelightConstants.kDriverLimelight;
       break;
 
       case TURRET:
       m_limelightTable = m_limelightNI.getTable(LimelightConstants.kTurretLimelight);
+      m_limelight = LimelightConstants.kTurretLimelight;
       break;
 
       default:
@@ -53,6 +56,10 @@ public class Limelight{
     m_verticalOffset = getVerticalOffset();
     m_targetDistance = getTargetDistance();
     m_targetFound = isTargetFound();
+  }
+
+  public void setPipeline(double pipeline){
+    m_limelightNI.getTable(m_limelight).getEntry("pipeline").setNumber(pipeline);
   }
 
   public double getTargetDistance(){

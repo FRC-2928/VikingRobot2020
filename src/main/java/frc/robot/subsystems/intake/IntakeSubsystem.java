@@ -44,7 +44,7 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
     //These settings are set by default but it's good practice to set them
     m_motor.restoreFactoryDefaults();
     m_motor.enableVoltageCompensation(12);
-    m_motor.setSmartCurrentLimit(45, 80); //last value should be 0.04? 
+    m_motor.setSmartCurrentLimit(25, 35); 
     m_motor.setIdleMode(IdleMode.kCoast);
     m_motor.setInverted(false);
 
@@ -66,11 +66,11 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
     // This method will be called once per scheduler run
   }
 
-  public void groundPickup () {
+  public void groundPickup() {
     moveIntake(IntakeState.GROUND_PICKUP);
   }
 
-  public void stationPickup () {
+  public void stationPickup() {
     moveIntake(IntakeState.STATION_PICKUP);
   }
 
@@ -84,18 +84,18 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
 
     switch (state) {
       case GROUND_PICKUP: 
-        m_solenoidArm.set(false);
+        m_solenoidArm.set(true);
         m_solenoidBase.set(true);
       break;
 
       case STATION_PICKUP: 
-        m_solenoidArm.set(true);
+        m_solenoidArm.set(false);
         m_solenoidBase.set(true);
       break;
 
       case STOWED:
-        m_solenoidArm.set(true);
-        m_solenoidBase.set(false);;
+        m_solenoidArm.set(false);
+        m_solenoidBase.set(true);
       break;
 
       default:
@@ -131,7 +131,7 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public void startMotor () {
-    setPower(0.5);
+    setPower(0.8);
   }
 
   public void stopMotor () {

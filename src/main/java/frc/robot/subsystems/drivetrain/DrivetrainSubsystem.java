@@ -115,7 +115,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
              * 40 amp breaker can support above 40 amps for a little bit
              * Falcons have insane acceleration so allowing it to reach 80 for 0.03 seconds should be fine
              */
-            fx.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 45, 80, 30));
+            fx.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 45, 70, 30));
 
             //Either using the integrated Falcon sensor or an external one, will change if needed
             fx.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
