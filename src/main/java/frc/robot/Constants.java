@@ -40,7 +40,6 @@ public final class Constants {
 
         //Climber
         public static final int kClimberMotor = 12; 
-        public static final int kRatchetSolenoid = 1;
 
         //Control Panel
         // public static final int kControlPanelTalonSRX = 9;
@@ -51,10 +50,9 @@ public final class Constants {
 
         //Solenoids
         public static final int kDrivetrainShiftSolenoid = 6; 
-        public static final int kIntakeSoleniodRightOne = 5; //place holder
-        public static final int kIntakeSoleniodRightTwo = 2;
-        public static final int kIntakeSoleniodLeftOne = 7;
-        public static final int kIntakeSoleniodLeftTwo = 0;
+        public static final int kIntakeArmSolenoid = 7;
+        public static final int kIntakeBaseSolenoid = 5;
+        public static final int kRatchetSolenoid = 1;
 
         //Sensors
         public static final int kPigeonIMU = 3;
@@ -76,11 +74,12 @@ public final class Constants {
         public static final double kColorArcLength = kControlPanelCircumference / 8;
         public static final double kManipulatorCircumference = 0.0508 * Math.PI;
         public static final double kRotationDistance = 26.0; // Rotate 26 segments 
-        public static final double kPanelEncoderTicksPerRotation = 4096;
+        public static final double kRotationBuffer = 4.0; //Extra buffer for rotating control panel
+        public static final double kGearRatio = 10.0;
 
          // PID constants
          public static double kPanelP = 0.1;
-         public static double kPanelI = 1e-4;
+         public static double kPanelI = 0;
          public static double kPanelD = 1;
          public static double kPanelIzone = 0;
          public static double kPanelFF = 0;
@@ -108,8 +107,8 @@ public final class Constants {
             (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
         public static final double kUnitsPerRevolution = 1.0;
         //TODO change to correct values
-        public static final double kHighGearRatio = 1;
-        public static final double kLowGearRatio = 1;
+        public static final double kHighGearRatio = 5;
+        public static final double kLowGearRatio = 10.71;
         
     }
 
@@ -229,7 +228,7 @@ public final class Constants {
         public static final int kHighLimelightTrackingPipeline = 0;
         public static final int kHighLimelightDrivePipeline = 1;
 
-        public static final double kHighLimelightMountAngle = 12.5;
+        public static final double kHighLimelightMountAngle = 17.5;
         public static final double kHighLimelightHeight = 37.5;
         public static final double kHighGoalHeight = 90;
     }

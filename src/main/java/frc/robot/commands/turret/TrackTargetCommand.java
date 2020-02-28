@@ -18,13 +18,11 @@ public class TrackTargetCommand extends CommandBase {
     
 
     public TrackTargetCommand(TurretSubsystem turret, 
-                              DrivetrainSubsystem drivetrain,
-                              TargetEstimate targetEstimate) {
+                              DrivetrainSubsystem drivetrain) {
         addRequirements(turret);
 
         m_turret = turret;
         m_drivetrain = drivetrain;
-        m_targetEstimate = targetEstimate;
     }
 
     // Called when the command is initially scheduled.
@@ -42,6 +40,8 @@ public class TrackTargetCommand extends CommandBase {
             m_turret.getTurretFieldDegrees(),
             m_limelightData
         );
+        m_targetEstimate = m_targetEstimator.getEstimate();
+
         boolean isTargetFound = m_limelightData.getTargetFound();
         double visionReference = m_turret.getTurretDegrees() - m_limelightData.getHorizontalOffset();
         

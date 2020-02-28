@@ -163,8 +163,8 @@ public class ControlPanelSubsystem extends SubsystemBase implements SmartSubsyst
     // Zero the sensors so that the math is easier
     zeroSensors();
 
-    // MotionMagic wants the setpoint in encoder ticks
-    double setpoint = rotations * ControlPanelConstants.kPanelEncoderTicksPerRotation;
+    // Raw rotations
+    double setpoint = rotations * ControlPanelConstants.kGearRatio;
     
     m_motorPID.setReference(setpoint, ControlType.kPosition);
   }
@@ -209,16 +209,14 @@ public class ControlPanelSubsystem extends SubsystemBase implements SmartSubsyst
     return m_matchedColor;
   }
 
-  // Get raw encoder ticks
-  public double getNativeEncoderTicks(){
-    return m_motorEncoder.getPosition();
-  }
-  
-
   // Converts encode ticks back into rotations
   public double getMotorRotations(){
-    double rotations = getNativeEncoderTicks() / ControlPanelConstants.kPanelEncoderTicksPerRotation;
-    return rotations;
+    return m_motorEncoder.getPosition();
+  }
+
+  // Gets rotations of the actual manipulator wheel
+  public double getWheelRotations(){
+    return getMotorRotations() / ControlPanelConstants.kGearRatio;
   }
 
   // Set encoders to zero

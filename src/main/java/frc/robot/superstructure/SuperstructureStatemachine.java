@@ -48,6 +48,7 @@ public class SuperstructureStatemachine{
 
   //Current Superstructure state
   private SuperstructureState m_currentState;
+  private SuperstructureControlState m_previousControlState;
 
   private double m_turretReference;
   private ShooterSetpoint m_shooterReference;
@@ -83,11 +84,18 @@ public class SuperstructureStatemachine{
     m_turretReference = 0;
 
     m_feedCommand = new FastForwardFeeder(m_feeder);
+
+    m_currentState = SuperstructureState.IDLE;
+    m_previousControlState = SuperstructureControlState.IDLE;
   }
 
   public void setSuperstructureState(SuperstructureControlState desiredState){
     boolean readyToShoot = false;
     updateSubsystemStates();
+  
+    if(m_previousControlState == desiredState){
+      return;
+    }
 
     switch(desiredState){
       case IDLE:
@@ -183,6 +191,8 @@ public class SuperstructureStatemachine{
       m_feedCommand.end(true);
       m_currentState = SuperstructureState.SHOOTING_INIT;
     }
+
+    m_previousControlState = desiredState;
   }
 
   public TargetEstimate getTargetEstimate(){

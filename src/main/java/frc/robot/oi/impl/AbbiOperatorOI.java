@@ -3,6 +3,7 @@ package frc.robot.oi.impl;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -20,13 +21,13 @@ public class AbbiOperatorOI implements OperatorOI {
     // --------------- Climber ------------------
 
     @Override
-    public DoubleSupplier deployToTop(){
-        return() -> -Math.abs(m_controller.getY(Hand.kLeft));
+    public Button deployToTop(){
+        return new Button(() -> m_controller.getPOV() != -1);
     }
 
     @Override 
-    public DoubleSupplier lowerClimber(){
-        return() -> -(-m_controller.getY(Hand.kLeft));
+    public DoubleSupplier adjustClimber(){
+        return() -> (m_controller.getY(Hand.kLeft));
     }
 
     // ------------ Auto Targeting ------------------
@@ -39,6 +40,18 @@ public class AbbiOperatorOI implements OperatorOI {
     @Override
     public Button getDisableAutoTargetButton() {
         return new JoystickButton(m_controller, XboxController.Button.kBack.value);
+    }
+
+    // ------------ Turret -----------------------
+    
+    @Override
+    public DoubleSupplier moveTurretSupplier(){
+        return() -> m_controller.getX(Hand.kRight);
+    }
+
+    @Override
+    public Button getMoveTurretButton() {
+        return new Button(() -> Math.abs(m_controller.getX(Hand.kRight)) > 0.1);
     }
 
     // ------------ Shooting ---------------------

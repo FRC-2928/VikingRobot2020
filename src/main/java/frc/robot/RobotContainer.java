@@ -34,6 +34,7 @@ import frc.robot.commands.turret.TrackTargetCommand;
 import frc.robot.commands.turret.TurretAtReference;
 import frc.robot.commands.turret.TurretLimelightSetPosition;
 import frc.robot.commands.turret.TurretSetStateCommand;
+import frc.robot.commands.turret.TurretStopTracking;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.Constants.OIConstants;
@@ -73,26 +74,8 @@ public class RobotContainer {
   private final Limelight m_driverLimelight = new Limelight(Limelights.DRIVER);
   private final Limelight m_turretLimelight = new Limelight(Limelights.TURRET);
 
-  private final XboxController driveController = new XboxController(0);
-
-  private final JoystickButton turretPositionControl = new JoystickButton(driveController, 1);
-  private final JoystickButton turretFieldCentricControl = new JoystickButton(driveController, 2);
-  private final JoystickButton turretVisionControl = new JoystickButton(driveController, 3);
-  private final JoystickButton turretOpenLoopLeft = new JoystickButton(driveController, 5);
-  private final JoystickButton turretOpenLoopRight = new JoystickButton(driveController, 6);
-
-  // private final JoystickButton openLoopFlywheel = new
-  // JoystickButton(driveController, 5);
-  // private final JoystickButton velocityControlFlywheel = new
-  // JoystickButton(driveController, 6);
-  // private final JoystickButton positionControlHood = new
-  // JoystickButton(driveController, 1);
-
   private final DriverOI m_driverOI;
   private final OperatorOI m_operatorOI;
-
-  // Autonomous
-  // private Trajectory m_trajectory;
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -117,9 +100,8 @@ public class RobotContainer {
             m_drivetrain));
   }
 
-  public void onInitialize() {
-    // m_flywheelsubsystem.configPIDGains();
-    // m_hoodsubsystem.configPIDGains();
+  public void onTeleopInit() {
+    new TrackTargetCommand(m_turret, m_drivetrain).schedule();
   }
 
   /**
@@ -127,8 +109,6 @@ public class RobotContainer {
    * created by instantiating a {@link GenericHID} or one of its subclasses
    * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then
    * passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   *
-   * 
    */
   private void configureButtonBindings() {
 
@@ -140,14 +120,13 @@ public class RobotContainer {
     configureDrivetrainButtons();
 
     // Set the hood and flywheel
-    m_driverOI.setShooterButton()
+    m_driverOI.getAutoShootingButton()
         .whileHeld(new ParallelCommandGroup(
             new ParallelCommandGroup(new SetHoodPosition(m_hood, m_turretLimelight),
                 new SpinUpFlywheel(m_flywheel, m_turretLimelight)),
             new SequentialCommandGroup(new TurretAtReference(m_turret),
                 new ShooterAtReference(m_flywheel, m_hood), new FastForwardFeeder(m_feeder))));
 
-    m_driverOI.getAutoShootingButton().whileHeld(new FastForwardFeeder(m_feeder));
   }
 
   public void configureDrivetrainButtons() {
@@ -157,25 +136,22 @@ public class RobotContainer {
   }
 
   public void configureTurretButtons() {
-    // turretVisionControl.whileHeld(new TurretSetStateCommand(
-    // m_turret, TurretControlState.VISION_TRACKING, 0, new TargetEstimate(0, 0,
-    // false)));
 
     m_operatorOI.getEnableAutoTargetButton()
-        .whenPressed(new TrackTargetCommand(m_turret, m_drivetrain, new TargetEstimate(0, 0, false)));
+        .whenPressed(new TrackTargetCommand(m_turret, m_drivetrain));
 
-    turretOpenLoopLeft.whileHeld(new SetPowerCommand(m_turret, 0.4));
-    turretOpenLoopRight.whileHeld(new SetPowerCommand(m_turret, -0.4));
-    turretPositionControl.whileHeld(new SetPositionCommand(m_hood, 30));
+    m_operatorOI.getDisableAutoTargetButton()
+        .whenPressed(new TurretStopTracking(m_turret));
+
+    m_operatorOI.getMoveTurretButton()
+        .whileHeld(new SetPowerCommand(m_turret, m_operatorOI.moveTurretSupplier()));
+        
   }
 
   public void configureControlPanelButtons() {
 
     // Spin the control panel three times
     m_operatorOI.turnWheelButton().whileHeld(new SetPowerCommand(m_controlPanel, 0.4));
-
-    // m_operatorOI.turnWheelButton()
-    // .whileHeld(new RunCommand(m_controlPanel::setPower, m_controlPanel));
 
     // Spin the control panel three times
     m_operatorOI.turnWheelThreeTimes()
@@ -201,31 +177,32 @@ public class RobotContainer {
   }
 
   public void configureFeederButtons() {
-    // Also need to pass in the flywheel
-    // m_driverOI.getAutoShootingButton().whenPressed(new
-    // FastForwardFeeder(m_feeder));
 
     m_operatorOI.enableFeederButton().whenPressed(new StartFeeder(m_feeder));
     m_operatorOI.disableFeederButton().whenPressed(new StopFeeder(m_feeder));
     m_operatorOI.reverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
+
   }
 
   public void ConfigureClimberButtons() {
 
-    ((Button) m_operatorOI.deployToTop()).whenPressed(new DeployClimber(m_climber));
-    ((Button) m_operatorOI.lowerClimber()).whileHeld(new LowerClimber(m_climber));
+    // if(m_operatorOI.deployToTop()){
+    //   new DeployClimber(m_climber).schedule();
+    // }
+
+
+    // ((Button) m_operatorOI.lowerClimber()).whileHeld(new LowerClimber(m_climber));
 
   }
-
 
   private void configureIntakeButtons() {
 
     // Pickup balls from the ground
     m_driverOI.getGroundIntakeButton().whenPressed(new SequentialCommandGroup(
       //extend intake
-      new InstantCommand(m_intake::groundPickup, m_intake ),
+      new InstantCommand(m_intake::groundPickup, m_intake),
       //wait until intake deploys
-      new WaitCommand(0.5),
+      new WaitCommand(0.2),
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));
@@ -235,7 +212,7 @@ public class RobotContainer {
       //extend intake
       new InstantCommand(m_intake::stationPickup, m_intake ),
       //wait until intake deploys
-      new WaitCommand(0.5),
+      new WaitCommand(0.2),
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));
@@ -274,6 +251,5 @@ public class RobotContainer {
 
     // Run path following command, then stop at the end.
     return trajectoryCommand.andThen(() -> m_drivetrain.stopDrivetrain());
-
   }
 }

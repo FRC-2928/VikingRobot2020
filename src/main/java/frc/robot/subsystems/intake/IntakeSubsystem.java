@@ -3,14 +3,12 @@ package frc.robot.subsystems.intake;
 import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.ControlType;
 
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotMap;
 import frc.robot.subsystems.SmartSubsystem;
@@ -20,10 +18,8 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
    * Creates a new intake.
    */
 
-  private Solenoid kIntakeSolenoidRightBase;
-  private Solenoid kIntakeSolenoidRightArm;
-  private Solenoid kIntakeSolenoidLeftBase;
-  private Solenoid kIntakeSolenoidLeftArm;
+  private Solenoid m_solenoidArm;
+  private Solenoid m_solenoidBase;
 
   private CANSparkMax m_motor;  
   private CANEncoder m_motorEncoder; 
@@ -40,10 +36,8 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   // Initialization
   // -----------------------------------------------------------
   public IntakeSubsystem() {
-    kIntakeSolenoidRightBase = new Solenoid(RobotMap.kIntakeSoleniodRightOne);
-    kIntakeSolenoidRightArm = new Solenoid(RobotMap.kIntakeSoleniodRightTwo);
-    kIntakeSolenoidLeftBase = new Solenoid(RobotMap.kIntakeSoleniodLeftOne);
-    kIntakeSolenoidLeftArm = new Solenoid(RobotMap.kIntakeSoleniodLeftTwo);
+    m_solenoidArm = new Solenoid(RobotMap.kIntakeArmSolenoid);
+    m_solenoidBase = new Solenoid(RobotMap.kIntakeBaseSolenoid);
 
     //These settings are set by default but it's good practice to set them
     m_motor.restoreFactoryDefaults();
@@ -88,24 +82,18 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
 
     switch (state) {
       case GROUND_PICKUP: 
-        kIntakeSolenoidLeftArm.set(false);
-        kIntakeSolenoidRightArm.set(false);
-        kIntakeSolenoidLeftBase.set(true);
-        kIntakeSolenoidRightBase.set(true);
+        m_solenoidArm.set(false);
+        m_solenoidBase.set(true);
       break;
 
       case STATION_PICKUP: 
-        kIntakeSolenoidLeftArm.set(true);
-        kIntakeSolenoidRightArm.set(true);
-        kIntakeSolenoidLeftBase.set(true);
-        kIntakeSolenoidRightBase.set(true);
+        m_solenoidArm.set(true);
+        m_solenoidBase.set(true);
       break;
 
       case STOWED:
-        kIntakeSolenoidLeftArm.set(true);
-        kIntakeSolenoidRightArm.set(true);
-        kIntakeSolenoidLeftBase.set(false);
-        kIntakeSolenoidRightBase.set(false);
+        m_solenoidArm.set(true);
+        m_solenoidBase.set(false);;
       break;
 
       default:
@@ -159,6 +147,10 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   // TODO compute velocity
   public double getVelocity() {
     return 0;
+  }
+
+  public double getCurrentDraw(){
+    return m_motor.getOutputCurrent();
   }
   
   public boolean atReference(){

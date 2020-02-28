@@ -20,6 +20,4 @@ public interface DriverOI {
     Button getStationIntakeButton();
 
     Button getClimbTrigger();
-
-    Button setShooterButton();
 }

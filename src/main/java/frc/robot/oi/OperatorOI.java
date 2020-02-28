@@ -2,17 +2,22 @@ package frc.robot.oi;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj2.command.button.Button;
 
 public interface OperatorOI {
 
-    DoubleSupplier deployToTop(); //no longer just for testing
+    Button deployToTop(); //no longer just for testing
 
-    DoubleSupplier lowerClimber(); 
+    DoubleSupplier adjustClimber(); 
 
     Button getEnableAutoTargetButton();
 
     Button getDisableAutoTargetButton();
+    
+    DoubleSupplier moveTurretSupplier();
+
+    Button getMoveTurretButton();
 
     Button turnWheelButton();
 
