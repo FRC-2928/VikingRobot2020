@@ -1,9 +1,7 @@
 package frc.robot.utilities;
 
 import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.types.LimelightData;
 
@@ -14,7 +12,6 @@ import frc.robot.types.LimelightData;
  */
 public class Limelight{
   //Pulls values from network tables
-  //TODO: Add code to pull from both limelights
   private NetworkTable m_limelightTable;
   private NetworkTableInstance m_limelightNI = NetworkTableInstance.getDefault();
 

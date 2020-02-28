@@ -2,11 +2,8 @@ package frc.robot.superstructure;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.ControlPanelConstants;
-import frc.robot.Constants.FlywheelConstants;
-import frc.robot.Constants.HoodConstants;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.commands.controlpanel.RotateSegments;
 import frc.robot.commands.controlpanel.RotateToColor;
@@ -19,7 +16,6 @@ import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.intake.FeederSubsystem;
-import frc.robot.subsystems.intake.FeederSubsystem.IndexState;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem.FlywheelState;
 import frc.robot.subsystems.shooter.HoodSubsystem;
@@ -197,6 +193,10 @@ public class SuperstructureStatemachine{
     );
     TargetEstimate targetEstimate = m_targetEstimator.getEstimate();
     return targetEstimate;
+  }
+
+  public SuperstructureState getSuperstructureState(){
+    return m_currentState;
   }
 
   //Used for feeding joystick values for manual override
