@@ -22,5 +22,10 @@ public class Pigeon{
     public void resetGyro(){
         m_pigeon.setYaw(0);
     }
+
+    //Sets gyro to robot's starting config
+    public void setStartConfig(){
+        m_pigeon.setYaw(180);
+    }
     
 }

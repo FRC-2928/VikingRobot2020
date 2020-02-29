@@ -91,7 +91,7 @@ public class RobotContainer {
   }
 
   public void onAutoInit(){
-    new InstantCommand(m_pigeon::resetGyro);
+    new InstantCommand(m_pigeon::setStartConfig);
     new DrivetrainCharacterizationCommand(m_drivetrain).schedule();
   }
 
