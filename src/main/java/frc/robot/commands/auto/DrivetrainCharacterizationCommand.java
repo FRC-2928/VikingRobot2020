@@ -37,7 +37,7 @@ public class DrivetrainCharacterizationCommand extends CommandBase {
     double autospeed = m_autoSpeedEntry.getDouble(0.0);
     double autoVoltage = autospeed * 12.0;
 
-    double leftVoltage = m_rotateEntry.getBoolean(false) ? -1 : 1 * autoVoltage;
+    double leftVoltage = m_rotateEntry.getBoolean(false) ? -autoVoltage : autoVoltage;
     double rightVoltage = autoVoltage;
 
     m_drivetrain.setDriveTrainVoltage(leftVoltage, rightVoltage);

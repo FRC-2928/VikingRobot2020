@@ -107,7 +107,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
             fx.configNeutralDeadband(0.01);
 
             //Set to brake mode, will brake the motor when no power is sent
-            fx.setNeutralMode(NeutralMode.Coast);
+            fx.setNeutralMode(NeutralMode.Brake);
 
             /** 
              * Setting input side current limit (amps)
@@ -225,8 +225,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     }
 
     public void setDriveTrainVoltage(double leftVolts, double rightVolts) {
-        m_leftMaster.setVoltage(leftVolts);
-        m_rightMaster.setVoltage(-rightVolts);
+        m_leftMaster.set(ControlMode.PercentOutput, leftVolts/12);
+        m_rightMaster.set(ControlMode.PercentOutput, rightVolts/12);
         m_differentialDrive.feed();
     }
 

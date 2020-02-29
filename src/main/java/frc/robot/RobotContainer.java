@@ -39,6 +39,7 @@ import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.types.DistanceMap;
 import frc.robot.utilities.Limelight;
+import frc.robot.utilities.Pigeon;
 import frc.robot.utilities.Limelight.Limelights;
 
 public class RobotContainer {
@@ -54,6 +55,7 @@ public class RobotContainer {
   private final ClimberSubsystem m_climber = new ClimberSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
   private final TurretSubsystem m_turret = new TurretSubsystem();
+  private final Pigeon m_pigeon = new Pigeon();
   private final Limelight m_driverLimelight = new Limelight(Limelights.DRIVER);
   private final Limelight m_turretLimelight = new Limelight(Limelights.TURRET);
 
@@ -83,6 +85,11 @@ public class RobotContainer {
         // hand, and turning controlled by the right.
         new RunCommand(() -> m_drivetrain.drive(m_driverOI.getMoveSupplier(), m_driverOI.getRotateSupplier()),
             m_drivetrain));
+  }
+
+  public void onAutoInit(){
+    new InstantCommand(m_pigeon::resetGyro);
+    new DrivetrainCharacterizationCommand(m_drivetrain).schedule();
   }
 
   public void onTeleopInit() {
