@@ -64,6 +64,22 @@ public class AbbiOperatorOI implements OperatorOI {
     public Button decrementShootFromButton() {
         return new JoystickButton(m_controller, XboxController.Button.kBumperLeft.value);
     }
+
+    @Override
+    public Button getShootFromWallButton(){
+        return new Button(() -> m_controller.getPOV() == 180);
+    }
+
+    @Override
+    public Button getShootFromLineButton() {
+        return new Button(() -> m_controller.getPOV() == 270);
+    }
+
+    @Override
+    public Button getShootFromTrenchButton() {
+        return new Button(() -> m_controller.getPOV() == 360);
+    }
+
     // ------------ Color Wheel ------------------
 
     @Override

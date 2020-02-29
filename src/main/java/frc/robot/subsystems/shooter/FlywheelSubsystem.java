@@ -23,11 +23,14 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
   private TalonFX m_flywheelMotor;
 
   private double m_setpoint;
+  private double m_setpointReference;
+  private boolean m_setpointEnabled;
 
   private FlywheelState m_currentState;
 
   private final double kP = PIDConstants.kFlywheelkP;
   private final double kF = PIDConstants.kFlywheelkF;
+
 
   public enum FlywheelState{
     IDLE, MANUAL, SPINNING_UP, AT_VELOCITY;
@@ -66,6 +69,9 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
 
    setDefaultCommand(new RunCommand(this::stop, this));
 
+   m_setpointEnabled = false;
+   m_setpoint = 0;
+
    SmartDashboard.putNumber("Flywheel kP", kP);
    SmartDashboard.putNumber("Flywheel kF", kF);
    SmartDashboard.putNumber("Target RPM", 0);
@@ -83,6 +89,13 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
     SmartDashboard.putNumber("Flywheel FPS", getFlywheelVelocityFPS());
   }
 
+  public void setSetpoint(boolean enabled, double setpoint){
+    if(enabled == true){
+      m_setpointEnabled = true;
+      m_setpointReference = setpoint;
+    }
+  }
+
   public void setFlywheelState(FlywheelControlState desiredState, double reference){
     switch(desiredState){
       case IDLE:
@@ -96,12 +109,17 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
       break;
 
       case VELOCITY_CONTROL:
-      setVelocity(reference);
-      if(atReference()){
-        m_currentState = FlywheelState.AT_VELOCITY;
+      if(m_setpointEnabled == false){
+        setVelocity(reference);
+        if(atReference()){
+          m_currentState = FlywheelState.AT_VELOCITY;
+        }
+        else{
+          m_currentState = FlywheelState.SPINNING_UP;
+        }
       }
       else{
-        m_currentState = FlywheelState.SPINNING_UP;
+        setVelocity(m_setpointReference);
       }
     }
   }

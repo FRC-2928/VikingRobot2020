@@ -37,11 +37,11 @@ public interface OperatorOI {
 
     Button decrementShootFromButton();
 
-    // Button shootFromWallButton();
+    Button getShootFromWallButton();
 
-    // Button shootFromLineButton();
+    Button getShootFromLineButton();
 
-    // Button shootFromWheelButton();
+    Button getShootFromTrenchButton();
 
     // Button shootFromTrenchButton();
     

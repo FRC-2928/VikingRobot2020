@@ -17,9 +17,7 @@ public class SetShooter extends CommandBase {
 
   private double m_flywheelReference;
   private double m_hoodReference;
-
-  private double currentSetpoint;
-
+  
   public enum ShooterSetpoint{
     WALL, INITIATION_LINE, CLOSE_TRENCH;
   }
@@ -59,15 +57,16 @@ public class SetShooter extends CommandBase {
   @Override
   public void initialize() {
     setShooterSetpoint();
+    // Set flywheel speed in RPM
+    m_flywheel.setSetpoint(true, m_flywheelReference);
+    // Set hood position in degrees
+    m_hood.setSetpoint(true, m_hoodReference);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // Set flywheel speed in RPM
-    m_flywheel.setVelocity(m_flywheelReference);
-    // Set hood position in degrees
-    m_hood.setPosition(m_hoodReference);
+
   }
 
   // Called once the command ends or is interrupted.
@@ -79,6 +78,6 @@ public class SetShooter extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }

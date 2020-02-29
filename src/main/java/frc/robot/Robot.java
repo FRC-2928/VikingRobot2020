@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
     m_compressor = new Compressor();
-    m_compressor.stop();
+    m_compressor.start();
   }
 
   /**

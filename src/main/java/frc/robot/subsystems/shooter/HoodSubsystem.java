@@ -28,6 +28,9 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   private HoodState m_currentState;
 
   private double m_setpoint;
+
+  private double m_setpointReference;
+  private boolean m_setpointEnabled;
   
   private final double kMaxOutput = HoodConstants.kMaxOutput;
   private final double kMinOutput = HoodConstants.kMinOutput;
@@ -112,6 +115,13 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
     SmartDashboard.putNumber("Hood amps", m_motor.getOutputCurrent());
   }
 
+  public void setSetpoint(boolean enabled, double setpoint){
+    if(enabled == true){
+      m_setpointEnabled = true;
+      m_setpoint = setpoint;
+    }
+  }
+
   public void setHoodState(HoodControlState desiredState, double position){
     switch(desiredState){
       case IDLE:
@@ -125,12 +135,17 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
       break;
 
       case POSITION_CONTROL:
-      setPosition(position);
-      if(atReference()){
-        m_currentState = HoodState.AT_POSITION;
+      if(m_setpointEnabled == false){
+        setPosition(position);
+        if(atReference()){
+          m_currentState = HoodState.AT_POSITION;
+        }
+        else{
+          m_currentState = HoodState.MOVING_TO_POSITION;
+        }
       }
       else{
-        m_currentState = HoodState.MOVING_TO_POSITION;
+        setPosition(m_setpointReference);
       }
     }
   }

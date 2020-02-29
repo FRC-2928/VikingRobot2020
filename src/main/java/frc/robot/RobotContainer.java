@@ -19,8 +19,10 @@ import frc.robot.commands.intake.FastForwardFeeder;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
 import frc.robot.commands.shooter.SetHoodPosition;
+import frc.robot.commands.shooter.SetShooter;
 import frc.robot.commands.shooter.ShooterAtReference;
 import frc.robot.commands.shooter.SpinUpFlywheel;
+import frc.robot.commands.shooter.SetShooter.ShooterSetpoint;
 import frc.robot.commands.turret.TrackTargetCommand;
 import frc.robot.commands.turret.TurretAtReference;
 import frc.robot.commands.turret.TurretStopTracking;
@@ -127,9 +129,15 @@ public class RobotContainer {
             new ParallelCommandGroup(new SetHoodPosition(m_hood, m_turretLimelight),
                 new SpinUpFlywheel(m_flywheel, m_turretLimelight)),
             new SequentialCommandGroup(new TurretAtReference(m_turret),
-                new ShooterAtReference(m_flywheel, m_hood), new FastForwardFeeder(m_feeder))));
+                new ShooterAtReference(m_flywheel, m_hood), new FastForwardFeeder(m_feeder))
+        )
+    );
 
-    // m_driverOI.getSetpointShootingButton()
+    m_operatorOI.getShootFromWallButton().whenPressed(new SetShooter(m_flywheel, m_hood, ShooterSetpoint.WALL));
+
+    m_operatorOI.getShootFromLineButton().whenPressed(new SetShooter(m_flywheel, m_hood, ShooterSetpoint.INITIATION_LINE));
+
+    m_operatorOI.getShootFromTrenchButton().whenPressed(new SetShooter(m_flywheel, m_hood, ShooterSetpoint.CLOSE_TRENCH));
   }
 
   public void configureTurretButtons() {
@@ -208,7 +216,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
 
-    return new DrivetrainCharacterizationCommand(m_drivetrain);
+    
     
     // // Create a voltage constraint to ensure we don't accelerate too fast
     // var autoVoltageConstraint =
