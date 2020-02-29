@@ -42,10 +42,6 @@ public class FeederSubsystem extends SubsystemBase {
   }
   
   public FeederSubsystem(SmartSpeedController controller, DigitalInput topSensor, DigitalInput middleSensor, DigitalInput bottomSensor) {
-    var defaultCommand = new RunCommand(this::stop, this);
-    defaultCommand.setName("FeederStopCommand");
-    setDefaultCommand(defaultCommand);
-
     m_controller = controller;
     m_topSensor = topSensor;
     m_middleSensor = middleSensor;

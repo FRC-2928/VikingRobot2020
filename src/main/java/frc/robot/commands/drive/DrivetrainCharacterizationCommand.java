@@ -20,7 +20,7 @@ public class DrivetrainCharacterizationCommand extends CommandBase {
     m_drivetrain = drivetrain;
     m_autoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/robot/autospeed");
     m_telemetryEntry = NetworkTableInstance.getDefault().getEntry("/robot/telemetry");
-    m_rotateEntry = NetworkTableInstance.getDefault().getEntry("robot/rotate");
+    m_rotateEntry = NetworkTableInstance.getDefault().getEntry("/robot/rotate");
     m_numberArray = new Number[10];
   }
 
@@ -36,7 +36,7 @@ public class DrivetrainCharacterizationCommand extends CommandBase {
     double autospeed = m_autoSpeedEntry.getDouble(0.0);
     double autoVoltage = autospeed * 12.0;
 
-    double leftVoltage = m_rotateEntry.getBoolean(false) ? -1 : 1 * autoVoltage;
+    double leftVoltage = m_rotateEntry.getBoolean(false) ? -autoVoltage : autoVoltage;
     double rightVoltage = autoVoltage;
 
     m_drivetrain.setLeftRightVoltage(leftVoltage, rightVoltage);

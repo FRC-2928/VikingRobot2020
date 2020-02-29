@@ -57,10 +57,6 @@ public class FlywheelSubsystem extends SubsystemBase {
   }
 
   public FlywheelSubsystem(SmartSpeedController controller) {
-    var defaultCommand = new RunCommand(this::stop, this);
-    defaultCommand.setName("FlywheelStopCommand");
-    setDefaultCommand(defaultCommand);
-    
     m_controller = controller;
   }
 

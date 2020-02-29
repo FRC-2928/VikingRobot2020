@@ -28,9 +28,7 @@ public class TransmissionSubsystem extends SubsystemBase {
     return new TransmissionSubsystem(solenoid);
   }
 
-  public TransmissionSubsystem(Solenoid solenoid) { 
-    setDefaultCommand(new TransmissionSetHighGearCommand(this));
-
+  public TransmissionSubsystem(Solenoid solenoid) {
     m_solenoid = solenoid;
   }
 

@@ -36,10 +36,6 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public HoodSubsystem(SmartSpeedController controller) {
-    var defaultCommand = new RunCommand(this::stop, this);
-    defaultCommand.setName("HoodStopCommand");
-    setDefaultCommand(defaultCommand);
-    
     m_controller = controller;
   }
 

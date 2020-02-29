@@ -10,5 +10,5 @@ public class DrivetrainFollowTrajectoryCommand extends RamseteCommand {
   public DrivetrainFollowTrajectoryCommand(DrivetrainSubsystem drivetrain, Trajectory trajectory) {
     super(trajectory, drivetrain::getPose, new RamseteController(), drivetrain.getKinematics(), drivetrain::setLeftRightVelocity, drivetrain);
   }
-
+  
 }

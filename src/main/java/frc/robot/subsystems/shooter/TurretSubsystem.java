@@ -55,10 +55,6 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public TurretSubsystem(SmartSpeedController controller) {
-    var defaultCommand = new RunCommand(this::stop, this);
-    defaultCommand.setName("TurretStopCommand");
-    setDefaultCommand(defaultCommand);
-
     m_controller = controller;
   }
 

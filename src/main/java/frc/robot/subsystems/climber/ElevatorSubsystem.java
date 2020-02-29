@@ -40,10 +40,6 @@ public class ElevatorSubsystem extends SubsystemBase {
   }
 
   public ElevatorSubsystem(SmartSpeedController controller, Solenoid solenoid) {
-    var defaultCommand = new RunCommand(this::stop, this);
-    defaultCommand.setName("ElevatorStopCommand");
-    setDefaultCommand(defaultCommand);
-
     m_controller = controller;
     m_solenoid = solenoid;
   }

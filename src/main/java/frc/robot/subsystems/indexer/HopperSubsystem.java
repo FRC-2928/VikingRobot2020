@@ -31,10 +31,6 @@ public class HopperSubsystem extends SubsystemBase {
   }
 
   public HopperSubsystem(SmartSpeedController controller) {
-    var defaultCommand = new RunCommand(this::stop, this);
-    defaultCommand.setName("HopperStopCommand");
-    setDefaultCommand(defaultCommand);
-
     m_controller = controller;
   }
 

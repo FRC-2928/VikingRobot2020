@@ -65,9 +65,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public DrivetrainSubsystem(SmartSpeedController leftController, SmartSpeedController rightController, Gyro gyro) {
-    // NOTE: Default command is set in RobotContainer to avoid having to inject
-    // joystick data.
-
     m_leftController = leftController;
     m_rightController = rightController;
     m_gyro = gyro;
@@ -156,6 +153,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public void arcadeDrive(double move, double rotate) {
     m_drive.arcadeDrive(move, rotate);
+  }
+
+  public void tankDrive(double left, double right) {
+    m_drive.tankDrive(left, right);
   }
 
   public void setPose(Pose2d pose) {
