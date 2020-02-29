@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.auto.DrivetrainCharacterizationCommand;
+import frc.robot.commands.auto.ShootThreeThenDrive;
 import frc.robot.commands.control.SetPositionCommand;
 import frc.robot.commands.control.SetPowerCommand;
 import frc.robot.commands.controlpanel.RotateSegments;
@@ -126,9 +127,11 @@ public class RobotContainer {
     // Set the hood and flywheel
     m_driverOI.getAutoShootingButton()
         .whileHeld(new ParallelCommandGroup(
-            new ParallelCommandGroup(new SetHoodPosition(m_hood, m_turretLimelight),
+            new ParallelCommandGroup(
+                new SetHoodPosition(m_hood, m_turretLimelight),
                 new SpinUpFlywheel(m_flywheel, m_turretLimelight)),
-            new SequentialCommandGroup(new TurretAtReference(m_turret),
+            new SequentialCommandGroup(
+                new TurretAtReference(m_turret),
                 new ShooterAtReference(m_flywheel, m_hood), new FastForwardFeeder(m_feeder))
         )
     );
@@ -216,7 +219,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
 
-    
+    return new ShootThreeThenDrive(m_drivetrain, m_flywheel, m_hood, m_turret, m_turretLimelight);
     
     // // Create a voltage constraint to ensure we don't accelerate too fast
     // var autoVoltageConstraint =
