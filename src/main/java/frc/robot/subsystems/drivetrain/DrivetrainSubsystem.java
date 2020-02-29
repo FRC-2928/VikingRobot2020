@@ -164,13 +164,13 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
         double deltaRightCount = rightEncoderCount - m_prevRightEncoder;
 
         var gearState = m_gearStateSupplier.get();
-        m_leftPosition += wheelRotationsToMeters(motorRotationsToWheelRotations(deltaLeftCount, gearState));
-        m_rightPosition += wheelRotationsToMeters(motorRotationsToWheelRotations(deltaRightCount, gearState));
+        m_leftPosition += wheelRotationsToMeters(motorRotationsToWheelRotations(deltaLeftCount, gearState))/1.4;
+        m_rightPosition += wheelRotationsToMeters(motorRotationsToWheelRotations(deltaRightCount, gearState))/1.4;
 
         double leftEncoderVelocity = m_leftMaster.getSelectedSensorVelocity();
         double rightEncoderVelocity = m_rightMaster.getSelectedSensorVelocity();
-        m_leftVelocity = wheelRotationsToMeters(motorRotationsToWheelRotations(leftEncoderVelocity, gearState)) * 10;
-        m_rightVelocity = wheelRotationsToMeters(motorRotationsToWheelRotations(rightEncoderVelocity, gearState)) * 10;
+        m_leftVelocity = (wheelRotationsToMeters(motorRotationsToWheelRotations(leftEncoderVelocity, gearState)) * 10)/1.4;
+        m_rightVelocity = (wheelRotationsToMeters(motorRotationsToWheelRotations(rightEncoderVelocity, gearState)) * 10)/1.4;
 
         // Update the odometry in the periodic block
         m_yaw = m_pigeon.getYaw();
@@ -185,6 +185,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
         SmartDashboard.putNumber("Left Wheel Speed", m_leftVelocity);
         SmartDashboard.putNumber("Right Wheel Speed", m_rightVelocity);
         SmartDashboard.putNumber("Robot yaw", m_yaw);
+        SmartDashboard.putNumber("Drivetrain Left encoder", leftEncoderCount);
+        SmartDashboard.putNumber("Drivetrain Right encoder", rightEncoderCount);
     }
 
     public double metersToWheelRotations(double metersPerSecond) {

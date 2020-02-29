@@ -76,7 +76,7 @@ public final class Constants {
         public static final double kGearRatio = 10.0;
 
          // PID constants
-         public static double kPanelP = 0.1;
+         public static double kPanelP = 0.3;
          public static double kPanelI = 0;
          public static double kPanelD = 1;
          public static double kPanelIzone = 0;
@@ -232,6 +232,7 @@ public final class Constants {
     }
 
     public static final class ConversionConstants{
+        public static final double kMetersToFeet = 3.281;
     
         // Flywheel
         public static final double kFlywheelEncoderTicksPerRotation = 2048;

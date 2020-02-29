@@ -129,7 +129,7 @@ public class RobotContainer {
             new SequentialCommandGroup(new TurretAtReference(m_turret),
                 new ShooterAtReference(m_flywheel, m_hood), new FastForwardFeeder(m_feeder))));
 
-    
+    // m_driverOI.getSetpointShootingButton()
   }
 
   public void configureTurretButtons() {
@@ -197,9 +197,8 @@ public class RobotContainer {
       //wait until intake deploys
       new WaitCommand(0.2),
       // run motors
-      new RunCommand(m_intake::startMotor, m_intake)
+      new RunCommand(m_intake::reverseMotor, m_intake)
     ));
-
   }
 
   /**

@@ -89,13 +89,13 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
       break;
 
       case STATION_PICKUP: 
-        m_solenoidArm.set(false);
-        m_solenoidBase.set(true);
+        m_solenoidArm.set(true);
+        m_solenoidBase.set(false);
       break;
 
       case STOWED:
         m_solenoidArm.set(false);
-        m_solenoidBase.set(true);
+        m_solenoidBase.set(false);
       break;
 
       default:
@@ -123,18 +123,22 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   public void setVelocity(double velocity){
   }
 
-  public void setMotion(double position) {
+  public void setMotion(double position){
   }
 
-  public void stop() {
+  public void stop(){
     setPower(0);
   }
 
-  public void startMotor () {
+  public void startMotor(){
     setPower(0.8);
   }
 
-  public void stopMotor () {
+  public void reverseMotor(){
+    setPower(-0.6);
+  }
+
+  public void stopMotor(){
     setPower(0);
   }
 

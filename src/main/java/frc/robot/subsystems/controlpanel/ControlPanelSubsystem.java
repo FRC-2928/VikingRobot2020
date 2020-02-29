@@ -160,11 +160,8 @@ public class ControlPanelSubsystem extends SubsystemBase implements SmartSubsyst
   // Closed position loop using number of rotations as the setpoint
   public void runRotationLoop(double rotations) {
 
-    // Zero the sensors so that the math is easier
-    zeroSensors();
-
     // Raw rotations
-    double setpoint = rotations * ControlPanelConstants.kGearRatio;
+    double setpoint = (rotations * ControlPanelConstants.kGearRatio) + m_motorEncoder.getPosition();
     
     m_motorPID.setReference(setpoint, ControlType.kPosition);
   }

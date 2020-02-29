@@ -41,6 +41,11 @@ public class JettDriverOI implements DriverOI {
         return new JoystickButton(m_controller, XboxController.Button.kBumperRight.value);
     }
 
+    @Override
+    public Button getSetpointShootingButton(){
+        return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
+    }
+
     // ---------------- Drivetrain ----------------------------
 
     @Override

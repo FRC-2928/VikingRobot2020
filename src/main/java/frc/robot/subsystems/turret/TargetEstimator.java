@@ -2,6 +2,7 @@ package frc.robot.subsystems.turret;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
+import frc.robot.Constants.ConversionConstants;
 import frc.robot.types.LimelightData;
 import frc.robot.types.TargetEstimate;
 
@@ -54,7 +55,7 @@ public class TargetEstimator {
         yEstimate = (m_pose.getTranslation().getY() - m_initialPose.getTranslation().getY ()) + m_yLimelight;
         
         estimatedAngle = Math.toDegrees(Math.atan(yEstimate/xEstimate));
-        estimatedDistance = Math.sqrt(Math.pow(xEstimate, 2) + Math.pow(yEstimate, 2));
+        estimatedDistance = (Math.sqrt(Math.pow(xEstimate, 2) + Math.pow(yEstimate, 2))) * ConversionConstants.kMetersToFeet;
         
         return new TargetEstimate(estimatedAngle, estimatedDistance, validEstimate);
     }
