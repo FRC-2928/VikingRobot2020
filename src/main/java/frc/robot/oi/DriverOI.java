@@ -15,6 +15,8 @@ public interface DriverOI {
 
     Button getAutoShootingButton();
 
+    Button getFeedButton();
+
     Button getSetpointShootingButton();
 
     Button getGroundIntakeButton();

@@ -2,11 +2,18 @@ package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.drivetrain.Drive;
+import frc.robot.commands.intake.FastForwardFeeder;
 import frc.robot.commands.shooter.SetHoodPosition;
+import frc.robot.commands.shooter.SetShooter;
 import frc.robot.commands.shooter.SetShooterVision;
+import frc.robot.commands.shooter.ShooterAtReference;
 import frc.robot.commands.shooter.SpinUpFlywheel;
+import frc.robot.commands.shooter.SetShooter.ShooterSetpoint;
+import frc.robot.commands.turret.TurretAtReference;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
+import frc.robot.subsystems.intake.FeederSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.turret.TurretSubsystem;
@@ -19,15 +26,17 @@ import frc.robot.utilities.Limelight;
 public class ShootThreeThenDrive extends SequentialCommandGroup {
   public ShootThreeThenDrive(DrivetrainSubsystem drivetrain,
   FlywheelSubsystem flywheel, HoodSubsystem hood, TurretSubsystem turret,
-  Limelight limelight) {
+  FeederSubsystem feeder, Limelight limelight) {
     // Add your commands in the super() call, e.g.
     // super(new FooCommand(), new BarCommand());
     super(
       new ParallelCommandGroup(
-        new SpinUpFlywheel(flywheel, limelight),
-        new SetHoodPosition(hood, limelight)
-      ).withTimeout(7),
-      new Drive(drivetrain, 0.5, 0).withTimeout(3)
-    );
+        new SetShooter(flywheel, hood, ShooterSetpoint.INITIATION_LINE),
+        new SequentialCommandGroup(
+          new WaitCommand(3),
+          new FastForwardFeeder(feeder)
+        ),
+        new Drive(drivetrain, 0.35, 0).withTimeout(2)
+    ));
   }
 }

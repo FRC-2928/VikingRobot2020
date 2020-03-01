@@ -58,7 +58,7 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
    m_flywheelMotor.setInverted(InvertType.InvertMotorOutput);
    m_flywheelMotor.setSensorPhase(true);
 
-   m_flywheelMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 40, 80, 0.04));
+   m_flywheelMotor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 40, 60, 0.04));
 
    m_flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
    m_flywheelMotor.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_1Ms);
@@ -83,7 +83,6 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Flywheel RPM", getVelocity());
-    SmartDashboard.putNumber("Flywheel native units", m_flywheelMotor.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Flywheel current draw", m_flywheelMotor.getSupplyCurrent());
     SmartDashboard.putNumber("Flywheel Voltage", m_flywheelMotor.getMotorOutputVoltage());
     SmartDashboard.putNumber("Flywheel FPS", getFlywheelVelocityFPS());

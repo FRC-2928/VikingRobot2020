@@ -44,7 +44,7 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
     //These settings are set by default but it's good practice to set them
     m_motor.restoreFactoryDefaults();
     m_motor.enableVoltageCompensation(12);
-    m_motor.setSmartCurrentLimit(25, 35); 
+    m_motor.setSmartCurrentLimit(28, 35); 
     m_motor.setIdleMode(IdleMode.kCoast);
     m_motor.setInverted(false);
 
@@ -131,7 +131,7 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public void startMotor(){
-    setPower(0.8);
+    setPower(0.85);
   }
 
   public void reverseMotor(){

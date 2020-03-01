@@ -2,6 +2,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -16,6 +18,7 @@ import frc.robot.commands.control.SetPositionCommand;
 import frc.robot.commands.control.SetPowerCommand;
 import frc.robot.commands.controlpanel.RotateSegments;
 import frc.robot.commands.controlpanel.RotateToColor;
+import frc.robot.commands.drivetrain.Drive;
 import frc.robot.commands.intake.FastForwardFeeder;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
@@ -54,8 +57,8 @@ public class RobotContainer {
   private final FlywheelSubsystem m_flywheel = new FlywheelSubsystem();
   private final HoodSubsystem m_hood = new HoodSubsystem();
   private final IntakeSubsystem m_intake = new IntakeSubsystem();
-  private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
-  private final ClimberSubsystem m_climber = new ClimberSubsystem();
+  // private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
+  // private final ClimberSubsystem m_climber = new ClimberSubsystem();
   private final FeederSubsystem m_feeder = new FeederSubsystem();
   private final TurretSubsystem m_turret = new TurretSubsystem();
   private final Pigeon m_pigeon = new Pigeon();
@@ -65,12 +68,21 @@ public class RobotContainer {
   private final DriverOI m_driverOI;
   private final OperatorOI m_operatorOI;
 
-  private Command m_incrementShooterCommand;
+  private final SendableChooser<AutoType> m_autoChooser;
+
+  public enum AutoType{
+    DO_NOTHING, DRIVE, SHOOT_THEN_DRIVE;
+  }
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    m_autoChooser = new SendableChooser<>();
+    m_autoChooser.setDefaultOption("Do Nothing", AutoType.DO_NOTHING);
+    m_autoChooser.addOption("Drive", AutoType.DRIVE);
+    m_autoChooser.addOption("Shoot", AutoType.SHOOT_THEN_DRIVE);
+    SmartDashboard.putData(m_autoChooser);
 
     m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriverControllerPort));
     m_operatorOI = new AbbiOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
@@ -92,11 +104,11 @@ public class RobotContainer {
 
   public void onAutoInit(){
     new InstantCommand(m_pigeon::setStartConfig);
-    new DrivetrainCharacterizationCommand(m_drivetrain).schedule();
   }
 
   public void onTeleopInit() {
-    // new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
+    new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
+    new StartFeeder(m_feeder).schedule();
   }
 
   /**
@@ -125,16 +137,36 @@ public class RobotContainer {
 
   public void configureShooterButtons(){
     // Set the hood and flywheel
-    m_driverOI.getAutoShootingButton()
-        .whileHeld(new ParallelCommandGroup(
-            new ParallelCommandGroup(
-                new SetHoodPosition(m_hood, m_turretLimelight),
-                new SpinUpFlywheel(m_flywheel, m_turretLimelight)),
-            new SequentialCommandGroup(
-                new TurretAtReference(m_turret),
-                new ShooterAtReference(m_flywheel, m_hood), new FastForwardFeeder(m_feeder))
+    // m_driverOI.getAutoShootingButton()
+    //     .whileHeld(new ParallelCommandGroup(
+    //       new SetHoodPosition(m_hood, m_turretLimelight),
+    //       new SpinUpFlywheel(m_flywheel, m_turretLimelight))
+    // );
+    SmartDashboard.putNumber("Flywheel Reference", 4000);
+    SmartDashboard.putNumber("Hood Reference", 35);
+
+    // m_driverOI.getAutoShootingButton().whileHeld(
+    //   new ParallelCommandGroup(
+    //     new RunCommand(() -> m_flywheel.setVelocity(4000), m_flywheel),
+    //     new RunCommand(() -> m_hood.setHoodDegrees(35), m_hood)
+    //     )
+    //     );
+
+    m_driverOI.getAutoShootingButton().whileHeld(
+      new ParallelCommandGroup(
+        new RunCommand(() -> m_flywheel.setVelocity(SmartDashboard.getNumber("Flywheel Reference", 0)), m_flywheel),
+        new RunCommand(() -> m_hood.setHoodDegrees(SmartDashboard.getNumber("Hood Reference", 0)), m_hood)
         )
-    );
+        );
+
+    m_driverOI.getFeedButton().whileHeld(new RunCommand(m_feeder::startFeeder, m_feeder));
+    m_driverOI.getFeedButton().whenReleased(new StartFeeder(m_feeder));
+
+    // m_driverOI.getSetpointShootingButton()
+    //   .whileHeld(new ParallelCommandGroup(
+    //     new SetHoodPosition(m_hood, m_turretLimelight),
+    //     new SpinUpFlywheel(m_flywheel, m_turretLimelight))
+// );
 
     m_operatorOI.getShootFromWallButton().whenPressed(new SetShooter(m_flywheel, m_hood, ShooterSetpoint.WALL));
 
@@ -157,17 +189,17 @@ public class RobotContainer {
 
   public void configureControlPanelButtons() {
 
-    // Spin the control panel three times
-    m_operatorOI.turnWheelButton().whileHeld(new SetPowerCommand(m_controlPanel, 0.4));
+    // // Spin the control panel three times
+    // m_operatorOI.turnWheelButton().whileHeld(new SetPowerCommand(m_controlPanel, 0.4));
 
-    // Spin the control panel three times
-    m_operatorOI.turnWheelThreeTimes()
-        .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.kRotationDistance));
+    // // Spin the control panel three times
+    // m_operatorOI.turnWheelThreeTimes()
+    //     .whenPressed(new RotateSegments(m_controlPanel, ControlPanelConstants.kRotationDistance));
 
-    // Spin the control panel to target color
-    m_operatorOI.turnToColorButton().whenPressed((new SetPositionCommand(m_turret, 0, true)));
+    // // Spin the control panel to target color
+    // m_operatorOI.turnToColorButton().whenPressed((new SetPositionCommand(m_turret, 0, true)));
 
-    m_operatorOI.turnToColorButton().whenReleased(new RotateToColor(m_controlPanel));
+    // m_operatorOI.turnToColorButton().whenReleased(new RotateToColor(m_controlPanel));
   }
 
   public void configureFeederButtons() {
@@ -175,7 +207,7 @@ public class RobotContainer {
     m_operatorOI.enableFeederButton().whenPressed(new StartFeeder(m_feeder));
     m_operatorOI.disableFeederButton().whenPressed(new StopFeeder(m_feeder));
     m_operatorOI.reverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
-
+    m_operatorOI.feedButton().whileHeld(new RunCommand(() -> m_feeder.fastForwardFeeder(), m_feeder));
   }
 
   public void ConfigureClimberButtons() {
@@ -218,8 +250,20 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    switch(m_autoChooser.getSelected()){
+      case DO_NOTHING:
+        return new WaitCommand(15);
 
-    return new ShootThreeThenDrive(m_drivetrain, m_flywheel, m_hood, m_turret, m_turretLimelight);
+      case DRIVE:
+        return new Drive(m_drivetrain, 0.35, 0).withTimeout(2);
+
+      case SHOOT_THEN_DRIVE:
+        return new ShootThreeThenDrive(m_drivetrain, m_flywheel, m_hood, m_turret, m_feeder, m_turretLimelight);
+
+      default:
+        return new WaitCommand(15);
+    }
+
     
     // // Create a voltage constraint to ensure we don't accelerate too fast
     // var autoVoltageConstraint =

@@ -103,11 +103,13 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
             fx.configPeakOutputForward(1);
             fx.configPeakOutputReverse(-1);
 
+            fx.configOpenloopRamp(0.1);
+
             //Setting deadband(area required to start moving the motor) to 1%
             fx.configNeutralDeadband(0.01);
 
             //Set to brake mode, will brake the motor when no power is sent
-            fx.setNeutralMode(NeutralMode.Brake);
+            fx.setNeutralMode(NeutralMode.Coast);
 
             /** 
              * Setting input side current limit (amps)
@@ -115,7 +117,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
              * 40 amp breaker can support above 40 amps for a little bit
              * Falcons have insane acceleration so allowing it to reach 80 for 0.03 seconds should be fine
              */
-            fx.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 45, 70, 30));
+            fx.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 40, 55, 20));
 
             //Either using the integrated Falcon sensor or an external one, will change if needed
             fx.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);

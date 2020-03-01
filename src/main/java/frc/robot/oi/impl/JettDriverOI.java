@@ -46,25 +46,30 @@ public class JettDriverOI implements DriverOI {
         return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
     }
 
+    @Override
+    public Button getFeedButton() {
+        return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
+    }
+
     // ---------------- Drivetrain ----------------------------
 
     @Override
     public Button getShiftLowButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kStickLeft.value);
+        return new JoystickButton(m_controller, XboxController.Button.kX.value);
     }
 
     @Override
     public Button getShiftHighButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kStickRight.value);
+        return new JoystickButton(m_controller, XboxController.Button.kY.value);
     }
 
     @Override
     public DoubleSupplier getMoveSupplier() {
-        return () -> -m_controller.getY(Hand.kLeft);
+        return () -> -m_controller.getY(Hand.kLeft)*0.5;
     }
 
     @Override
     public DoubleSupplier getRotateSupplier() {
-        return () -> m_controller.getX(Hand.kRight);
+        return () -> m_controller.getX(Hand.kRight)*0.5;
     }
 }

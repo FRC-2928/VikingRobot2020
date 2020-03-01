@@ -109,10 +109,7 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   // -----------------------------------------------------------
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Hood Native Units", m_encoder.getPosition());
-    SmartDashboard.putNumber("Hood Position", getHoodDegrees());
-    SmartDashboard.putNumber("Hood voltage", m_motor.getAppliedOutput() * 12);
-    SmartDashboard.putNumber("Hood amps", m_motor.getOutputCurrent());
+    SmartDashboard.putNumber("Hood Degrees", getHoodDegrees());
   }
 
   public void setSetpoint(boolean enabled, double setpoint){
@@ -179,7 +176,6 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
 
   //In total degrees of the hood, ex 30 degrees is hood all the way down
   public void setHoodDegrees(double reference){
-    reference = reference - 30;
 
     if(reference < 0){
       kF = -kF;
@@ -245,7 +241,7 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   // Conversions
   // -----------------------------------------------------------
   private double sparkToDegrees(double spark){
-    return spark * 360 / ConversionConstants.kHoodGearRatio;
+    return (spark * 360) / ConversionConstants.kHoodGearRatio;
   }
 
   private double degreesToSpark(double degrees){

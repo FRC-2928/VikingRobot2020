@@ -34,19 +34,19 @@ public class AbbiOperatorOI implements OperatorOI {
 
     @Override
     public Button getEnableAutoTargetButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kStart.value);
+        return new JoystickButton(m_controller, XboxController.Button.kBack.value);
     }
 
     @Override
     public Button getDisableAutoTargetButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kBack.value);
+        return new JoystickButton(m_controller, XboxController.Button.kStart.value);
     }
 
     // ------------ Turret -----------------------
     
     @Override
     public DoubleSupplier moveTurretSupplier(){
-        return() -> m_controller.getX(Hand.kRight);
+        return() -> -(0.6)*m_controller.getX(Hand.kRight);
     }
 
     @Override
@@ -120,5 +120,10 @@ public class AbbiOperatorOI implements OperatorOI {
     @Override
     public Button reverseFeederButton() {
         return new JoystickButton(m_controller, XboxController.Button.kB.value);
+    }
+
+    @Override
+    public Button feedButton() {
+        return new JoystickButton(m_controller, XboxController.Button.kX.value);
     }
 }

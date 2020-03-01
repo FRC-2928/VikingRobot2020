@@ -129,7 +129,7 @@ public final class Constants {
         public static final double kHoodkD = 10;
         public static final double kHoodkF = 0.25;
 
-        public static double kPTurret = 0.055;
+        public static double kPTurret = 0.06;
         public static double kDTurret = 0.5;
         public static double kFTurret = 0.4;
     }
@@ -181,12 +181,12 @@ public final class Constants {
     public static final class FeederConstants {
 
         // Motor control constants
-        public static final double kIndexFastForwardPower = 0.6;
-        public static final double kIndexPower = 0.4;
-        public static final double kIndexReversePower = -0.5;
-        public static final double kHopperFastForwardPower = 0.6;
-        public static final double kHopperPower = 0.5;
-        public static final double kHopperReversePower = -0.5;
+        public static final double kIndexFastForwardPower = 0.8;
+        public static final double kIndexPower = 0.5;
+        public static final double kIndexReversePower = -0.8;
+        public static final double kHopperFastForwardPower = 0.7;
+        public static final double kHopperPower = 0.55;
+        public static final double kHopperReversePower = -0.8;
     }
 
     public static final class ClimberConstants {
@@ -240,7 +240,7 @@ public final class Constants {
 
         // Hood
         public static final double kHoodEncoderTicksPerRotation = 4096;
-        public static final double kHoodGearRatio = 60.0/24.0; 
+        public static final double kHoodGearRatio = (10*5) * (60.0/24.0); 
 
         // Turret
         public static final double kTurretGearRatio = 169.155; 

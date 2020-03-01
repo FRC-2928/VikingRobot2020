@@ -68,7 +68,7 @@ public class FeederSubsystem extends SubsystemBase implements SmartSubsystem{
     // Config index motor
     m_indexMotor.restoreFactoryDefaults();
     m_indexMotor.enableVoltageCompensation(12);
-    m_indexMotor.setIdleMode(IdleMode.kBrake);
+    m_indexMotor.setIdleMode(IdleMode.kCoast);
     m_indexMotor.setSmartCurrentLimit(35, 45, 0);
     m_indexMotor.setInverted(true);
 
@@ -256,6 +256,11 @@ public class FeederSubsystem extends SubsystemBase implements SmartSubsystem{
 
   public void setPosition(double position){
     m_hopperPID.setReference(position, ControlType.kPosition, 0, IntakeConstants.kF);
+  }
+
+  public void startFeeder(){
+    m_hopperMotor.set(0.85);
+    m_indexMotor.set(0.85);
   }
 
   public void stop() {

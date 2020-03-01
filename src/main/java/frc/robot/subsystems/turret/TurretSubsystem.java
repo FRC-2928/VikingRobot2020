@@ -5,8 +5,10 @@ import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.Relay.Direction;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -86,6 +88,12 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
 
     m_motorEncoder = m_turretMotor.getEncoder();
     m_turretPID = m_turretMotor.getPIDController();
+
+    // m_turretMotor.setSoftLimit(SoftLimitDirection.kForward, 10);
+
+    // m_turretMotor.setSoftLimit(SoftLimitDirection.kForward, (float)(ConversionConstants.kTurretGearRatio * 0.75));
+    // m_turretMotor.setSoftLimit(SoftLimitDirection.kReverse, (float)(-ConversionConstants.kTurretGearRatio * 0.75));
+
     m_pigeon = new Pigeon();
     m_limelight = new Limelight(Limelights.TURRET);
 
@@ -117,6 +125,7 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
     m_limelightData = m_limelight.getLimelightData();
 
     SmartDashboard.putNumber("Robot yaw", m_robotYaw);
+    SmartDashboard.putNumber("Turret Raw Values", m_motorEncoder.getPosition());
     SmartDashboard.putNumber("Turret position degrees", getTurretDegrees());
     SmartDashboard.putNumber("Turret Amp Draw", m_turretMotor.getOutputCurrent());
     SmartDashboard.putNumber("Turret Voltage Draw", m_turretMotor.getAppliedOutput() * 12);
@@ -288,7 +297,7 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
 
   public void setPower(double power) { 
       m_setpoint = power;
-      m_turretPID.setReference(power, ControlType.kDutyCycle);
+      m_turretMotor.set(power);
   }
 
   public void setPosition(double degrees) {

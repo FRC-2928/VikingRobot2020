@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -57,6 +58,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void disabledInit() {
+    Shuffleboard.stopRecording();
   }
 
   @Override
@@ -75,6 +77,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
+    Shuffleboard.startRecording();
   }
 
   /**
@@ -94,6 +98,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    Shuffleboard.startRecording();
 
     m_robotContainer.onTeleopInit();
   }

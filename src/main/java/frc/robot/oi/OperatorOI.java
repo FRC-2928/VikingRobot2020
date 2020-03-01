@@ -31,6 +31,8 @@ public interface OperatorOI {
 
     Button reverseFeederButton();
 
+    Button feedButton();
+
     Button turnTurretToWheel();
 
     Button incrementShootFromButton();
