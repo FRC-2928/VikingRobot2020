@@ -47,6 +47,21 @@ public class JettDriverOI implements DriverOI {
     }
 
     @Override
+    public Button getFenderShotButton() {
+        return new Button(() -> m_controller.getPOV() == 180);
+    }
+
+    @Override
+    public Button getInitiationlineShotButton() {
+        return new Button(() -> m_controller.getPOV() == 0);
+    }
+
+    @Override
+    public Button getShooterDebugButton() {
+        return new Button(() -> m_controller.getPOV() == 90);
+    }
+
+    @Override
     public Button getFeedButton() {
         return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
     }
@@ -65,11 +80,11 @@ public class JettDriverOI implements DriverOI {
 
     @Override
     public DoubleSupplier getMoveSupplier() {
-        return () -> -m_controller.getY(Hand.kLeft)*0.5;
+        return () -> -m_controller.getY(Hand.kLeft)*0.8;
     }
 
     @Override
     public DoubleSupplier getRotateSupplier() {
-        return () -> m_controller.getX(Hand.kRight)*0.5;
+        return () -> m_controller.getX(Hand.kRight)*0.8;
     }
 }

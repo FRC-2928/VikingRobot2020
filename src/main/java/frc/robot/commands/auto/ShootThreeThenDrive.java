@@ -1,6 +1,7 @@
 package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.drivetrain.Drive;
@@ -34,9 +35,10 @@ public class ShootThreeThenDrive extends SequentialCommandGroup {
         new SetShooter(flywheel, hood, ShooterSetpoint.INITIATION_LINE),
         new SequentialCommandGroup(
           new WaitCommand(3),
-          new FastForwardFeeder(feeder)
-        ),
-        new Drive(drivetrain, 0.35, 0).withTimeout(2)
-    ));
+          new RunCommand(feeder::startFeeder, feeder).withTimeout(5)
+        )
+      ).withTimeout(8),
+      new Drive(drivetrain, 0.4, 0).withTimeout(3)
+    );
   }
 }

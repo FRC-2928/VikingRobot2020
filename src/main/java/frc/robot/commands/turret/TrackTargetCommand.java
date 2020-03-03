@@ -1,5 +1,6 @@
 package frc.robot.commands.turret;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.turret.TargetEstimator;
@@ -16,13 +17,14 @@ public class TrackTargetCommand extends CommandBase {
     private Limelight m_limelight;
     private LimelightData m_limelightData;
     private TargetEstimate m_targetEstimate;
-    private TargetEstimator m_targetEstimator = new TargetEstimator();
-    
+    private TargetEstimator m_targetEstimator = new TargetEstimator();    
 
     public TrackTargetCommand(TurretSubsystem turret, 
                               DrivetrainSubsystem drivetrain,
                               Limelight limelight) {
         addRequirements(turret);
+
+        SmartDashboard.putNumber("Skew factor", 0);
 
         m_turret = turret;
         m_drivetrain = drivetrain;
@@ -49,21 +51,21 @@ public class TrackTargetCommand extends CommandBase {
 
         boolean isTargetFound = m_limelightData.getTargetFound();
         double visionReference = m_turret.getTurretDegrees() - m_limelightData.getHorizontalOffset();
+        // visionReference += m_limelightData.getSkew() * SmartDashboard.getNumber("Skew factor", 0);
         
         if(isTargetFound){
             // Keep it on target
             m_turret.setPosition(visionReference);
         }
-        else {
-            if(m_targetEstimate.isValid()){
-                // Try using the last estimate of where the target was
-                double reference = m_targetEstimate.getAngle();
-                m_turret.setPosition(reference);
-            }
-            else{
-                // No estimate so search for the target
-                m_turret.searchForTarget();
-            }
+        // else {
+        //     if(m_targetEstimate.isValid()){
+        //         // Try using the last estimate of where the target was
+        //         double reference = m_targetEstimate.getAngle();
+        //         m_turret.setPosition(reference);
+        //     }
+        else{
+            // No estimate so search for the target
+            m_turret.setPower(0);
         }
     }
 

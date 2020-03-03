@@ -24,10 +24,10 @@ public class DistanceMap {
 
     public void loadMaps() {
         // Load degrees
-        m_degrees.put(1.0, 15); // WALL
-        m_degrees.put(2.0, 18);
-        m_degrees.put(3.0, 23);
-        m_degrees.put(4.0, 27);
+        m_degrees.put(1.0, 0); // WALL
+        m_degrees.put(2.0, 0);
+        m_degrees.put(3.0, 2);
+        m_degrees.put(4.0, 4);
         m_degrees.put(5.0, 35);
         m_degrees.put(6.0, 35);
         m_degrees.put(7.0, 35);
@@ -57,16 +57,16 @@ public class DistanceMap {
         m_degrees.put(30.0, 40); // FAR TRENCH
 
         // Load RPM
-        m_rpm.put(1.0, 3500); // WALL
-        m_rpm.put(2.0, 3500);
-        m_rpm.put(3.0, 3500);
+        m_rpm.put(1.0, 3000); // WALL
+        m_rpm.put(2.0, 3000);
+        m_rpm.put(3.0, 3000);
         m_rpm.put(4.0, 3500);
         m_rpm.put(5.0, 3500);
         m_rpm.put(6.0, 3500);
         m_rpm.put(7.0, 3500);
         m_rpm.put(8.0, 3500);
         m_rpm.put(9.0, 3600);
-        m_rpm.put(10.0, 3750); // INITIATION LINE
+        m_rpm.put(10.0, 4100); // INITIATION LINE
         m_rpm.put(11.0, 3750);
         m_rpm.put(12.0, 3850);
         m_rpm.put(13.0, 3950);

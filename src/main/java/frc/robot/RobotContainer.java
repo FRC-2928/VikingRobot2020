@@ -25,6 +25,7 @@ import frc.robot.commands.intake.StopFeeder;
 import frc.robot.commands.shooter.SetHoodPosition;
 import frc.robot.commands.shooter.SetShooter;
 import frc.robot.commands.shooter.ShooterAtReference;
+import frc.robot.commands.shooter.ShooterManagerSetReference;
 import frc.robot.commands.shooter.SpinUpFlywheel;
 import frc.robot.commands.shooter.SetShooter.ShooterSetpoint;
 import frc.robot.commands.turret.TrackTargetCommand;
@@ -42,6 +43,7 @@ import frc.robot.subsystems.intake.FeederSubsystem;
 import frc.robot.subsystems.intake.IntakeSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
+import frc.robot.subsystems.shooter.ShooterManager;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.types.DistanceMap;
 import frc.robot.utilities.Limelight;
@@ -62,6 +64,7 @@ public class RobotContainer {
   private final FeederSubsystem m_feeder = new FeederSubsystem();
   private final TurretSubsystem m_turret = new TurretSubsystem();
   private final Pigeon m_pigeon = new Pigeon();
+  private final ShooterManager m_shooterManager = new ShooterManager();
   private final Limelight m_driverLimelight = new Limelight(Limelights.DRIVER);
   private final Limelight m_turretLimelight = new Limelight(Limelights.TURRET);
 
@@ -104,6 +107,7 @@ public class RobotContainer {
 
   public void onAutoInit(){
     new InstantCommand(m_pigeon::setStartConfig);
+    new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
   }
 
   public void onTeleopInit() {
@@ -142,37 +146,40 @@ public class RobotContainer {
     //       new SetHoodPosition(m_hood, m_turretLimelight),
     //       new SpinUpFlywheel(m_flywheel, m_turretLimelight))
     // );
-    SmartDashboard.putNumber("Flywheel Reference", 4000);
-    SmartDashboard.putNumber("Hood Reference", 35);
-
-    // m_driverOI.getAutoShootingButton().whileHeld(
-    //   new ParallelCommandGroup(
-    //     new RunCommand(() -> m_flywheel.setVelocity(4000), m_flywheel),
-    //     new RunCommand(() -> m_hood.setHoodDegrees(35), m_hood)
-    //     )
-    //     );
+    String flywheelKey = "Flywheel Reference";
+    String hoodKey = "Hood Reference";
+    SmartDashboard.putNumber(hoodKey, 35);
+    SmartDashboard.putNumber(flywheelKey, 4250);
 
     m_driverOI.getAutoShootingButton().whileHeld(
       new ParallelCommandGroup(
-        new RunCommand(() -> m_flywheel.setVelocity(SmartDashboard.getNumber("Flywheel Reference", 0)), m_flywheel),
-        new RunCommand(() -> m_hood.setHoodDegrees(SmartDashboard.getNumber("Hood Reference", 0)), m_hood)
-        )
-        );
+        new RunCommand(() -> m_flywheel.setVelocity(m_shooterManager.getFlywheelReference()), m_flywheel),
+        new RunCommand(() -> m_hood.setHoodDegrees(m_shooterManager.getHoodReference()), m_hood)
+      )
+    );
+
+    m_driverOI.getShooterDebugButton().whenPressed(
+      new ShooterManagerSetReference(
+        m_shooterManager,
+        SmartDashboard.getNumber(hoodKey, 0),
+        SmartDashboard.getNumber(flywheelKey, 0)
+    ));
+
+    m_driverOI.getFenderShotButton().whenPressed(
+      new ShooterManagerSetReference(m_shooterManager, 0, 3500));
+
+    m_driverOI.getInitiationlineShotButton().whenPressed(
+      new ShooterManagerSetReference(m_shooterManager, 35, 4150)); //4150
+    
 
     m_driverOI.getFeedButton().whileHeld(new RunCommand(m_feeder::startFeeder, m_feeder));
-    m_driverOI.getFeedButton().whenReleased(new StartFeeder(m_feeder));
+    // m_driverOI.getFeedButton().whenReleased(new StartFeeder(m_feeder));
 
-    // m_driverOI.getSetpointShootingButton()
-    //   .whileHeld(new ParallelCommandGroup(
-    //     new SetHoodPosition(m_hood, m_turretLimelight),
-    //     new SpinUpFlywheel(m_flywheel, m_turretLimelight))
-// );
+    m_operatorOI.getShootFromWallButton().whenPressed(
+      new ShooterManagerSetReference(m_shooterManager, 0, 3500));
 
-    m_operatorOI.getShootFromWallButton().whenPressed(new SetShooter(m_flywheel, m_hood, ShooterSetpoint.WALL));
-
-    m_operatorOI.getShootFromLineButton().whenPressed(new SetShooter(m_flywheel, m_hood, ShooterSetpoint.INITIATION_LINE));
-
-    m_operatorOI.getShootFromTrenchButton().whenPressed(new SetShooter(m_flywheel, m_hood, ShooterSetpoint.CLOSE_TRENCH));
+    m_operatorOI.getShootFromLineButton().whenPressed(
+      new ShooterManagerSetReference(m_shooterManager, 35, 6100));
   }
 
   public void configureTurretButtons() {
@@ -228,7 +235,7 @@ public class RobotContainer {
       //extend intake
       new InstantCommand(m_intake::groundPickup, m_intake),
       //wait until intake deploys
-      new WaitCommand(0.2),
+      // new WaitCommand(0.1),
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));
@@ -238,7 +245,7 @@ public class RobotContainer {
       //extend intake
       new InstantCommand(m_intake::stationPickup, m_intake ),
       //wait until intake deploys
-      new WaitCommand(0.2),
+      // new WaitCommand(0.1),
       // run motors
       new RunCommand(m_intake::reverseMotor, m_intake)
     ));

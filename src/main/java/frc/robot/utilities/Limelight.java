@@ -21,6 +21,7 @@ public class Limelight{
   private double m_verticalOffset;
   private double m_area;
   private double m_targetDistance;
+  private double m_skew;
 
   private boolean m_targetFound;
 
@@ -48,7 +49,7 @@ public class Limelight{
 
   public LimelightData getLimelightData(){
     updateReadings();
-    return new LimelightData(m_horizontalOffset, m_verticalOffset, m_targetDistance, m_targetFound);
+    return new LimelightData(m_horizontalOffset, m_verticalOffset, m_targetDistance, m_targetFound, m_skew);
   }
 
   public void updateReadings(){
@@ -56,10 +57,15 @@ public class Limelight{
     m_verticalOffset = getVerticalOffset();
     m_targetDistance = getTargetDistance();
     m_targetFound = isTargetFound();
+    m_skew = getSkew();
   }
 
   public void setPipeline(double pipeline){
     m_limelightNI.getTable(m_limelight).getEntry("pipeline").setNumber(pipeline);
+  }
+  
+  public double getSkew(){
+    return m_limelightTable.getEntry("ts").getDouble(0);
   }
 
   public double getTargetDistance(){
