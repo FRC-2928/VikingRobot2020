@@ -32,6 +32,7 @@ public class SmartTalonSRX extends WPI_TalonSRX implements SmartSpeedController 
     public SmartTalonSRX(int deviceNumber, double unitsPerRevolution) {
         super(deviceNumber);
         kUnitsPerRevolution = unitsPerRevolution;
+        configFactoryDefault();
         configVoltageCompSaturation(kNominalVoltageVolts);
         enableVoltageCompensation(true);
     }

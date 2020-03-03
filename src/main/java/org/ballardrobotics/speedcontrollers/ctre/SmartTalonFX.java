@@ -32,6 +32,7 @@ public class SmartTalonFX extends WPI_TalonFX implements SmartSpeedController {
     public SmartTalonFX(int deviceNumber, double unitsPerRevolution) {
         super(deviceNumber);
         kUnitsPerRevolution = unitsPerRevolution;
+        configFactoryDefault();
         configVoltageCompSaturation(kNominalVoltageVolts);
         enableVoltageCompensation(true);
     }

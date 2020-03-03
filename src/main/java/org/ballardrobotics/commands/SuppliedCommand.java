@@ -13,10 +13,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 public class SuppliedCommand<T> extends CommandBase {
     protected Supplier<T> m_supplier;
 
-    public SuppliedCommand() {
-        this(() -> null);
-    }
-
     public SuppliedCommand(Supplier<T> supplier) {
         setSupplier(supplier);;
     }

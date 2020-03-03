@@ -35,6 +35,7 @@ public class SmartSparkMax extends CANSparkMax implements SmartSpeedController {
 
     public SmartSparkMax(int deviceID, MotorType type, EncoderType encoderType, double unitsPerRevolution, double gearRatio) {
         super(deviceID, type);
+        restoreFactoryDefaults(true);
         enableVoltageCompensation(kNominalVoltageVolts);
 
         m_encoder = new CANEncoder(this, encoderType, (int)unitsPerRevolution);

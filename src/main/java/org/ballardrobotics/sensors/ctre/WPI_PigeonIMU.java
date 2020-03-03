@@ -2,12 +2,9 @@ package org.ballardrobotics.sensors.ctre;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
 
-import edu.wpi.first.wpilibj.interfaces.Gyro;
+import org.ballardrobotics.sensors.IMU;
 
-/**
- * Add your docs here.
- */
-public class WPI_PigeonIMU extends PigeonIMU implements Gyro {
+public class WPI_PigeonIMU extends PigeonIMU implements IMU {
     public WPI_PigeonIMU(int deviceNumber) {
         super(deviceNumber);
     }
@@ -24,7 +21,12 @@ public class WPI_PigeonIMU extends PigeonIMU implements Gyro {
 
     @Override
     public void reset() {
-        setYaw(0.0);
+        setAngle(0.0);
+    }
+
+    @Override
+    public void setAngle(double angle) {
+        setYaw(angle);
         setAccumZAngle(0.0);
     }
 

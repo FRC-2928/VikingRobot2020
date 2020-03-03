@@ -2,18 +2,20 @@ package frc.robot.subsystems.shooter;
 
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.EncoderType;
 
 import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import org.ballardrobotics.speedcontrollers.rev.SmartSparkMax;
 import org.ballardrobotics.types.PIDValues;
+import org.ballardrobotics.types.supplied.PercentOutputValue;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TurretConstants;
 import frc.robot.Robot;
+import frc.robot.commands.shooter.turret.TurretSetPercentOutputCommand;
+import frc.robot.commands.shooter.turret.TurretSetPositionCommand;
+import frc.robot.commands.shooter.turret.TurretStopCommand;
 
 public class TurretSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;
@@ -23,6 +25,11 @@ public class TurretSubsystem extends SubsystemBase {
   private double m_measuredVelocity;
   private boolean m_onTarget;
 
+  private enum ControlMode {
+    Stopped, OpenLoop, Position
+  }
+  private ControlMode m_mode = ControlMode.Stopped;
+
   public static TurretSubsystem create() {
     if (Robot.isReal()) {
       return createReal();
@@ -31,11 +38,10 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public static TurretSubsystem createReal() {
-    var controller = new SmartSparkMax(TurretConstants.kControllerDeviceID, MotorType.kBrushless, EncoderType.kHallSensor,
-        TurretConstants.kUnitsPerRev, TurretConstants.kGearRatio);
+    var controller = new SmartSparkMax(TurretConstants.kControllerDeviceID, MotorType.kBrushless, TurretConstants.kGearRatio);
 
     controller.setSoftLimit(SoftLimitDirection.kForward, (float)TurretConstants.kMaxAngle);
-    controller.setSoftLimit(SoftLimitDirection.kReverse, (float)-TurretConstants.kMaxAngle);
+    controller.setSoftLimit(SoftLimitDirection.kReverse, (float)TurretConstants.kMinAngle);
 
     PIDValues.displayOnShuffleboard(TurretConstants.kPID, "Turret", (values) -> {
       var pid = controller.getPIDController();
@@ -58,6 +64,21 @@ public class TurretSubsystem extends SubsystemBase {
     m_controller = controller;
   }
 
+  public void configureShuffleboard(ShuffleboardLayout stateLayout, ShuffleboardLayout controlLayout) {
+    stateLayout.addNumber("target_voltage", this::getTargetVoltage);
+    stateLayout.addNumber("measured_voltage", this::getMeasuredVoltage);
+    stateLayout.addNumber("target_velocity", this::getTargetPosition);
+    stateLayout.addNumber("measured_velocity", this::getMeasuredPosition);
+    stateLayout.addBoolean("at_target_position", this::atTargetPosition);
+    stateLayout.addString("control_mode", () -> m_mode.toString());
+
+    var positionEntry = controlLayout.add("position", 0).getEntry();
+    var openLoopEntry = controlLayout.add("percent_out", 0).getEntry();
+    controlLayout.add("stop", new TurretStopCommand(this));
+    controlLayout.add("enable open", new TurretSetPercentOutputCommand(this, () -> new PercentOutputValue(openLoopEntry.getDouble(0.0))));
+    controlLayout.add("enable position", new TurretSetPositionCommand(this, () -> positionEntry.getDouble(0.0)));
+  }
+
   @Override
   public void periodic() {
     m_targetVoltage = m_controller.getTargetVoltage();
@@ -67,29 +88,16 @@ public class TurretSubsystem extends SubsystemBase {
     m_measuredVelocity = m_controller.getMeasuredVelocity() * 360.0;
     m_onTarget = Math.abs(m_targetPosition - m_measuredPosition) < TurretConstants.kAcceptablePositionErrorDeg &&
                  Math.abs(m_measuredVelocity) < TurretConstants.kAcceptableVelocityErrorDegPerSec;
-
-    SmartDashboard.putNumber("turret_target_voltage", m_targetVoltage);
-    SmartDashboard.putNumber("turret_measured_voltage", m_measuredVoltage);
-    SmartDashboard.putNumber("turret_target_position", m_targetPosition);
-    SmartDashboard.putNumber("turret_measured_position", m_measuredPosition);
-    SmartDashboard.putNumber("turret_measured_velocity", m_measuredVelocity);
-    SmartDashboard.putBoolean("turret_on_target", m_onTarget);
   }
 
   public void stop() {
     m_controller.setVoltage(0.0);
+    m_mode = ControlMode.Stopped;
   }
 
   public void setVoltage(double voltageVolts) {
     m_controller.setVoltage(voltageVolts);
-  }
-
-  public double getMeasuredVoltage() {
-    return m_measuredVoltage;
-  }
-
-  public double getTargetVoltage() {
-    return m_targetVoltage;
+    m_mode = ControlMode.OpenLoop;
   }
 
   public void setPosition(double degrees) {
@@ -100,6 +108,15 @@ public class TurretSubsystem extends SubsystemBase {
       degrees = TurretConstants.kMaxAngle;
     }
     m_controller.setPosition(degrees / 360.0);
+    m_mode = ControlMode.Position;
+  }
+
+  public double getMeasuredVoltage() {
+    return m_measuredVoltage;
+  }
+
+  public double getTargetVoltage() {
+    return m_targetVoltage;
   }
 
   public double getMeasuredPosition() {
@@ -115,6 +132,6 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public boolean atTargetPosition() {
-    return m_onTarget;
+    return m_onTarget && m_mode == ControlMode.Position;
   }
 }

@@ -31,6 +31,7 @@ public class SmartVictorSPX extends WPI_VictorSPX implements SmartSpeedControlle
     public SmartVictorSPX(int deviceNumber, double unitsPerRevolution) {
         super(deviceNumber);
         kUnitsPerRevolution = unitsPerRevolution;
+        configFactoryDefault();
         configVoltageCompSaturation(kNominalVoltageVolts);
         enableVoltageCompensation(true);
     }
