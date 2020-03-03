@@ -4,7 +4,9 @@ import java.util.function.DoubleSupplier;
 
 import org.ballardrobotics.sensors.IMU;
 
-public class FakeIMU implements IMU {
+import edu.wpi.first.wpilibj.GyroBase;
+
+public class FakeIMU extends GyroBase implements IMU {
     public DoubleSupplier m_angleSupplier, m_rateSupplier;
     public Runnable m_onClose, m_onCalibrate, m_onReset;
 

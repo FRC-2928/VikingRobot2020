@@ -14,9 +14,11 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DrivetrainConstants;
+import frc.robot.Constants.ShuffleboardConstants;
 import frc.robot.Robot;
 
 public class DrivetrainSubsystem extends SubsystemBase {
@@ -78,6 +80,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(gyro.getAngle()));
     m_kinematics = new DifferentialDriveKinematics(DrivetrainConstants.kTrackWidthMeters);
     m_feedforward = new SimpleMotorFeedforward(DrivetrainConstants.kS, DrivetrainConstants.kV, DrivetrainConstants.kA);
+
+    Shuffleboard.getTab(ShuffleboardConstants.kChassisTab).add("angle", gyro);
   }
 
   @Override
@@ -168,7 +172,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_gyro.reset();
   }
 
-  public void setGyroAngle(double degrees) {
+  public void setHeading(double degrees) {
     m_gyro.setAngle(degrees);
   }
 

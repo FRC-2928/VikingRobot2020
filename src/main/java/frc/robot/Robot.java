@@ -74,6 +74,7 @@ public class Robot extends TimedRobot {
     }
 
     Shuffleboard.startRecording();
+    m_robotContainer.onInit();
   }
 
   /**
@@ -94,6 +95,7 @@ public class Robot extends TimedRobot {
     }
 
     Shuffleboard.startRecording();
+    m_robotContainer.onInit();
   }
 
   /**
