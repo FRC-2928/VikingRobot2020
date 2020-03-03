@@ -33,6 +33,9 @@ public final class Constants {
         public static final int kRightSlaveDeviceID = 0;
         public static final int kPigeonDeviceID = 3;
 
+        public static final double kHighGearRatio = 5;
+        public static final double kLowGearRatio = 10.71;
+        public static final double kEncoderCPR = 2048;
         public static final double kTrackWidthMeters = 0.5;
 
         public static final double kS = 0.0;
@@ -61,7 +64,7 @@ public final class Constants {
         public static final int kControllerDeviceID = 3;
         
         public static final double kGearRatio = 1.0;
-        public static final double kUnitsPerRev = 1.0;
+        public static final double kUnitsPerRev = 2048;
 
         public static final double kAcceptableVelocityErrorRPM = 100;
 
@@ -73,8 +76,8 @@ public final class Constants {
     public static final class HoodConstants {
         public static final int kControllerDeviceID = 6;
 
-        public static final double kGearRatio = 1.0;
-        public static final double kUnitsPerRev = 1.0;
+        public static final double kGearRatio = 60.0 / 24.0;
+        public static final double kUnitsPerRev = 4096.0;
 
         public static final double kMinAngle = 0;
         public static final double kMaxAngle = 40;
@@ -95,7 +98,7 @@ public final class Constants {
     public static final class TurretConstants {
         public static final int kControllerDeviceID = 9;
 
-        public static final double kGearRatio = 236.11;
+        public static final double kGearRatio = 169.155;
         public static final double kUnitsPerRev = 42.0;
 
         public static final double kMinAngle = -225.0;
