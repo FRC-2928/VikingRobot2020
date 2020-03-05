@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.turret.TargetEstimator;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.subsystems.turret.TurretSubsystem.TurretSafetyRangeState;
 import frc.robot.types.LimelightData;
 import frc.robot.types.TargetEstimate;
 import frc.robot.utilities.Limelight;
@@ -17,7 +18,14 @@ public class TrackTargetCommand extends CommandBase {
     private Limelight m_limelight;
     private LimelightData m_limelightData;
     private TargetEstimate m_targetEstimate;
-    private TargetEstimator m_targetEstimator = new TargetEstimator();    
+    private TargetEstimator m_targetEstimator = new TargetEstimator(); 
+    private double m_correctingAngle;
+    private State m_currentState;
+    private static boolean wasCorrecting = false;
+
+    private enum State{
+        UNKNOWN, FIELD_RELATIVE, TRACKING, CORRECTING;
+    }
 
     public TrackTargetCommand(TurretSubsystem turret, 
                               DrivetrainSubsystem drivetrain,
@@ -35,11 +43,15 @@ public class TrackTargetCommand extends CommandBase {
     @Override
     public void initialize() {
         m_limelight.setPipeline(1);
+        m_currentState = State.UNKNOWN;
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute() {
+        SmartDashboard.putString("Turret Command State", m_currentState.toString());
+        SmartDashboard.putNumber("Turret Command Correcting Angle", m_correctingAngle);
+        SmartDashboard.putBoolean("Turret Command Was Correcting", wasCorrecting);
 
         m_limelightData = m_turret.getLimelightData();
         m_targetEstimator.update(
@@ -50,12 +62,33 @@ public class TrackTargetCommand extends CommandBase {
         m_targetEstimate = m_targetEstimator.getEstimate();
 
         boolean isTargetFound = m_limelightData.getTargetFound();
-        double visionReference = m_turret.getTurretDegrees() - m_limelightData.getHorizontalOffset();
-        // visionReference += m_limelightData.getSkew() * SmartDashboard.getNumber("Skew factor", 0);
         
+        if(m_currentState == State.CORRECTING){
+            double error = Math.abs(m_turret.getPosition() - m_correctingAngle);
+            wasCorrecting = true;
+            m_turret.setPosition(m_correctingAngle);
+            if(error < 180 && isTargetFound){
+                m_currentState = State.TRACKING;
+            }
+            else if(error > 10){
+                return; //Continue correcting until within 10 degrees
+            }
+        }
+
+        // visionReference += m_limelightData.getSkew() * SmartDashboard.getNumber("Skew factor", 0);
+
         if(isTargetFound){
+            double visionReference = m_turret.getTurretDegrees() - m_limelightData.getHorizontalOffset();
+    
+            if(!m_turret.isAngleValid(visionReference)){
+                m_correctingAngle = m_turret.getValidAngle(visionReference);
+                m_currentState = State.CORRECTING;
+                return;
+            }
+            
             // Keep it on target
             m_turret.setPosition(visionReference);
+            m_currentState = State.TRACKING;
         }
         // else {
         //     if(m_targetEstimate.isValid()){
@@ -65,7 +98,8 @@ public class TrackTargetCommand extends CommandBase {
         //     }
         else{
             // No estimate so search for the target
-            m_turret.setPower(0);
+            m_turret.searchForTarget();
+            m_currentState = State.FIELD_RELATIVE;
         }
     }
 

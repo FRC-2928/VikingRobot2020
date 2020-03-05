@@ -50,8 +50,8 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   private double kF = PIDConstants.kFTurret;
 
   // Turrent working limits
-  private final double leftMaxLimit = TurretConstants.kTurretLeftLimit;
-  private final double rightMaxLimit = TurretConstants.kTurretRightLimit;
+  private final double kleftMaxLimit = TurretConstants.kTurretLeftLimit;
+  private final double krightMaxLimit = TurretConstants.kTurretRightLimit;
 
   // Gyro
   private double m_robotYaw;
@@ -135,7 +135,7 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public boolean inSafetyRange(){
-    if(Math.abs(getTurretDegrees()) > leftMaxLimit){
+    if(Math.abs(getTurretDegrees()) > kleftMaxLimit){
       return false;
     }
     return true;
@@ -147,18 +147,18 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
 
     // Checks if turret is beyond limits, and corrects 360 degrees the opposite way
     if (m_turretSafetyRangeState == TurretSafetyRangeState.NORMAL) {
-      if (degrees < rightMaxLimit) {
+      if (degrees < krightMaxLimit) {
         m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
         m_turretState = TurretState.CORRECTING_RANGE;
-        m_correctionReference = rightMaxLimit + 360;
+        m_correctionReference = krightMaxLimit + 360;
         setPosition(m_correctionReference);
         // setValidAngle(m_correctionReference);
       }
 
-      else if (degrees > leftMaxLimit) {
+      else if (degrees > kleftMaxLimit) {
         m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
         m_turretState = TurretState.CORRECTING_RANGE;
-        m_correctionReference = leftMaxLimit - 360;
+        m_correctionReference = kleftMaxLimit - 360;
         setPosition(m_correctionReference);
         // setValidAngle(m_correctionReference);
       }
@@ -176,8 +176,8 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
 
   // Field relative turret tracking, depends on starting position
   public void searchForTarget() {
-    double reference = (-m_robotYaw % 360) - m_robotStartAngle;
-    setPosition(reference);
+    double reference = (m_robotYaw % 360) - m_robotStartAngle;
+    setValidAngle(reference);
     m_turretState = TurretState.SEARCHING_FIELD;
     // setValidAngle(reference);
   }
@@ -234,28 +234,28 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   }
   
   //Returns an angle which is valid and fastest to reference
-  public double checkValidAngle(double reference){
+  public double getValidAngle(double reference){
     double currentAngle = getTurretDegrees();
     double newReference = reference % 360;
 
     //Checks if reference is out of bounds
-    if(newReference > leftMaxLimit){
+    if(newReference > kleftMaxLimit){
       newReference -= 360;
       return newReference;
     }
-    else if(newReference < rightMaxLimit){
+    else if(newReference < krightMaxLimit){
       newReference += 360;
       return newReference;
     }
 
     //Checks if there's a faster way to reference
     if(newReference - currentAngle <= -180){
-      if(newReference + 360 < leftMaxLimit){
+      if(newReference + 360 < kleftMaxLimit){
         newReference = newReference + 360;
       }
     }
     else if(newReference - currentAngle >= 180){
-      if(newReference - 360 > rightMaxLimit){
+      if(newReference - 360 > krightMaxLimit){
         newReference = newReference - 360;
       }
     }
@@ -264,16 +264,16 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public boolean isAngleValid(double reference){
-    if(checkValidAngle(reference) != reference){
-      return false;
-    }
-    return true;
+    // if(getValidAngle(reference) != reference){
+    //   return false;
+    // }
+    return reference < kleftMaxLimit && reference > krightMaxLimit;
   }
 
   // Takes a reference and uses checkValidAngle to create a valid path
   // See @checkValidAngle()
   public void setValidAngle(double reference){
-    double newReference = checkValidAngle(reference);
+    double newReference = getValidAngle(reference);
     if(newReference != reference && !clearedSafetyRange()){
       m_turretSafetyRangeState = TurretSafetyRangeState.CORRECTING;
     }
@@ -403,7 +403,7 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
 
   //Checks if more than 180 degrees from limits
   public boolean clearedSafetyRange(){
-    if(Math.abs(getTurretDegrees() - leftMaxLimit) > 180){
+    if(Math.abs(getTurretDegrees() - kleftMaxLimit) > 180){
       return true;
     }
     return false;

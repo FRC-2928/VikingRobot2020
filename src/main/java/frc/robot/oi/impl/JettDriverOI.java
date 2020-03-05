@@ -80,11 +80,11 @@ public class JettDriverOI implements DriverOI {
 
     @Override
     public DoubleSupplier getMoveSupplier() {
-        return () -> -m_controller.getY(Hand.kLeft)*0.8;
+        return () -> -m_controller.getY(Hand.kLeft);
     }
 
     @Override
     public DoubleSupplier getRotateSupplier() {
-        return () -> m_controller.getX(Hand.kRight)*0.8;
+        return () -> m_controller.getX(Hand.kRight);
     }
 }

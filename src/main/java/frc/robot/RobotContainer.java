@@ -71,6 +71,8 @@ public class RobotContainer {
   private final DriverOI m_driverOI;
   private final OperatorOI m_operatorOI;
 
+  private final DistanceMap m_distanceMap = DistanceMap.getInstance();
+
   private final SendableChooser<AutoType> m_autoChooser;
 
   public enum AutoType{
@@ -106,7 +108,7 @@ public class RobotContainer {
   }
 
   public void onAutoInit(){
-    new InstantCommand(m_pigeon::setStartConfig);
+    // new InstantCommand(m_pigeon::setStartConfig);
     new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
   }
 
@@ -146,34 +148,57 @@ public class RobotContainer {
     //       new SetHoodPosition(m_hood, m_turretLimelight),
     //       new SpinUpFlywheel(m_flywheel, m_turretLimelight))
     // );
-    String flywheelKey = "Flywheel Reference";
-    String hoodKey = "Hood Reference";
+    String flywheelKey = "Shooter Manager Flywheel Reference";
+    String hoodKey = "Shooter Manager Hood Reference";
     SmartDashboard.putNumber(hoodKey, 35);
     SmartDashboard.putNumber(flywheelKey, 4250);
 
+    // m_driverOI.getAutoShootingButton().whileHeld(
+    //   new ParallelCommandGroup(
+    //     new RunCommand(() -> m_flywheel.setVelocity(m_shooterManager.getFlywheelReference()), m_flywheel),
+    //     new RunCommand(() -> m_hood.setHoodDegrees(m_shooterManager.getHoodReference()), m_hood)
+    //   )
+    // );
+    
     m_driverOI.getAutoShootingButton().whileHeld(
-      new ParallelCommandGroup(
-        new RunCommand(() -> m_flywheel.setVelocity(m_shooterManager.getFlywheelReference()), m_flywheel),
-        new RunCommand(() -> m_hood.setHoodDegrees(m_shooterManager.getHoodReference()), m_hood)
-      )
-    );
+      new RunCommand(
+        () -> {
+            m_flywheel.setVelocity(m_shooterManager.getFlywheelReference());
+            m_hood.setHoodDegrees(m_shooterManager.getHoodReference());
+        }, 
+        m_flywheel,m_hood));
 
     m_driverOI.getShooterDebugButton().whenPressed(
       new ShooterManagerSetReference(
         m_shooterManager,
-        SmartDashboard.getNumber(hoodKey, 0),
-        SmartDashboard.getNumber(flywheelKey, 0)
+        () -> SmartDashboard.getNumber(hoodKey, 0),
+        () -> SmartDashboard.getNumber(flywheelKey, 0)
     ));
 
     m_driverOI.getFenderShotButton().whenPressed(
-      new ShooterManagerSetReference(m_shooterManager, 0, 3500));
+      new ShooterManagerSetReference(m_shooterManager,
+      () -> {
+        //Hood
+        if(m_turretLimelight.isTargetFound()){
+          return m_distanceMap.getHoodDegrees(m_turretLimelight.getTargetDistance());
+        }
+        return 0;
+      },
+      () -> {
+        //Flywheel
+        if(m_turretLimelight.isTargetFound()){
+          return m_distanceMap.getFlywheelRPM(m_turretLimelight.getTargetDistance());
+        }
+        return 3000;
+      }
+      ));
 
     m_driverOI.getInitiationlineShotButton().whenPressed(
-      new ShooterManagerSetReference(m_shooterManager, 35, 4150)); //4150
+      new ShooterManagerSetReference(m_shooterManager, 35, 4000)); //4000
     
 
     m_driverOI.getFeedButton().whileHeld(new RunCommand(m_feeder::startFeeder, m_feeder));
-    // m_driverOI.getFeedButton().whenReleased(new StartFeeder(m_feeder));
+    m_driverOI.getFeedButton().whenReleased(new StartFeeder(m_feeder));
 
     m_operatorOI.getShootFromWallButton().whenPressed(
       new ShooterManagerSetReference(m_shooterManager, 0, 3500));
