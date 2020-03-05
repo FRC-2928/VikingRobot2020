@@ -23,11 +23,11 @@ import frc.robot.commands.intake.FastForwardFeeder;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
 import frc.robot.commands.shooter.SetHoodPosition;
-import frc.robot.commands.shooter.SetShooter;
+import frc.robot.commands.shooter.SetSetpointShooting;
 import frc.robot.commands.shooter.ShooterAtReference;
 import frc.robot.commands.shooter.ShooterManagerSetReference;
 import frc.robot.commands.shooter.SpinUpFlywheel;
-import frc.robot.commands.shooter.SetShooter.ShooterSetpoint;
+import frc.robot.commands.shooter.SetSetpointShooting.ShooterSetpoint;
 import frc.robot.commands.turret.TrackTargetCommand;
 import frc.robot.commands.turret.TurretAtReference;
 import frc.robot.commands.turret.TurretStopTracking;
@@ -35,12 +35,13 @@ import frc.robot.oi.DriverOI;
 import frc.robot.oi.OperatorOI;
 import frc.robot.oi.impl.AbbiOperatorOI;
 import frc.robot.oi.impl.JettDriverOI;
+import frc.robot.subsystems.SubsystemContainer;
 import frc.robot.subsystems.climber.ClimberSubsystem;
 import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.drivetrain.TransmissionSubsystem;
 import frc.robot.subsystems.intake.FeederSubsystem;
-import frc.robot.subsystems.intake.IntakeSubsystem;
+import frc.robot.subsystems.intake.RollerSubsystem;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.ShooterManager;
@@ -51,25 +52,10 @@ import frc.robot.utilities.Pigeon;
 import frc.robot.utilities.Limelight.Limelights;
 
 public class RobotContainer {
+  private final SubsystemContainer m_subsystemContainer = new SubsystemContainer();
 
-  // The robot's subsystems
-
-  private final TransmissionSubsystem m_transmission = new TransmissionSubsystem();
-  private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem(m_transmission::getGearState);
-  private final FlywheelSubsystem m_flywheel = new FlywheelSubsystem();
-  private final HoodSubsystem m_hood = new HoodSubsystem();
-  private final IntakeSubsystem m_intake = new IntakeSubsystem();
-  // private final ControlPanelSubsystem m_controlPanel = new ControlPanelSubsystem();
-  // private final ClimberSubsystem m_climber = new ClimberSubsystem();
-  private final FeederSubsystem m_feeder = new FeederSubsystem();
-  private final TurretSubsystem m_turret = new TurretSubsystem();
-  private final Pigeon m_pigeon = new Pigeon();
-  private final ShooterManager m_shooterManager = new ShooterManager();
-  private final Limelight m_driverLimelight = new Limelight(Limelights.DRIVER);
-  private final Limelight m_turretLimelight = new Limelight(Limelights.TURRET);
-
-  private final DriverOI m_driverOI;
-  private final OperatorOI m_operatorOI;
+  private final JettDriverOI m_driverOI = new JettDriverOI();
+  private final AbbiOperatorOI m_operatorOI = new AbbiOperatorOI();
 
   private final DistanceMap m_distanceMap = DistanceMap.getInstance();
 
@@ -89,32 +75,41 @@ public class RobotContainer {
     m_autoChooser.addOption("Shoot", AutoType.SHOOT_THEN_DRIVE);
     SmartDashboard.putData(m_autoChooser);
 
-    m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriverControllerPort));
-    m_operatorOI = new AbbiOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
+    JettDriverOI.bindDriverButtons(new XboxController(OIConstants.kDriverControllerPort), m_subsystemContainer);
+    AbbiOperatorOI.bindOperatorButtons(new XboxController(OIConstants.kOperatorControllerPort), m_subsystemContainer);
 
     // Load the distance to target map
     DistanceMap.getInstance().loadMaps();
 
     // Configure the button bindings
     configureButtonBindings();
-
-    // Configure default commands
-    // Set the default drive command to split-stick arcade drive
-    m_drivetrain.setDefaultCommand(
-        // A split-stick arcade command, with forward/backward controlled by the left
-        // hand, and turning controlled by the right.
-        new RunCommand(() -> m_drivetrain.drive(m_driverOI.getMoveSupplier(), m_driverOI.getRotateSupplier()),
-            m_drivetrain));
   }
 
   public void onAutoInit(){
     // new InstantCommand(m_pigeon::setStartConfig);
-    new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
+    new TrackTargetCommand(m_subsystemContainer.turret, m_subsystemContainer.drivetrain, m_subsystemContainer.turretLimelight).schedule();
   }
 
   public void onTeleopInit() {
-    new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
-    new StartFeeder(m_feeder).schedule();
+    // new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
+    new StartFeeder(m_subsystemContainer.feeder).schedule();
+
+    new ShooterManagerSetReference(m_subsystemContainer.shooterManager,
+    () -> {
+      //Hood
+      if(m_subsystemContainer.turretLimelight.isTargetFound()){
+        return m_distanceMap.getHoodDegrees(m_subsystemContainer.turretLimelight.getTargetDistance());
+      }
+      return 0;
+    },
+    () -> {
+      //Flywheel
+      if(m_subsystemContainer.turretLimelight.isTargetFound()){
+        return m_distanceMap.getFlywheelRPM(m_subsystemContainer.turretLimelight.getTargetDistance());
+      }
+      return 3000;
+    }
+    ).schedule();
   }
 
   /**

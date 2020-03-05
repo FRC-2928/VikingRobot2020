@@ -102,11 +102,6 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
     m_turretSafetyRangeState = TurretSafetyRangeState.NORMAL;
     m_turretState = TurretState.IDLE;
 
-    setDefaultCommand(new RunCommand(this::stop, this));
-    // setDefaultCommand(new RunCommand(() -> {
-    //   setTurretState(TurretControlState.IDLE, 0, new TargetEstimate(0, 0, false));
-    // }, this));
-
     SmartDashboard.putNumber("Robot Start Angle", 0);
   }
 

@@ -3,19 +3,19 @@ package frc.robot.oi.impl;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Constants;
-import frc.robot.commands.climber.DeployClimber;
 import frc.robot.oi.OperatorOI;
+import frc.robot.subsystems.SubsystemContainer;
 
 public class AbbiOperatorOI implements OperatorOI {
     private XboxController m_controller;
 
-    public AbbiOperatorOI(XboxController controller) {
-        m_controller = controller;
+    public static void bindOperatorButtons(XboxController controller, SubsystemContainer subsystems){
+        //Climber
+        Button deployClimberButton = new Button(() -> controller.getPOV() != -1);
+
     }
    
     // --------------- Climber ------------------

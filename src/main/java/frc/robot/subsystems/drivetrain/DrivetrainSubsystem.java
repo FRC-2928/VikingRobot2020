@@ -216,10 +216,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     // -----------------------------------------------------------
     // Control Input
     // -----------------------------------------------------------
-    public void drive(DoubleSupplier move, DoubleSupplier rotate){
-        drive(move.getAsDouble(), rotate.getAsDouble(), true);
-    }
-
     public void drive(double move, double rotate, boolean squaredInputs){
         m_differentialDrive.arcadeDrive(move, rotate, squaredInputs);
     }
@@ -277,7 +273,10 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     public void setPosition(double position){}
     public void setVelocity(double velocity){}
     public void setMotion(double position){}
-    public void stop(){}
+    public void stop(){
+        m_leftMaster.set(0);
+        m_rightMaster.set(0);
+    }
 
     // -----------------------------------------------------------
     // System State

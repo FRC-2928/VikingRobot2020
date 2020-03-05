@@ -67,8 +67,6 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
    // Configure PID
    configPIDGains();
 
-   setDefaultCommand(new RunCommand(this::stop, this));
-
    m_setpointEnabled = false;
    m_setpoint = 0;
 

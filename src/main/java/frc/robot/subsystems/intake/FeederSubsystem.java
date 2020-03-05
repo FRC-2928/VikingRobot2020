@@ -76,9 +76,6 @@ public class FeederSubsystem extends SubsystemBase implements SmartSubsystem{
     m_middleSensor = new DigitalInput(RobotMap.kIRSensorMiddle);
     m_topSensor = new DigitalInput(RobotMap.kIRSensorTop);
 
-    // Set default command
-    setDefaultCommand(new RunCommand(this::stop, this));    
-
     //Placing the indexing values on ShuffleBoard
     SmartDashboard.putNumber("Index Power", FeederConstants.kIndexPower);
     SmartDashboard.putString("Indexer State", m_indexState.name());

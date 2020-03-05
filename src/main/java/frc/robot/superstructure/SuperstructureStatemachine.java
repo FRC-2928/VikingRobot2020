@@ -8,8 +8,8 @@ import frc.robot.Constants.TurretConstants;
 import frc.robot.commands.controlpanel.RotateSegments;
 import frc.robot.commands.controlpanel.RotateToColor;
 import frc.robot.commands.intake.FastForwardFeeder;
-import frc.robot.commands.shooter.SetShooter;
-import frc.robot.commands.shooter.SetShooter.ShooterSetpoint;
+import frc.robot.commands.shooter.SetSetpointShooting;
+import frc.robot.commands.shooter.SetSetpointShooting.ShooterSetpoint;
 import frc.robot.commands.turret.TurretSetPosition;
 import frc.robot.commands.turret.TurretSetStateCommand;
 import frc.robot.subsystems.climber.ClimberSubsystem;
@@ -106,7 +106,7 @@ public class SuperstructureStatemachine{
       case MANUAL_CONTROL:
       new ParallelCommandGroup(
         new TurretSetStateCommand(m_turret, TurretControlState.OPEN_LOOP, 0, new TargetEstimate(0, 0, false)),
-        new SetShooter(m_flywheel, m_hood, m_shooterReference)
+        new SetSetpointShooting(m_flywheel, m_hood, m_shooterReference)
       );
       if(shooterAtReference()){
         readyToShoot = true;
@@ -119,7 +119,7 @@ public class SuperstructureStatemachine{
       case SETPOINT_SHOOTING:
       new ParallelCommandGroup(
         new TurretSetStateCommand(m_turret, TurretControlState.VISION_TRACKING, 0, getTargetEstimate()),
-        new SetShooter(m_flywheel, m_hood, m_shooterReference)
+        new SetSetpointShooting(m_flywheel, m_hood, m_shooterReference)
       );
       if(shooterAtReference()){
         readyToShoot = true;
@@ -146,7 +146,7 @@ public class SuperstructureStatemachine{
       case VISION_SHOOTING:
       new ParallelCommandGroup(
         new TurretSetStateCommand(m_turret, TurretControlState.VISION_TRACKING, 0, getTargetEstimate()),
-        new SetShooter(m_flywheel, m_hood, m_shooterReference)
+        new SetSetpointShooting(m_flywheel, m_hood, m_shooterReference)
       );
       if(subsystemsAtReference()){
         readyToShoot = true;

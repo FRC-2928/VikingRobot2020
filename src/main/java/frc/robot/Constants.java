@@ -201,17 +201,14 @@ public final class Constants {
 
         // TODO figure number of clicks per meter (assuming meters are used in above Setpoints)
         public static final double kClimberEncoderTicksPerRotation = 2048; // correct!
-        public static final double kClimberGearRatio = 35 / 1; // moter to intermediate pulley, correct!
+        public static final double kClimberGearRatio = 35.0 / 1.0; // moter to intermediate pulley, correct!
         // meters climber movement per intermediate pulley rev, correct!
         public static final double kDistancePerPullyRotation = 0.0762; // 7.62 
 		public static double kClimberErrorThreshold = 0.5; // 5 cm
     }
 
     public static final class IntakeConstants {
-        public static double kP = 0.055;
-        public static double kD = 0.5;
-        public static double kF = 0.4;
-		public static double kClimberErrorThreshold = 0.5; // 5 cm
+        public static final double kIntakeGearRatio = 28.0 / 1.0;
     }
 
     public static final class LimelightConstants{

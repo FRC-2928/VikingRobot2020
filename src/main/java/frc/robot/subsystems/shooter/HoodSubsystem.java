@@ -91,7 +91,6 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
     resetEncoder();
     configPIDGains();
 
-    setDefaultCommand(new RunCommand(() -> this.stop(), this));
 
     //Placing the hood gains on ShuffleBoard
     SmartDashboard.putNumber("Hood kP", kP);

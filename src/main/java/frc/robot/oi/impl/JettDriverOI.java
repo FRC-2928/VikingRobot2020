@@ -6,85 +6,56 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.drivetrain.DrivetrainArcadeDriveCommand;
+import frc.robot.commands.drivetrain.TransmissionSetGearCommand;
+import frc.robot.commands.intake.GroundIntakeCommand;
+import frc.robot.commands.intake.OpenIntakeCommand;
+import frc.robot.commands.shooter.SetShooter;
 import frc.robot.oi.DriverOI;
+import frc.robot.subsystems.SubsystemContainer;
+import frc.robot.subsystems.drivetrain.TransmissionSubsystem.GearState;
 
-public class JettDriverOI implements DriverOI {
-    private XboxController m_controller;
+public class JettDriverOI{
 
-    public JettDriverOI(XboxController controller) {
-        m_controller = controller;
-    }
 
-    // ---------------- Intake ----------------------------
+    public static void bindDriverButtons(XboxController controller, SubsystemContainer subsystems) {
+        //Drivetrain buttons
+        subsystems.drivetrain.setDefaultCommand(
+            new DrivetrainArcadeDriveCommand(
+                subsystems.drivetrain, 
+                () -> -controller.getY(Hand.kLeft), 
+                () -> controller.getX(Hand.kRight)
+            )
+        );
+        Button shiftLowButton = new JoystickButton(controller, XboxController.Button.kX.value);
+        Button shiftHighButton = new JoystickButton(controller, XboxController.Button.kY.value);
 
-    @Override
-    public Button getGroundIntakeButton() {
-        return new Button(() -> m_controller.getTriggerAxis(Hand.kLeft) > 0.1);
-    }
+        //Intake buttons
+        Button groundIntakeButton = new Button(() -> controller.getTriggerAxis(Hand.kLeft) > 0.1);
+        Button flipIntakeButton = new JoystickButton(controller, XboxController.Button.kBumperLeft.value);
+        
+        //Climber buttons
+        Button climbButton = new JoystickButton(controller, XboxController.Axis.kRightTrigger.value);
 
-    @Override
-    public Button getStationIntakeButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kBumperLeft.value);
-    }
+        //Shooting buttons
+        Button autoShootingButton = new JoystickButton(controller, XboxController.Button.kBumperRight.value);
+        Button enableDistanceMapButton = new Button(() -> controller.getPOV() == 180);
+        Button shooterDebugButton = new Button(() -> controller.getPOV() == 90);
+        Button feedButton = new Button(() -> controller.getTriggerAxis(Hand.kRight) > 0.1);
 
-    // ---------------- Climber ----------------------------
+        /*------------------------------------  Bindings  --------------------------------------- */
 
-    @Override
-    public Button getClimbTrigger() {
-        return new JoystickButton(m_controller, XboxController.Axis.kRightTrigger.value);
-    }
+        //Drivetrain bindings
+        shiftLowButton.whenPressed(new TransmissionSetGearCommand(subsystems.transmission, GearState.LOW));
+        shiftHighButton.whenPressed(new TransmissionSetGearCommand(subsystems.transmission, GearState.HIGH));
 
-    // ---------------- Shooting ----------------------------
+        //Intake bindings
+        groundIntakeButton.whileHeld(new GroundIntakeCommand(subsystems.roller, subsystems.arm));
+        flipIntakeButton.whileHeld(new OpenIntakeCommand(subsystems.roller, subsystems.arm));
 
-    @Override
-    public Button getAutoShootingButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kBumperRight.value);
-    }
+        // climbButton.whileHeld()
 
-    @Override
-    public Button getSetpointShootingButton(){
-        return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
-    }
+        autoShootingButton.whileHeld(new SetShooter(subsystems));
 
-    @Override
-    public Button getFenderShotButton() {
-        return new Button(() -> m_controller.getPOV() == 180);
-    }
-
-    @Override
-    public Button getInitiationlineShotButton() {
-        return new Button(() -> m_controller.getPOV() == 0);
-    }
-
-    @Override
-    public Button getShooterDebugButton() {
-        return new Button(() -> m_controller.getPOV() == 90);
-    }
-
-    @Override
-    public Button getFeedButton() {
-        return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
-    }
-
-    // ---------------- Drivetrain ----------------------------
-
-    @Override
-    public Button getShiftLowButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kX.value);
-    }
-
-    @Override
-    public Button getShiftHighButton() {
-        return new JoystickButton(m_controller, XboxController.Button.kY.value);
-    }
-
-    @Override
-    public DoubleSupplier getMoveSupplier() {
-        return () -> -m_controller.getY(Hand.kLeft);
-    }
-
-    @Override
-    public DoubleSupplier getRotateSupplier() {
-        return () -> m_controller.getX(Hand.kRight);
     }
 }
