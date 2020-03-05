@@ -1,6 +1,8 @@
 package frc.robot.utilities;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU.CalibrationMode;
+
 import frc.robot.Constants.RobotMap;
 
 /**
@@ -11,6 +13,7 @@ public class Pigeon{
 
     public Pigeon(){
         m_pigeon = new PigeonIMU(RobotMap.kPigeonIMU);
+        m_pigeon.enterCalibrationMode(CalibrationMode.BootTareGyroAccel, 100);
     }
 
     public double getYaw(){
@@ -22,10 +25,4 @@ public class Pigeon{
     public void resetGyro(){
         m_pigeon.setYaw(0);
     }
-
-    //Sets gyro to robot's starting config
-    public void setStartConfig(){
-        m_pigeon.setYaw(180);
-    }
-    
 }

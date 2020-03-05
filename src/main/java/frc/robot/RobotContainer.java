@@ -6,37 +6,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.Constants.ControlPanelConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.auto.DrivetrainCharacterizationCommand;
 import frc.robot.commands.auto.ShootThreeThenDrive;
-import frc.robot.commands.control.SetPositionCommand;
 import frc.robot.commands.control.SetPowerCommand;
-import frc.robot.commands.controlpanel.RotateSegments;
-import frc.robot.commands.controlpanel.RotateToColor;
+import frc.robot.commands.controller.RumbleControllerWhileHeld;
 import frc.robot.commands.drivetrain.Drive;
-import frc.robot.commands.intake.FastForwardFeeder;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
-import frc.robot.commands.shooter.SetHoodPosition;
-import frc.robot.commands.shooter.SetShooter;
-import frc.robot.commands.shooter.ShooterAtReference;
 import frc.robot.commands.shooter.ShooterManagerSetReference;
-import frc.robot.commands.shooter.SpinUpFlywheel;
-import frc.robot.commands.shooter.SetShooter.ShooterSetpoint;
 import frc.robot.commands.turret.TrackTargetCommand;
-import frc.robot.commands.turret.TurretAtReference;
 import frc.robot.commands.turret.TurretStopTracking;
 import frc.robot.oi.DriverOI;
 import frc.robot.oi.OperatorOI;
 import frc.robot.oi.impl.AbbiOperatorOI;
 import frc.robot.oi.impl.JettDriverOI;
-import frc.robot.subsystems.climber.ClimberSubsystem;
-import frc.robot.subsystems.controlpanel.ControlPanelSubsystem;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 import frc.robot.subsystems.drivetrain.TransmissionSubsystem;
 import frc.robot.subsystems.intake.FeederSubsystem;
@@ -47,8 +33,8 @@ import frc.robot.subsystems.shooter.ShooterManager;
 import frc.robot.subsystems.turret.TurretSubsystem;
 import frc.robot.types.DistanceMap;
 import frc.robot.utilities.Limelight;
-import frc.robot.utilities.Pigeon;
 import frc.robot.utilities.Limelight.Limelights;
+import frc.robot.utilities.Pigeon;
 
 public class RobotContainer {
 
@@ -70,6 +56,8 @@ public class RobotContainer {
 
   private final DriverOI m_driverOI;
   private final OperatorOI m_operatorOI;
+  private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+  private final XboxController m_operatorController = new XboxController(OIConstants.kOperatorControllerPort);
 
   private final DistanceMap m_distanceMap = DistanceMap.getInstance();
 
@@ -89,8 +77,8 @@ public class RobotContainer {
     m_autoChooser.addOption("Shoot", AutoType.SHOOT_THEN_DRIVE);
     SmartDashboard.putData(m_autoChooser);
 
-    m_driverOI = new JettDriverOI(new XboxController(OIConstants.kDriverControllerPort));
-    m_operatorOI = new AbbiOperatorOI(new XboxController(OIConstants.kOperatorControllerPort));
+    m_driverOI = new JettDriverOI(m_driverController);
+    m_operatorOI = new AbbiOperatorOI(m_operatorController);
 
     // Load the distance to target map
     DistanceMap.getInstance().loadMaps();
@@ -108,8 +96,8 @@ public class RobotContainer {
   }
 
   public void onAutoInit(){
-    // new InstantCommand(m_pigeon::setStartConfig);
-    new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
+    new InstantCommand(m_pigeon::resetGyro);
+    // new TrackTargetCommand(m_turret, m_drivetrain, m_turretLimelight).schedule();
   }
 
   public void onTeleopInit() {
@@ -264,6 +252,7 @@ public class RobotContainer {
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));
+    m_driverOI.getGroundIntakeButton().whileHeld(new RumbleControllerWhileHeld(m_driverController, 0.7));
 
     // Pickup balls from the Player Station
     m_driverOI.getStationIntakeButton().whileHeld(new SequentialCommandGroup(
@@ -287,10 +276,10 @@ public class RobotContainer {
         return new WaitCommand(15);
 
       case DRIVE:
-        return new Drive(m_drivetrain, 0.35, 0).withTimeout(2);
+        return new Drive(m_drivetrain, 0.4, 0).withTimeout(2);
 
       case SHOOT_THEN_DRIVE:
-        return new ShootThreeThenDrive(m_drivetrain, m_flywheel, m_hood, m_turret, m_feeder, m_turretLimelight);
+        return new ShootThreeThenDrive(m_drivetrain, m_flywheel, m_hood, m_turret, m_feeder, m_turretLimelight, m_shooterManager, m_distanceMap);
 
       default:
         return new WaitCommand(15);
