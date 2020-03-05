@@ -19,6 +19,8 @@ public class JettDriverOI{
 
 
     public static void bindDriverButtons(XboxController controller, SubsystemContainer subsystems) {
+        /*------------------------------------  Buttons  --------------------------------------- */
+
         //Drivetrain buttons
         subsystems.drivetrain.setDefaultCommand(
             new DrivetrainArcadeDriveCommand(

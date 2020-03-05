@@ -42,8 +42,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     private double m_yaw;
 
     private DifferentialDrive m_differentialDrive;
-    private SpeedControllerGroup m_leftMotors;
-    private SpeedControllerGroup m_rightMotors;
 
     //Drivetrain kinematics, feed it width between wheels
     private DifferentialDriveKinematics m_kinematics;

@@ -26,7 +26,6 @@ import frc.robot.commands.shooter.SetHoodPosition;
 import frc.robot.commands.shooter.SetSetpointShooting;
 import frc.robot.commands.shooter.ShooterAtReference;
 import frc.robot.commands.shooter.ShooterManagerSetReference;
-import frc.robot.commands.shooter.SpinUpFlywheel;
 import frc.robot.commands.shooter.SetSetpointShooting.ShooterSetpoint;
 import frc.robot.commands.turret.TrackTargetCommand;
 import frc.robot.commands.turret.TurretAtReference;
@@ -53,9 +52,6 @@ import frc.robot.utilities.Limelight.Limelights;
 
 public class RobotContainer {
   private final SubsystemContainer m_subsystemContainer = new SubsystemContainer();
-
-  private final JettDriverOI m_driverOI = new JettDriverOI();
-  private final AbbiOperatorOI m_operatorOI = new AbbiOperatorOI();
 
   private final DistanceMap m_distanceMap = DistanceMap.getInstance();
 
