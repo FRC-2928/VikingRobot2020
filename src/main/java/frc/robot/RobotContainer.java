@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.auto.ShootThreeThenDrive;
+import frc.robot.commands.auto.ShootThreeThenTrench;
 import frc.robot.commands.control.SetPowerCommand;
 import frc.robot.commands.controller.RumbleControllerWhileHeld;
 import frc.robot.commands.drivetrain.Drive;
@@ -64,7 +65,7 @@ public class RobotContainer {
   private final SendableChooser<AutoType> m_autoChooser;
 
   public enum AutoType{
-    DO_NOTHING, DRIVE, SHOOT_THEN_DRIVE;
+    DO_NOTHING, DRIVE, SHOOT_THEN_DRIVE, TRENCH_AUTO;
   }
 
   /**
@@ -75,6 +76,7 @@ public class RobotContainer {
     m_autoChooser.setDefaultOption("Do Nothing", AutoType.DO_NOTHING);
     m_autoChooser.addOption("Drive", AutoType.DRIVE);
     m_autoChooser.addOption("Shoot", AutoType.SHOOT_THEN_DRIVE);
+    m_autoChooser.addOption("Trench", AutoType.TRENCH_AUTO);
     SmartDashboard.putData(m_autoChooser);
 
     m_driverOI = new JettDriverOI(m_driverController);
@@ -280,6 +282,8 @@ public class RobotContainer {
 
       case SHOOT_THEN_DRIVE:
         return new ShootThreeThenDrive(m_drivetrain, m_flywheel, m_hood, m_turret, m_feeder, m_turretLimelight, m_shooterManager, m_distanceMap);
+
+      case TRENCH_AUTO:
 
       default:
         return new WaitCommand(15);

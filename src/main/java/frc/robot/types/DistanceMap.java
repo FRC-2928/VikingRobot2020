@@ -29,6 +29,7 @@ public class DistanceMap {
         m_degrees.put(10.0, 40); // INITIATION LINE
         m_degrees.put(13.5, 40);
         m_degrees.put(16.5, 40);
+        m_degrees.put(18.0, 40);
         m_degrees.put(20.0, 40);
 
         // Load RPM
@@ -37,7 +38,8 @@ public class DistanceMap {
         m_rpm.put(10.0, 4000); // INITIATION LINE
         m_rpm.put(13.5, 4350);
         m_rpm.put(16.5, 4500);
-        m_rpm.put(20.0, 5030);
+        m_rpm.put(18.0, 5000);
+        m_rpm.put(20.0, 5400);
     }
 
     public double getHoodDegrees(double distance) {

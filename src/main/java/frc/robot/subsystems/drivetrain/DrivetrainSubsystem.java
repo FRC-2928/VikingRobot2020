@@ -94,7 +94,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
             fx.configFactoryDefault();
 
             //Sets voltage compensation to 12, used for percent output
-            fx.configVoltageCompSaturation(6);
+            fx.configVoltageCompSaturation(6.5);
             fx.enableVoltageCompensation(true);
 
             //Setting just in case

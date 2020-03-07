@@ -48,6 +48,7 @@ public class ShootThreeThenTrench extends ParallelCommandGroup {
           new RunCommand(feeder::startFeeder, feeder).withTimeout(2),
           new ParallelCommandGroup(
             new RunCommand(intake::groundPickup, intake),
+            new RunCommand(intake::startMotor, intake),
             new StartFeeder(feeder),
             new Drive(drivetrain, 0.65, 0)
           ).withTimeout(4),

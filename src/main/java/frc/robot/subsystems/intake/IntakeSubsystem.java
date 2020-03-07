@@ -131,7 +131,7 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public void startMotor(){
-    setPower(0.85);
+    setPower(0.95);
   }
 
   public void reverseMotor(){

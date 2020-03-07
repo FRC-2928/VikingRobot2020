@@ -13,7 +13,6 @@ public class Pigeon{
 
     public Pigeon(){
         m_pigeon = new PigeonIMU(RobotMap.kPigeonIMU);
-        m_pigeon.enterCalibrationMode(CalibrationMode.BootTareGyroAccel, 100);
     }
 
     public double getYaw(){
