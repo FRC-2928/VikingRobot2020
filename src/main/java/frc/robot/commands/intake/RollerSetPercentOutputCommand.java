@@ -1,31 +1,26 @@
 package frc.robot.commands.intake;
 
-import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
 
-import org.ballardrobotics.commands.SuppliedCommand;
-import org.ballardrobotics.types.supplied.PercentOutputValue;
-
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.intake.RollerSubsystem;
 
-public class RollerSetPercentOutputCommand extends SuppliedCommand<PercentOutputValue> {
+public class RollerSetPercentOutputCommand extends CommandBase {
   private RollerSubsystem m_roller;
-
-  public RollerSetPercentOutputCommand(RollerSubsystem roller) {
-    this(roller, 0.0);
-  }
+  private DoubleSupplier m_supplier;
 
   public RollerSetPercentOutputCommand(RollerSubsystem roller, double value) {
-    this(roller, () -> new PercentOutputValue(value));
+    this(roller, () -> value);
   }
 
-  public RollerSetPercentOutputCommand(RollerSubsystem roller, Supplier<PercentOutputValue> supplier) {
-    super(supplier);
+  public RollerSetPercentOutputCommand(RollerSubsystem roller, DoubleSupplier supplier) {
     addRequirements(roller);
     m_roller = roller;
+    m_supplier = supplier;
   }
 
   @Override
   public void execute() {
-    m_roller.setPercentOutput(m_supplier.get().value);
+    m_roller.setPercentOutput(m_supplier.getAsDouble());
   }
 }

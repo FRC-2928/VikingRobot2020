@@ -9,15 +9,10 @@ import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import org.ballardrobotics.types.PIDValues;
-import org.ballardrobotics.types.supplied.PercentOutputValue;
 
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Robot;
-import frc.robot.commands.shooter.flywheel.FlywheelSetPercentOutputCommand;
-import frc.robot.commands.shooter.flywheel.FlywheelSetVelocityCommand;
-import frc.robot.commands.shooter.flywheel.FlywheelStopCommand;
 
 public class FlywheelSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;
@@ -74,21 +69,6 @@ public class FlywheelSubsystem extends SubsystemBase {
 
   public FlywheelSubsystem(SmartSpeedController controller) {
     m_controller = controller;
-  }
-
-  public void configureShuffleboard(ShuffleboardLayout stateLayout, ShuffleboardLayout controlLayout) {
-    stateLayout.addNumber("target_voltage", this::getTargetVoltage);
-    stateLayout.addNumber("measured_voltage", this::getMeasuredVoltage);
-    stateLayout.addNumber("target_velocity", this::getTargetVelocity);
-    stateLayout.addNumber("measured_velocity", this::getMeasuredVelocity);
-    stateLayout.addBoolean("at_target_velocity", this::atTargetVelocity);
-    stateLayout.addString("control_mode", () -> m_mode.toString());
-
-    var velocityEntry = controlLayout.add("velocity", 0).getEntry();
-    var openLoopEntry = controlLayout.add("percent_out", 0).getEntry();
-    controlLayout.add("stop", new FlywheelStopCommand(this));
-    controlLayout.add("enable open", new FlywheelSetPercentOutputCommand(this, () -> new PercentOutputValue(openLoopEntry.getDouble(0.0))));
-    controlLayout.add("enable velocity", new FlywheelSetVelocityCommand(this, () -> velocityEntry.getDouble(0.0)));
   }
 
   @Override

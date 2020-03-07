@@ -1,7 +1,6 @@
 package org.ballardrobotics.utilities;
 
-public class RotationUtility {
-
+public class TurretUtility {
     /**
      * Finds a target angle that is that is at the same circular postion as the input angle
      * and closest to the currentAngle while honoring minimum and maximum angle constraints.
@@ -43,4 +42,12 @@ public class RotationUtility {
         return closestAngle;
     }
 
+    /**
+     * Checks if the input angle is within the operating range of the turret.
+     * 
+     * @return true if within range, false otherwise.
+     */
+    public static boolean angleInRange(double inputAngle, double minAngle, double maxAngle) {
+      return inputAngle >= minAngle && inputAngle <= maxAngle;
+    }
 }

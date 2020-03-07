@@ -1,5 +1,7 @@
 package frc.robot.subsystems.chassis;
 
+import java.util.Map;
+
 import org.ballardrobotics.sensors.IMU;
 import org.ballardrobotics.sensors.ctre.WPI_PigeonIMU;
 import org.ballardrobotics.sensors.fakes.FakeIMU;
@@ -7,6 +9,7 @@ import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 
+import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -14,18 +17,34 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DrivetrainConstants;
-import frc.robot.Constants.ShuffleboardConstants;
 import frc.robot.Robot;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
-public class DrivetrainSubsystem extends SubsystemBase {
-  private SmartSpeedController m_leftController, m_rightController;
+public class DrivetrainSubsystem extends SubsystemBase implements Loggable {
+  private class State implements Loggable {
+    @Log
+    double poseX;
+    @Log
+    double poseY;
+  }
+
+  @Override
+  public boolean skipLayout() {
+    return true;
+  }
+
+  private State state = new State();
+  private SmartSpeedController m_leftController;
+  private SmartSpeedController m_rightController;
   private IMU m_gyro;
 
   private DifferentialDrive m_drive;
+  private SlewRateLimiter m_moveLimiter;
+  private SlewRateLimiter m_rotateLimiter;
 
   private DifferentialDriveKinematics m_kinematics;
 
@@ -34,7 +53,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private SimpleMotorFeedforward m_feedforward;
 
   private Pose2d m_pose;
-
   private double m_heading;
   private double m_leftPosition, m_rightPosition;
   private double m_leftVelocity, m_rightVelocity;
@@ -73,6 +91,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_drive = new DifferentialDrive(m_leftController, m_rightController);
     m_drive.setRightSideInverted(false);
     m_drive.setDeadband(0.1);
+    m_moveLimiter = new SlewRateLimiter(1.0 / DrivetrainConstants.kMoveTimeToFull);
+    m_rotateLimiter = new SlewRateLimiter(1.0 / DrivetrainConstants.kRotateTimeToFull);
 
     resetGyro();
     resetEncoders();
@@ -80,8 +100,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(gyro.getAngle()));
     m_kinematics = new DifferentialDriveKinematics(DrivetrainConstants.kTrackWidthMeters);
     m_feedforward = new SimpleMotorFeedforward(DrivetrainConstants.kS, DrivetrainConstants.kV, DrivetrainConstants.kA);
-
-    Shuffleboard.getTab(ShuffleboardConstants.kChassisTab).add("angle", gyro);
   }
 
   @Override
@@ -155,7 +173,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public void arcadeDrive(double move, double rotate) {
-    m_drive.arcadeDrive(move, rotate);
+    m_drive.arcadeDrive(m_moveLimiter.calculate(move), m_rotateLimiter.calculate(rotate));
   }
 
   public void tankDrive(double left, double right) {

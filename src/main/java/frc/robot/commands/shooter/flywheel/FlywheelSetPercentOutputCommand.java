@@ -1,31 +1,26 @@
 package frc.robot.commands.shooter.flywheel;
 
-import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
 
-import org.ballardrobotics.commands.SuppliedCommand;
-import org.ballardrobotics.types.supplied.PercentOutputValue;
-
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 
-public class FlywheelSetPercentOutputCommand extends SuppliedCommand<PercentOutputValue> {
+public class FlywheelSetPercentOutputCommand extends CommandBase {
   private FlywheelSubsystem m_flywheel;
-
-  public FlywheelSetPercentOutputCommand(FlywheelSubsystem flywheel) {
-    this(flywheel, 0.0);
-  }
+  private DoubleSupplier m_supplier;
 
   public FlywheelSetPercentOutputCommand(FlywheelSubsystem flywheel, double percentOutput) {
-    this(flywheel, () -> new PercentOutputValue(percentOutput));
+    this(flywheel, () -> percentOutput);
   }
 
-  public FlywheelSetPercentOutputCommand(FlywheelSubsystem flywheel, Supplier<PercentOutputValue> supplier) {
-    super(supplier);
+  public FlywheelSetPercentOutputCommand(FlywheelSubsystem flywheel, DoubleSupplier supplier) {
     addRequirements(flywheel);
     m_flywheel = flywheel;
+    m_supplier = supplier;
   }
 
   @Override
   public void execute() {
-    m_flywheel.setVoltage(12.0 * m_supplier.get().value);
+    m_flywheel.setVoltage(12.0 * m_supplier.getAsDouble());
   }
 }

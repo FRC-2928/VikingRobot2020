@@ -1,10 +1,8 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.commands.intake.ArmSetStateCommand;
 
 public class ArmSubsytem extends SubsystemBase {
   private Solenoid m_backPiston;
@@ -26,16 +24,7 @@ public class ArmSubsytem extends SubsystemBase {
     m_backPiston = backPiston;
     m_frontPiston = frontPiston;
   }
-
-  public void configureShuffleboard(ShuffleboardLayout stateLayout, ShuffleboardLayout controlLayout) {
-    stateLayout.addBoolean("back_piston", m_backPiston::get);
-    stateLayout.addBoolean("front_piston", m_frontPiston::get);
-    stateLayout.addString("state", () -> m_state.toString());
-
-    controlLayout.add("stowed", new ArmSetStateCommand(this, State.Stowed));
-    controlLayout.add("pickup", new ArmSetStateCommand(this, State.Pickup));
-  }
-
+  
   public void setState(State state) {
     switch(state) {
       case Stowed:

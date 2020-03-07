@@ -7,15 +7,10 @@ import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import org.ballardrobotics.speedcontrollers.rev.SmartSparkMax;
 import org.ballardrobotics.types.PIDValues;
-import org.ballardrobotics.types.supplied.PercentOutputValue;
 
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.HoodConstants;
 import frc.robot.Robot;
-import frc.robot.commands.shooter.hood.HoodSetPercentOutputCommand;
-import frc.robot.commands.shooter.hood.HoodSetPositionCommand;
-import frc.robot.commands.shooter.hood.HoodStopCommand;
 
 public class HoodSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;
@@ -62,21 +57,6 @@ public class HoodSubsystem extends SubsystemBase {
 
   public HoodSubsystem(SmartSpeedController controller) {
     m_controller = controller;
-  }
-
-  public void configureShuffleboard(ShuffleboardLayout stateLayout, ShuffleboardLayout controlLayout) {
-    stateLayout.addNumber("target_voltage", this::getTargetVoltage);
-    stateLayout.addNumber("measured_voltage", this::getMeasuredVoltage);
-    stateLayout.addNumber("target_velocity", this::getTargetPosition);
-    stateLayout.addNumber("measured_velocity", this::getMeasuredPosition);
-    stateLayout.addBoolean("at_target_position", this::atTargetPosition);
-    stateLayout.addString("control_mode", () -> m_mode.toString());
-
-    var positionEntry = controlLayout.add("position", 0).getEntry();
-    var openLoopEntry = controlLayout.add("percent_out", 0).getEntry();
-    controlLayout.add("stop", new HoodStopCommand(this));
-    controlLayout.add("enable open", new HoodSetPercentOutputCommand(this, () -> new PercentOutputValue(openLoopEntry.getDouble(0.0))));
-    controlLayout.add("enable position", new HoodSetPositionCommand(this, () -> positionEntry.getDouble(0.0)));
   }
 
   @Override
