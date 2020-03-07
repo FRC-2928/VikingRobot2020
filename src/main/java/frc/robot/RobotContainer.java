@@ -284,6 +284,7 @@ public class RobotContainer {
         return new ShootThreeThenDrive(m_drivetrain, m_flywheel, m_hood, m_turret, m_feeder, m_turretLimelight, m_shooterManager, m_distanceMap);
 
       case TRENCH_AUTO:
+        return new ShootThreeThenTrench(m_drivetrain, m_intake, m_flywheel, m_hood, m_turret, m_feeder, m_turretLimelight, m_shooterManager, m_distanceMap);
 
       default:
         return new WaitCommand(15);
