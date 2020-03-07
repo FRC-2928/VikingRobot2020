@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Twist2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,15 +32,12 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
 
   private DifferentialDriveKinematics m_kinematics;
 
-  private DifferentialDriveWheelSpeeds m_prevSpeeds;
-
   private DifferentialDriveOdometry m_odometry;
 
   private SimpleMotorFeedforward m_feedforward;
 
   private Pose2d m_pose;
   private Twist2d m_twist;
-  private double m_prevSetOutputTime;
 
   private double m_heading;
   private double m_leftPosition, m_rightPosition;
@@ -89,8 +85,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     m_odometry = new DifferentialDriveOdometry(Rotation2d.fromDegrees(gyro.getAngle()));
     m_kinematics = new DifferentialDriveKinematics(DrivetrainConstants.kTrackWidthMeters);
     m_feedforward = new SimpleMotorFeedforward(DrivetrainConstants.kS, DrivetrainConstants.kV, DrivetrainConstants.kA);
-    // Save previous wheel speeds. Start at zero.
-    m_prevSpeeds = new DifferentialDriveWheelSpeeds(0,0);
 
     Shuffleboard.getTab(ShuffleboardConstants.kChassisTab).add("angle", gyro);
   }
@@ -259,34 +253,10 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
 
   // In meters/radians per second
   public void setVelocity(Twist2d velocity) {
-    setOutputMetersPerSecond(velocity.dx, velocity.dx);
-  }
+    double leftVelocityTicksPerSec = wheelRotationsToMotorRotations(metersToWheelRotations(velocity.dx));
+    double rightVelocityTicksPerSec = wheelRotationsToMotorRotations(metersToWheelRotations(velocity.dx));
 
-  public void setOutputMetersPerSecond(double leftMetersPerSecond, double rightMetersPerSecond) {
-    double currentTime = Timer.getFPGATimestamp();
-    double deltaTime = currentTime - m_prevSetOutputTime;
-    double leftAcceleration = 0;
-    double rightAcceleration = 0;
-    
-    if (deltaTime > 0 && deltaTime < 0.1) {
-        leftAcceleration = (leftMetersPerSecond - m_prevSpeeds.leftMetersPerSecond)/deltaTime;
-        rightAcceleration = (rightMetersPerSecond - m_prevSpeeds.rightMetersPerSecond)/deltaTime;
-    }
-
-    // Calculate feedforward for the left and right wheels.
-    double leftFeedForward = m_feedforward.calculate(leftMetersPerSecond, leftAcceleration);
-    double rightFeedForward = m_feedforward.calculate(rightMetersPerSecond, rightAcceleration);
-    
-    // Convert meters per second to rotations per second
-    double leftVelocityTicksPerSec = wheelRotationsToMotorRotations(metersToWheelRotations(leftMetersPerSecond));
-    double rightVelocityTicksPerSec = wheelRotationsToMotorRotations(metersToWheelRotations(leftMetersPerSecond));
-
-    // Set the velocity
-    setLeftRightVelocity(leftVelocityTicksPerSec/10.0, leftFeedForward/12.0, rightVelocityTicksPerSec/10.0, rightFeedForward/12.0);
-    
-    // Save previous speeds
-    m_prevSpeeds.leftMetersPerSecond = leftMetersPerSecond;
-    m_prevSpeeds.rightMetersPerSecond = rightMetersPerSecond;
+    setLeftRightVelocity(leftVelocityTicksPerSec, rightVelocityTicksPerSec);
   }
 
   // System State
