@@ -37,6 +37,11 @@ public final class Constants {
         public static final double kLowGearRatio = 10.71;
         public static final double kEncoderCPR = 2048;
         public static final double kTrackWidthMeters = 0.5;
+        public static final double kWheelDiameterMeters = 0.15;
+        public static final double kEncoderDistancePerPulse =
+            // Assumes the encoders are directly mounted on the wheel shafts
+            (kWheelDiameterMeters * Math.PI) / (double) kEncoderCPR;
+        public static final double kUnitsPerRevolution = 1.0;
 
         public static final double kS = 0.0;
         public static final double kV = 0.0;
