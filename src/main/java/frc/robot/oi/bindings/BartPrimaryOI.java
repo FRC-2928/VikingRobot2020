@@ -33,6 +33,14 @@ public class BartPrimaryOI implements Bindable {
 
   @Override
   public void bind() {
+    m_subsystems.chassis.drivetrain.setDefaultCommand(
+      new DrivetrainArcadeDriveCommand(
+        m_subsystems.chassis.drivetrain,
+        throttleSupplier, 
+        wheelSupplier
+      )
+    );
+
     toggleGearButton.whenPressed(new ConditionalCommand(
       new TransmissionSetLowGearCommand(m_subsystems.chassis.transmission),
       new TransmissionSetLowGearCommand(m_subsystems.chassis.transmission),

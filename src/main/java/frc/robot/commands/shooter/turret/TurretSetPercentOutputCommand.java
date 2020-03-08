@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.shooter.TurretSubsystem;
 import frc.robot.subsystems.shooter.TurretSubsystem.State;
+import frc.robot.subsystems.shooter.TurretSubsystem.TrackingType;
 
 public class TurretSetPercentOutputCommand extends CommandBase {
   private TurretSubsystem m_turret;
@@ -23,6 +24,7 @@ public class TurretSetPercentOutputCommand extends CommandBase {
   @Override
   public void initialize() {
     m_turret.setState(State.OpenLoop);
+    m_turret.setTrackingType(TrackingType.None);
   }
 
   @Override

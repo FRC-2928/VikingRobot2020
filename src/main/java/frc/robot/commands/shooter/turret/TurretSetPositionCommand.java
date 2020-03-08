@@ -9,8 +9,8 @@ import frc.robot.subsystems.shooter.TurretSubsystem.State;
 import frc.robot.subsystems.shooter.TurretSubsystem.TrackingType;
 
 public class TurretSetPositionCommand extends CommandBase {
-  private TurretSubsystem m_turret;
-  private DoubleSupplier m_positionSupplier;
+  protected TurretSubsystem m_turret;
+  protected DoubleSupplier m_positionSupplier;
 
   public TurretSetPositionCommand(TurretSubsystem turret, double positionDegrees) {
     this(turret, () -> positionDegrees);

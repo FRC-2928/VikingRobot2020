@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import java.util.Map;
 
+import org.ballardrobotics.subsystems.Holder;
+
 import edu.wpi.first.wpilibj.Compressor;
 import frc.robot.commands.chassis.drivetrain.DrivetrainStopCommand;
 import frc.robot.commands.indexer.feeder.FeederStopCommand;
@@ -11,13 +13,12 @@ import frc.robot.commands.shooter.hood.HoodStopCommand;
 import frc.robot.commands.shooter.turret.TurretStopCommand;
 import frc.robot.subsystems.chassis.DrivetrainSubsystem;
 import frc.robot.subsystems.chassis.TransmissionSubsystem;
+import frc.robot.subsystems.holders.FlywheelVelocityHolder;
+import frc.robot.subsystems.holders.HoodPositionHolder;
 import frc.robot.subsystems.indexer.FeederSubsystem;
 import frc.robot.subsystems.indexer.HopperSubsystem;
 import frc.robot.subsystems.intake.ArmSubsytem;
 import frc.robot.subsystems.intake.RollerSubsystem;
-import frc.robot.subsystems.managers.FlywheelVelocityManager;
-import frc.robot.subsystems.managers.HoodPositionManager;
-import frc.robot.subsystems.managers.TurretPositionManager;
 import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.TurretSubsystem;
@@ -44,6 +45,11 @@ public class Subsystems implements Loggable {
   public final class Climber implements Loggable {
   }
 
+  public final class Holders implements Loggable {
+    private Holder<Double> flywheelVelocity = new FlywheelVelocityHolder();
+    private Holder<Double> hoodPosition = new HoodPositionHolder();
+  }
+
   public final class Indexer implements Loggable {
     @Log
     public final HopperSubsystem hopper = HopperSubsystem.create();
@@ -56,15 +62,6 @@ public class Subsystems implements Loggable {
     public final ArmSubsytem arm = ArmSubsytem.create();
     @Log
     public final RollerSubsystem roller = RollerSubsystem.create();
-  }
-
-  public final class Managers implements Loggable {
-    @Log
-    public final FlywheelVelocityManager flywheelVelocityManager = new FlywheelVelocityManager();
-    @Log
-    public final HoodPositionManager hoodPositionManager = new HoodPositionManager();
-    @Log
-    public final TurretPositionManager turretPositionManager = new TurretPositionManager();
   }
 
   public final class Shooter implements Loggable {
@@ -85,7 +82,7 @@ public class Subsystems implements Loggable {
   public final Climber climber = new Climber();
   public final Indexer indexer = new Indexer();
   public final Intake intake = new Intake();
-  public final Managers managers = new Managers();
+  public final Holders holders = new Holders();
   public final Shooter shooter = new Shooter();
   public final Vision vision = new Vision();
   public final Compressor compressor = new Compressor();
