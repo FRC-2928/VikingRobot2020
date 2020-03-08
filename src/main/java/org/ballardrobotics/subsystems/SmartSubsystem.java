@@ -11,6 +11,7 @@ public interface SmartSubsystem extends Subsystem {
 
     // Control Inputs
     public void setPosition(Pose2d position);
+    public void moveToPosition();
     public void setVelocity(Twist2d velocity);
 
     // System State

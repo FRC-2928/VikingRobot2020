@@ -1,5 +1,7 @@
 package frc.robot.subsystems.chassis;
 
+import java.util.List;
+
 import org.ballardrobotics.sensors.IMU;
 import org.ballardrobotics.sensors.ctre.WPI_PigeonIMU;
 import org.ballardrobotics.sensors.fakes.FakeIMU;
@@ -9,15 +11,21 @@ import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import org.ballardrobotics.subsystems.SmartSubsystem;
 
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.geometry.Twist2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
+import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
+import edu.wpi.first.wpilibj.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.ShuffleboardConstants;
@@ -36,8 +44,16 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
 
   private SimpleMotorFeedforward m_feedforward;
 
+  private TrajectoryConfig m_config;
+  private Trajectory m_trajectory;
+  private RamseteController m_ramsete;
+  private final Timer m_timer = new Timer();
+
   private Pose2d m_pose;
   private Twist2d m_twist;
+  private Pose2d m_poseTolerance;
+  private Pose2d m_poseError;
+  private Pose2d m_setpoint;
 
   private double m_heading;
   private double m_leftPosition, m_rightPosition;
@@ -79,6 +95,9 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     m_drive.setRightSideInverted(false);
     m_drive.setDeadband(0.1);
 
+    setTolerance(new Pose2d(new Translation2d(0.01, 0.01), 
+                            new Rotation2d(1.0)));
+
     resetGyro();
     resetEncoders();
 
@@ -86,6 +105,23 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     m_kinematics = new DifferentialDriveKinematics(DrivetrainConstants.kTrackWidthMeters);
     m_feedforward = new SimpleMotorFeedforward(DrivetrainConstants.kS, DrivetrainConstants.kV, DrivetrainConstants.kA);
 
+    var autoVoltageConstraint =
+        new DifferentialDriveVoltageConstraint(
+            new SimpleMotorFeedforward(DrivetrainConstants.ksVolts,
+                                       DrivetrainConstants.kvVoltSecondsPerMeter,
+                                       DrivetrainConstants.kaVoltSecondsSquaredPerMeter),
+            DrivetrainConstants.kDriveKinematics,
+            10);
+
+    m_config = new TrajectoryConfig(DrivetrainConstants.kMaxSpeedMetersPerSecond,
+                                    DrivetrainConstants.kMaxAccelerationMetersPerSecondSquared)
+          // Add kinematics to ensure max speed is actually obeyed
+          .setKinematics(DrivetrainConstants.kDriveKinematics)
+          // Apply the voltage constraint
+          .addConstraint(autoVoltageConstraint);
+
+    m_ramsete = new RamseteController();      
+    
     Shuffleboard.getTab(ShuffleboardConstants.kChassisTab).add("angle", gyro);
   }
 
@@ -106,9 +142,11 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     m_rightCurrent = m_rightController.getMeasuredCurrent();
 
     m_pose = m_odometry.update(Rotation2d.fromDegrees(m_heading), m_leftPosition, m_rightPosition);
+    m_poseError = m_setpoint.relativeTo(m_pose);
+
     m_twist.dx = getLeftVelocity() + getRightVelocity() / 2;
     m_twist.dy = 0;
-    m_twist.dtheta = getHeading();
+    m_twist.dtheta = getHeadingVelocity();
 
     SmartDashboard.putNumber("drive_heading", m_heading);
     SmartDashboard.putNumber("drive_left_pos", m_leftPosition);
@@ -133,6 +171,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
 
   private double m_prevLeftVelocity, m_prevRightVelocity;
   private double m_prevTime;
+  // Set left and right velocity in rotations per second
   public void setLeftRightVelocity(double leftVelocity, double rightVelocity) {
     double currentTime = Timer.getFPGATimestamp();
     double dt = currentTime - m_prevTime;
@@ -201,6 +240,13 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     return m_heading;
   }
 
+  public double getHeadingVelocity() {
+    double currentTime = Timer.getFPGATimestamp();
+    // m_prevTime is saved in setLeftRightVelocity
+    double dt = currentTime - m_prevTime;
+    return getHeading() / dt;
+  }
+
   public double getLeftPosition() {
     return m_leftPosition;
   }
@@ -235,28 +281,47 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
 
   // --------- Smart subsystem implementation -----------
 
-  // Control Inputs
-
   public void setPosition(Pose2d position){
-    double leftPosition = position.getTranslation().getX();
-    double rightPosition = position.getTranslation().getX();
-    double leftTicks = wheelRotationsToMotorRotations(metersToWheelRotations(leftPosition));
-    double rightTicks = wheelRotationsToMotorRotations(metersToWheelRotations(rightPosition));
-    setLeftRightPosition(leftTicks, rightTicks);
+    m_setpoint = position;
+    m_trajectory = TrajectoryGenerator.generateTrajectory(
+      // Start at the origin facing the +X direction
+      new Pose2d(0, 0, new Rotation2d(0)),
+      // Pass through these interior waypoints, leave empty for now
+      List.of(),
+      // Pass the ending pose
+      m_setpoint,
+      // Pass config
+      m_config
+    );      
+    m_timer.reset();
+    m_timer.start();
   }
 
-  public void setLeftRightPosition(double leftPosition, double rightPosition) {
-    m_leftController.setProfiledPosition(leftPosition); 
-    m_rightController.setProfiledPosition(rightPosition); 
-    m_drive.feed();
+  public void moveToPosition() {
+    double curTime = m_timer.get();
+
+    var targetWheelSpeeds = m_kinematics.toWheelSpeeds(
+        m_ramsete.calculate(m_pose, m_trajectory.sample(curTime)));
+
+    double leftVelocityRotations = metersToMotorRotations(targetWheelSpeeds.leftMetersPerSecond);
+    double rightVelocityRotations = metersToMotorRotations(targetWheelSpeeds.rightMetersPerSecond);
+
+    setLeftRightVelocity(leftVelocityRotations, rightVelocityRotations);
   }
+
+  // public void setLeftRightPosition(double leftPosition, double rightPosition) {
+  //   m_leftController.setProfiledPosition(leftPosition); 
+  //   m_rightController.setProfiledPosition(rightPosition); 
+  //   m_drive.feed();
+  // }
+
 
   // In meters/radians per second
   public void setVelocity(Twist2d velocity) {
-    double leftVelocityTicksPerSec = wheelRotationsToMotorRotations(metersToWheelRotations(velocity.dx));
-    double rightVelocityTicksPerSec = wheelRotationsToMotorRotations(metersToWheelRotations(velocity.dx));
+    double leftVelocityRotations = metersToMotorRotations(velocity.dx);
+    double rightVelocityRotations = metersToMotorRotations(velocity.dx);
 
-    setLeftRightVelocity(leftVelocityTicksPerSec, rightVelocityTicksPerSec);
+    setLeftRightVelocity(leftVelocityRotations, rightVelocityRotations);
   }
 
   // System State
@@ -266,8 +331,20 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
   public Twist2d getVelocity(){
     return m_twist;
   }
+
   public boolean atReference(){
-    return true;
+    final var eTranslate = m_poseError.getTranslation();
+    final var eRotate = m_poseError.getRotation();
+    final var tolTranslate = m_poseTolerance.getTranslation();
+    final var tolRotate = m_poseTolerance.getRotation();
+    return Math.abs(eTranslate.getX()) < tolTranslate.getX()
+           && Math.abs(eTranslate.getY()) < tolTranslate.getY()
+           && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
+  }
+
+  // Set tolerance for the atReference method
+  public void setTolerance(Pose2d poseTolerance) {
+    m_poseTolerance = poseTolerance;
   }
 
   // Conversions
@@ -280,6 +357,10 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
           return wheelRotations * DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kHighGearRatio;
       }
       return wheelRotations * DrivetrainConstants.kEncoderCPR * DrivetrainConstants.kLowGearRatio;
+  }
+
+  public double metersToMotorRotations(double meters){
+    return wheelRotationsToMotorRotations(metersToWheelRotations(meters));
   }
 
   public double motorRotationsToWheelRotations(double motorRotations) {

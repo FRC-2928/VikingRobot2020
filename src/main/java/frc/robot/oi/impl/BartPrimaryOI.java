@@ -5,9 +5,13 @@ import java.util.function.Supplier;
 import org.ballardrobotics.commands.SuppliedCommand;
 import org.ballardrobotics.types.supplied.ArcadeDriveValue;
 import org.ballardrobotics.types.supplied.PercentOutputValue;
+import org.ballardrobotics.types.supplied.Pose2dValue;
 import org.ballardrobotics.types.supplied.TankDriveValue;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Button;
@@ -135,6 +139,16 @@ public class BartPrimaryOI implements OIBindable {
             boolean aboveDeadband = Math.abs(percentOutput.value) > kDeadband;
             return aboveDeadband;
         }).whenPressed(command);
+    }
+
+    @Override
+    public void bindMoveDrivetrain(SuppliedCommand<Pose2dValue> command) {
+        Supplier<Pose2dValue> pose2dSupplier = () -> {
+            Pose2d value = new Pose2d(new Translation2d(0,0), new Rotation2d(0));         
+            return new Pose2dValue(value);
+        };
+        command.setSupplier(pose2dSupplier);
+        new JoystickButton(m_controller, XboxController.Button.kX.value).whenPressed(command);
     }
 
     @Override

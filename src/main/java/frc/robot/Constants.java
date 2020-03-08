@@ -9,6 +9,7 @@ package frc.robot;
 
 import org.ballardrobotics.types.PIDValues;
 
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.util.Units;
 
 /**
@@ -46,6 +47,15 @@ public final class Constants {
         public static final double kS = 0.0;
         public static final double kV = 0.0;
         public static final double kA = 0.0;
+		public static double kMaxSpeedMetersPerSecond = 3;
+		public static double kMaxAccelerationMetersPerSecondSquared = 3;
+        public static DifferentialDriveKinematics kDriveKinematics;
+		public static Object kRamseteB;
+		public static Object kRamseteZeta;
+        public static final double ksVolts = 0.22;
+        public static final double kvVoltSecondsPerMeter = 1.98;
+        public static final double kaVoltSecondsSquaredPerMeter = 0.2;
+		
     }
 
     public static final class ArmConstants {

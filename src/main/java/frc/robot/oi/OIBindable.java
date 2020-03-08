@@ -3,6 +3,7 @@ package frc.robot.oi;
 import org.ballardrobotics.commands.SuppliedCommand;
 import org.ballardrobotics.types.supplied.ArcadeDriveValue;
 import org.ballardrobotics.types.supplied.PercentOutputValue;
+import org.ballardrobotics.types.supplied.Pose2dValue;
 import org.ballardrobotics.types.supplied.TankDriveValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -11,6 +12,7 @@ public interface OIBindable {
     // Drivetrain
     void bindArcadeDrive(SuppliedCommand<ArcadeDriveValue> command);
     void bindTankDrive(SuppliedCommand<TankDriveValue> command);
+    void bindMoveDrivetrain(SuppliedCommand<Pose2dValue> command);
 
     // Transmission
     void bindTransmissionSetLow(Command command);
