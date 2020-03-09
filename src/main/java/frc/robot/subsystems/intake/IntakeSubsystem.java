@@ -27,7 +27,7 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
   private CANPIDController m_motorPID;
 
   public enum IntakeState {
-    GROUND_PICKUP, STATION_PICKUP, STOWED;
+    GROUND_PICKUP, STATION_PICKUP, STOWED, FLIP;
   }
 
   private IntakeState currentState;
@@ -66,12 +66,21 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
     // This method will be called once per scheduler run
   }
 
+  public void pickupFromGround(){
+    moveIntake(IntakeState.GROUND_PICKUP);
+    startMotor();
+  }
+
   public void groundPickup() {
     moveIntake(IntakeState.GROUND_PICKUP);
   }
 
   public void stationPickup() {
     moveIntake(IntakeState.STATION_PICKUP);
+  }
+
+  public void flipIntake(){
+    moveIntake(IntakeState.FLIP);
   }
 
   // This is the default command
@@ -96,6 +105,10 @@ public class IntakeSubsystem extends SubsystemBase implements SmartSubsystem{
       case STOWED:
         m_solenoidArm.set(false);
         m_solenoidBase.set(false);
+      break;
+
+      case FLIP:
+        m_solenoidArm.set(true);
       break;
 
       default:

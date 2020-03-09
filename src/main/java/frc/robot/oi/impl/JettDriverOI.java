@@ -19,7 +19,7 @@ public class JettDriverOI implements DriverOI {
 
     @Override
     public Button getGroundIntakeButton() {
-        return new Button(() -> m_controller.getTriggerAxis(Hand.kLeft) > 0.1);
+        return new Button(() -> m_controller.getTriggerAxis(Hand.kLeft) > 0.2);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class JettDriverOI implements DriverOI {
 
     @Override
     public Button getSetpointShootingButton(){
-        return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
+        return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.2);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class JettDriverOI implements DriverOI {
 
     @Override
     public Button getFeedButton() {
-        return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.1);
+        return new Button(() -> m_controller.getTriggerAxis(Hand.kRight) > 0.2);
     }
 
     // ---------------- Drivetrain ----------------------------

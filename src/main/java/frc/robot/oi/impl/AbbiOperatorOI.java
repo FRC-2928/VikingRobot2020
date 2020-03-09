@@ -51,7 +51,7 @@ public class AbbiOperatorOI implements OperatorOI {
 
     @Override
     public Button getMoveTurretButton() {
-        return new Button(() -> Math.abs(m_controller.getX(Hand.kRight)) > 0.1);
+        return new Button(() -> Math.abs(m_controller.getX(Hand.kRight)) > 0.15);
     }
 
     // ------------ Shooting ---------------------

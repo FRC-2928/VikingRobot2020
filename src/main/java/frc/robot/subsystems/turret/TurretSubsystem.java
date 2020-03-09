@@ -301,6 +301,7 @@ public class TurretSubsystem extends SubsystemBase implements SmartSubsystem{
   }
 
   public void setPosition(double degrees) {
+      degrees -= 2; //Crappy offset for testing
       m_setpoint = degrees;
       kF = SmartDashboard.getNumber("Turret kF", kF);
 

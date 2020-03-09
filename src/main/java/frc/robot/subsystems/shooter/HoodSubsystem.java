@@ -110,6 +110,7 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Hood Degrees", getHoodDegrees());
+    SmartDashboard.putBoolean("Hood at Reference", atReference());
   }
 
   public void setSetpoint(boolean enabled, double setpoint){
@@ -176,6 +177,7 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
 
   //In total degrees of the hood, ex 30 degrees is hood all the way down
   public void setHoodDegrees(double reference){
+    m_setpoint = reference;
 
     if(reference < 0){
       kF = -kF;

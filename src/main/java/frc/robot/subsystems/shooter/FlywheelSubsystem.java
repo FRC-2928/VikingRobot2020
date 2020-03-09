@@ -85,7 +85,7 @@ public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
     SmartDashboard.putNumber("Flywheel RPM", getVelocity());
     SmartDashboard.putNumber("Flywheel current draw", m_flywheelMotor.getSupplyCurrent());
     SmartDashboard.putNumber("Flywheel Voltage", m_flywheelMotor.getMotorOutputVoltage());
-    SmartDashboard.putNumber("Flywheel FPS", getFlywheelVelocityFPS());
+    SmartDashboard.putBoolean("Flywheel at Reference", atReference());
   }
 
   public void setSetpoint(boolean enabled, double setpoint){

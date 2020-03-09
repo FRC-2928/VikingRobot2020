@@ -96,6 +96,7 @@ public class FeederSubsystem extends SubsystemBase implements SmartSubsystem{
     //configIndexPower();
 
     writeStateToDashboard();
+    SmartDashboard.putData("Feeder Command", this);
   }
 
   public void stopFeeder() {

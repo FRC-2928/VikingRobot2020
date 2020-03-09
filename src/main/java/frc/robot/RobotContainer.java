@@ -17,6 +17,7 @@ import frc.robot.commands.controller.RumbleControllerWhileHeld;
 import frc.robot.commands.drivetrain.Drive;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.intake.StopFeeder;
+import frc.robot.commands.shooter.ShootCommand;
 import frc.robot.commands.shooter.ShooterManagerSetReference;
 import frc.robot.commands.turret.TrackTargetCommand;
 import frc.robot.commands.turret.TurretStopTracking;
@@ -140,8 +141,8 @@ public class RobotContainer {
     // );
     String flywheelKey = "Shooter Manager Flywheel Reference";
     String hoodKey = "Shooter Manager Hood Reference";
-    SmartDashboard.putNumber(hoodKey, 35);
-    SmartDashboard.putNumber(flywheelKey, 4250);
+    SmartDashboard.putNumber(hoodKey, 0);
+    SmartDashboard.putNumber(flywheelKey, 4000);
 
     // m_driverOI.getAutoShootingButton().whileHeld(
     //   new ParallelCommandGroup(
@@ -150,13 +151,12 @@ public class RobotContainer {
     //   )
     // );
     
-    m_driverOI.getAutoShootingButton().whileHeld(
-      new RunCommand(
-        () -> {
-            m_flywheel.setVelocity(m_shooterManager.getFlywheelReference());
-            m_hood.setHoodDegrees(m_shooterManager.getHoodReference());
-        }, 
-        m_flywheel,m_hood));
+    m_driverOI.getAutoShootingButton().whileHeld(new ShootCommand(m_flywheel, m_hood, m_feeder, m_shooterManager));
+    m_driverOI.getAutoShootingButton().whenReleased(new StartFeeder(m_feeder));
+    
+    
+     m_driverOI.getAutoShootingButton().whileHeld(new RumbleControllerWhileHeld(m_driverController, 0.5));
+
 
     m_driverOI.getShooterDebugButton().whenPressed(
       new ShooterManagerSetReference(
@@ -183,15 +183,11 @@ public class RobotContainer {
       }
       ));
 
-    m_driverOI.getInitiationlineShotButton().whenPressed(
-      new ShooterManagerSetReference(m_shooterManager, 35, 4000)); //4000
-    
-
     m_driverOI.getFeedButton().whileHeld(new RunCommand(m_feeder::startFeeder, m_feeder));
     m_driverOI.getFeedButton().whenReleased(new StartFeeder(m_feeder));
 
     m_operatorOI.getShootFromWallButton().whenPressed(
-      new ShooterManagerSetReference(m_shooterManager, 0, 3500));
+      new ShooterManagerSetReference(m_shooterManager, 15, 3250));
 
     m_operatorOI.getShootFromLineButton().whenPressed(
       new ShooterManagerSetReference(m_shooterManager, 35, 6100));
@@ -229,7 +225,7 @@ public class RobotContainer {
     m_operatorOI.enableFeederButton().whenPressed(new StartFeeder(m_feeder));
     m_operatorOI.disableFeederButton().whenPressed(new StopFeeder(m_feeder));
     m_operatorOI.reverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
-    m_operatorOI.feedButton().whileHeld(new RunCommand(() -> m_feeder.fastForwardFeeder(), m_feeder));
+    m_operatorOI.feedButton().whileHeld(new RunCommand(m_feeder::startFeeder, m_feeder));
   }
 
   public void ConfigureClimberButtons() {
@@ -254,7 +250,11 @@ public class RobotContainer {
       // run motors
       new RunCommand(m_intake::startMotor, m_intake)
     ));
-    m_driverOI.getGroundIntakeButton().whileHeld(new RumbleControllerWhileHeld(m_driverController, 0.7));
+
+    m_driverOI.getGroundIntakeButton().whileHeld(new RumbleControllerWhileHeld(m_driverController, 0.3));
+
+    m_driverOI.getGroundIntakeButton().whenReleased(
+      new RunCommand(m_intake::flipIntake).withTimeout(0.3));
 
     // Pickup balls from the Player Station
     m_driverOI.getStationIntakeButton().whileHeld(new SequentialCommandGroup(
