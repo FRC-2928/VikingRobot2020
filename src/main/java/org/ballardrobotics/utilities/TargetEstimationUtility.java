@@ -5,7 +5,7 @@ import org.ballardrobotics.types.TargetEstimate;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 
 /**
- * TargetEstimationUtiltiy
+ * TargetEstimationUtility
  */
 public class TargetEstimationUtility {
 

@@ -110,12 +110,12 @@ public class ElevatorSubsystem extends SubsystemBase implements SmartSubsystem{
 
   // --------- Smart subsystem implementation -----------
 
-  public void setPosition(Pose2d position) {
+  public void setPositionReference(Pose2d reference) {
+    m_setpoint = reference;
     disengateBrake();
-    m_setpoint = position;
   }
 
-  public void moveToPosition() {
+  public void setPosition() {
     m_controller.setProfiledPosition(m_setpoint.getTranslation().getX());
   }
 

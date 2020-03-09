@@ -1,7 +1,5 @@
 package org.ballardrobotics.subsystems.vision;
 
-import org.ballardrobotics.types.LimelightData;
-
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,13 +20,18 @@ public class LimelightBase extends SubsystemBase {
   
   // Output Entries
   private final NetworkTableEntry m_targetFoundEntry;
-  private final NetworkTableEntry m_xAngleEntry;
-  private final NetworkTableEntry m_yAngleEntry;
+  private final NetworkTableEntry m_horizontalAngleEntry;
+  private final NetworkTableEntry m_verticalAngleEntry;
   private final NetworkTableEntry m_skewEntry;
   private final NetworkTableEntry m_areaEntry;
 
-  protected final LimelightData m_data;
   protected final NetworkTable m_table;
+
+  protected boolean m_targetFound;
+  protected double m_horizontalAngle;
+  protected double m_verticalAngle;
+  protected double m_skew;
+  protected double m_area;
 
   public enum CameraMode {
     Driver, Tracking
@@ -41,21 +44,19 @@ public class LimelightBase extends SubsystemBase {
     m_ledEntry = table.getEntry("ledMode");
 
     m_targetFoundEntry = table.getEntry("ts");
-    m_xAngleEntry = table.getEntry("tx");
-    m_yAngleEntry = table.getEntry("tx");
+    m_horizontalAngleEntry = table.getEntry("tx");
+    m_verticalAngleEntry = table.getEntry("tx");
     m_skewEntry = table.getEntry("ty");
     m_areaEntry = table.getEntry("ta");
-    
-    m_data = new LimelightData();
   }
 
   @Override
   public void periodic() {
-    m_data.setTargetFound(m_targetFoundEntry.getBoolean(false));
-    m_data.setHorizontalAngle(m_xAngleEntry.getDouble(0.0));
-    m_data.setVerticalAngle(m_yAngleEntry.getDouble(0.0));
-    m_data.setSkew(m_skewEntry.getDouble(0.0));
-    m_data.setArea(m_areaEntry.getDouble(0.0));
+    m_targetFound = m_targetFoundEntry.getBoolean(false);
+    m_horizontalAngle = m_horizontalAngleEntry.getDouble(0.0);
+    m_verticalAngle = m_verticalAngleEntry.getDouble(0.0);
+    m_skew = m_skewEntry.getDouble(0.0);
+    m_area = m_areaEntry.getDouble(0.0);
   }
 
   public void setPipeline(int pipeline) {
@@ -77,7 +78,23 @@ public class LimelightBase extends SubsystemBase {
     m_ledEntry.forceSetNumber(kForceOffLED);
   }
 
-  public LimelightData getData() {
-    return m_data;
+  public boolean getTargetFound() {
+    return m_targetFound;
+  }
+
+  public double getHorizontalAngle() {
+    return m_horizontalAngle;
+  }
+
+  public double getVerticalAngle() {
+    return m_verticalAngle;
+  }
+
+  public double getSkew() {
+    return m_skew;
+  }
+
+  public double getArea() {
+    return m_area;
   }
 }

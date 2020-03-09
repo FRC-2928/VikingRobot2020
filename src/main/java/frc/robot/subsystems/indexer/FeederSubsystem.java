@@ -3,15 +3,12 @@ package frc.robot.subsystems.indexer;
 import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import org.ballardrobotics.speedcontrollers.ctre.SmartVictorSPX;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
-import org.ballardrobotics.types.supplied.PercentOutputValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Robot;
-import frc.robot.commands.indexer.feeder.FeederSetPercentOutputCommand;
 
 public class FeederSubsystem extends SubsystemBase {
   private SmartSpeedController m_controller;
@@ -48,14 +45,6 @@ public class FeederSubsystem extends SubsystemBase {
     m_topSensor = topSensor;
     m_middleSensor = middleSensor;
     m_bottomSensor = bottomSensor;
-  }
-
-  public void configureShuffleboard(ShuffleboardLayout stateLayout, ShuffleboardLayout controlLayout) {
-    stateLayout.addNumber("measured_voltage", m_controller::getMeasuredVoltage);
-    stateLayout.addNumber("target_voltage", m_controller::getTargetVoltage);
-
-    var entry = controlLayout.add("percent_out", 0).getEntry();
-    controlLayout.add("use_percent_out", new FeederSetPercentOutputCommand(this, () -> new PercentOutputValue(entry.getDouble(0))));
   }
 
   @Override

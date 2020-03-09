@@ -10,6 +10,7 @@ package frc.robot;
 import org.ballardrobotics.types.PIDValues;
 
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.util.Units;
 
 /**
@@ -56,6 +57,9 @@ public final class Constants {
         public static final double kvVoltSecondsPerMeter = 1.98;
         public static final double kaVoltSecondsSquaredPerMeter = 0.2;
 		
+
+        public static final double kRotateTimeToFull = 0.05;
+        public static final double kMoveTimeToFull = 0.25;
     }
 
     public static final class ArmConstants {
@@ -120,7 +124,7 @@ public final class Constants {
         public static final double kMaxAngle = 225.0;
 
         public static final double kAcceptablePositionErrorDeg = 2.0;
-        public static final double kAcceptableVelocityErrorDegPerSec = 0.5;
+        public static final double kAcceptableSpeedErrorDegPerSec = 0.5;
 
         public static final PIDValues kPID = new PIDValues()
             .withP(0.055)

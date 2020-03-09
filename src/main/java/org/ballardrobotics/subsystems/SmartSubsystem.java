@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 public interface SmartSubsystem extends Subsystem {
 
     // Control Inputs
-    public void setPosition(Pose2d position);
-    public void moveToPosition();
+    public void setPositionReference(Pose2d reference);
+    public void setPosition();
     public void setVelocity(Twist2d velocity);
 
     // System State

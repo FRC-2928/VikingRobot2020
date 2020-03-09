@@ -1,6 +1,7 @@
 package frc.robot.subsystems.chassis;
 
 import java.util.List;
+import java.util.Map;
 
 import org.ballardrobotics.sensors.IMU;
 import org.ballardrobotics.sensors.ctre.WPI_PigeonIMU;
@@ -10,6 +11,7 @@ import org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import org.ballardrobotics.subsystems.SmartSubsystem;
 
+import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.RamseteController;
 import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
@@ -30,13 +32,31 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.ShuffleboardConstants;
 import frc.robot.Robot;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
-public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem {
-  private SmartSpeedController m_leftController, m_rightController;
-  private TransmissionSubsystem m_transmission;
+public class DrivetrainSubsystem extends SubsystemBase implements Loggable, SmartSubsystem {
+  private class State implements Loggable {
+    @Log
+    double poseX;
+    @Log
+    double poseY;
+  }
+
+  @Override
+  public boolean skipLayout() {
+    return true;
+  }
+
+  private State state = new State();
+  private SmartSpeedController m_leftController;
+  private SmartSpeedController m_rightController;
   private IMU m_gyro;
 
   private DifferentialDrive m_drive;
+  private TransmissionSubsystem m_transmission;
+  private SlewRateLimiter m_moveLimiter;
+  private SlewRateLimiter m_rotateLimiter;
 
   private DifferentialDriveKinematics m_kinematics;
 
@@ -94,6 +114,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     m_drive = new DifferentialDrive(m_leftController, m_rightController);
     m_drive.setRightSideInverted(false);
     m_drive.setDeadband(0.1);
+    m_moveLimiter = new SlewRateLimiter(1.0 / DrivetrainConstants.kMoveTimeToFull);
+    m_rotateLimiter = new SlewRateLimiter(1.0 / DrivetrainConstants.kRotateTimeToFull);
 
     setTolerance(new Pose2d(new Translation2d(0.01, 0.01), 
                             new Rotation2d(1.0)));
@@ -202,7 +224,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
   }
 
   public void arcadeDrive(double move, double rotate) {
-    m_drive.arcadeDrive(move, rotate);
+    m_drive.arcadeDrive(m_moveLimiter.calculate(move), m_rotateLimiter.calculate(rotate));
   }
 
   public void tankDrive(double left, double right) {
@@ -281,7 +303,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
 
   // --------- Smart subsystem implementation -----------
 
-  public void setPosition(Pose2d position){
+  public void setPositionReference(Pose2d position){
     m_setpoint = position;
     m_trajectory = TrajectoryGenerator.generateTrajectory(
       // Start at the current position
@@ -297,7 +319,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
     m_timer.start();
   }
 
-  public void moveToPosition() {
+  public void setPosition() {
     double curTime = m_timer.get();
 
     var targetWheelSpeeds = m_kinematics.toWheelSpeeds(
@@ -308,13 +330,6 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
 
     setLeftRightVelocity(leftVelocityRotations, rightVelocityRotations);
   }
-
-  // public void setLeftRightPosition(double leftPosition, double rightPosition) {
-  //   m_leftController.setProfiledPosition(leftPosition); 
-  //   m_rightController.setProfiledPosition(rightPosition); 
-  //   m_drive.feed();
-  // }
-
 
   // In meters/radians per second
   public void setVelocity(Twist2d velocity) {

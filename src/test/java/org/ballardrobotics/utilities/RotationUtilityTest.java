@@ -41,7 +41,7 @@ public class RotationUtilityTest {
 
         for (var test : tests) {
             String message = "getTargetAngle(" + test.inputAngle + ", " + test.currentAngle + ", " + test.minAngle + ", " + test.maxAngle + ")";
-            double got = RotationUtility.getTargetAngle(test.inputAngle, test.currentAngle, test.minAngle, test.maxAngle);
+            double got = TurretUtility.getTargetAngle(test.inputAngle, test.currentAngle, test.minAngle, test.maxAngle);
             double want = test.expectedOutput;
             collector.checkThat(message, got, IsEqual.equalTo(want));
         }

@@ -1,29 +1,24 @@
 package frc.robot.commands.chassis.drivetrain;
 
-import java.util.function.Supplier;
+import java.util.function.DoubleSupplier;
 
-import org.ballardrobotics.commands.SuppliedCommand;
-import org.ballardrobotics.types.supplied.ArcadeDriveValue;
-
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.chassis.DrivetrainSubsystem;
 
-public class DrivetrainArcadeDriveCommand extends SuppliedCommand<ArcadeDriveValue> {
+public class DrivetrainArcadeDriveCommand extends CommandBase {
   private DrivetrainSubsystem m_drivetrain;
+  private DoubleSupplier m_moveSupplier;
+  private DoubleSupplier m_rotateSupplier;
 
-  public DrivetrainArcadeDriveCommand(DrivetrainSubsystem drivetrain) {
-    this(drivetrain, () -> new ArcadeDriveValue(0.0, 0.0));
-  }
-
-  public DrivetrainArcadeDriveCommand(DrivetrainSubsystem drivetrain, Supplier<ArcadeDriveValue> supplier) {
-    super(supplier);
+  public DrivetrainArcadeDriveCommand(DrivetrainSubsystem drivetrain, DoubleSupplier moveSupplier, DoubleSupplier rotateSupplier) {
     addRequirements(drivetrain);
     m_drivetrain = drivetrain;
+    m_moveSupplier = moveSupplier;
+    m_rotateSupplier = rotateSupplier;
   }
-
 
   @Override
   public void execute() {
-    var arcadeDriveValue = m_supplier.get();
-    m_drivetrain.arcadeDrive(arcadeDriveValue.move, arcadeDriveValue.rotate);
+    m_drivetrain.arcadeDrive(m_moveSupplier.getAsDouble(), m_rotateSupplier.getAsDouble());
   }
 }
