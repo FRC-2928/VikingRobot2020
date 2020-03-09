@@ -284,8 +284,8 @@ public class DrivetrainSubsystem extends SubsystemBase implements SmartSubsystem
   public void setPosition(Pose2d position){
     m_setpoint = position;
     m_trajectory = TrajectoryGenerator.generateTrajectory(
-      // Start at the origin facing the +X direction
-      new Pose2d(0, 0, new Rotation2d(0)),
+      // Start at the current position
+      m_pose,
       // Pass through these interior waypoints, leave empty for now
       List.of(),
       // Pass the ending pose
