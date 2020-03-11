@@ -31,14 +31,6 @@ public class HoodSubsystem extends SubsystemBase implements SmartSubsystem {
 
   private double m_setpointReference;
   private boolean m_setpointEnabled;
-  
-  private final double kMaxOutput = HoodConstants.kMaxOutput;
-  private final double kMinOutput = HoodConstants.kMinOutput;
-  private final double kMaxRPM = HoodConstants.kMaxRPM;
-  private final double kMaxVel = HoodConstants.kMaxVel;
-  private final double kMinVel = HoodConstants.kMinVel;
-  private final double kMaxAcc = HoodConstants.kMaxAcc;
-  private final double kAllowedError = HoodConstants.kAllowedError;
 
   private final double kP = PIDConstants.kHoodkP;
   private final double kD = PIDConstants.kHoodkD;

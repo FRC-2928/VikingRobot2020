@@ -10,6 +10,7 @@ import frc.robot.subsystems.shooter.FlywheelSubsystem;
 import frc.robot.subsystems.shooter.HoodSubsystem;
 import frc.robot.subsystems.shooter.ShooterManager;
 import frc.robot.subsystems.turret.TurretSubsystem;
+import frc.robot.types.DistanceMap;
 import frc.robot.utilities.Limelight;
 import frc.robot.utilities.Limelight.Limelights;
 import frc.robot.utilities.Pigeon;
@@ -32,8 +33,11 @@ public class SubsystemContainer {
     public final Pigeon pigeon = new Pigeon();
     public final ShooterManager shooterManager = new ShooterManager();
     public final Limelight turretLimelight = new Limelight(Limelights.TURRET);
+    public final DistanceMap distanceMap = DistanceMap.getInstance();
 
     public SubsystemContainer(){
+        DistanceMap.getInstance().loadMaps();
+
         //Default commands
         drivetrain.setDefaultCommand(new RunCommand(drivetrain::stop, drivetrain));
         flywheel.setDefaultCommand(new RunCommand(flywheel::stop, flywheel));

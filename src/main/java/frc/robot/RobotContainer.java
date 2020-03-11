@@ -53,8 +53,6 @@ import frc.robot.utilities.Limelight.Limelights;
 public class RobotContainer {
   private final SubsystemContainer m_subsystemContainer = new SubsystemContainer();
 
-  private final DistanceMap m_distanceMap = DistanceMap.getInstance();
-
   private final SendableChooser<AutoType> m_autoChooser;
 
   public enum AutoType{
@@ -91,21 +89,21 @@ public class RobotContainer {
     new StartFeeder(m_subsystemContainer.feeder).schedule();
 
     new ShooterManagerSetReference(m_subsystemContainer.shooterManager,
-    () -> {
-      //Hood
-      if(m_subsystemContainer.turretLimelight.isTargetFound()){
-        return m_distanceMap.getHoodDegrees(m_subsystemContainer.turretLimelight.getTargetDistance());
+      () -> {
+        //Hood
+        if(m_subsystemContainer.turretLimelight.isTargetFound()){
+          return m_subsystemContainer.distanceMap.getHoodDegrees(m_subsystemContainer.turretLimelight.getTargetDistance());
+        }
+        return m_subsystemContainer.distanceMap.getHoodDegrees(3);
+      },
+      () -> {
+        //Flywheel
+        if(m_subsystemContainer.turretLimelight.isTargetFound()){
+          return m_subsystemContainer.distanceMap.getFlywheelRPM(m_subsystemContainer.turretLimelight.getTargetDistance());
+        }
+        return  m_subsystemContainer.distanceMap.getFlywheelRPM(5);
       }
-      return 0;
-    },
-    () -> {
-      //Flywheel
-      if(m_subsystemContainer.turretLimelight.isTargetFound()){
-        return m_distanceMap.getFlywheelRPM(m_subsystemContainer.turretLimelight.getTargetDistance());
-      }
-      return 3000;
-    }
-    ).schedule();
+      ).schedule();
   }
 
   /**
@@ -117,79 +115,14 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     configureControlPanelButtons();
-    configureIntakeButtons();
     configureFeederButtons();
     ConfigureClimberButtons();
     configureTurretButtons();
     configureShooterButtons();
-    configureDrivetrainButtons();
 
-  }
-
-  public void configureDrivetrainButtons() {
-    m_driverOI.getShiftLowButton().whenPressed(new InstantCommand(m_transmission::setLow, m_transmission));
-
-    m_driverOI.getShiftHighButton().whenPressed(new InstantCommand(m_transmission::setHigh, m_transmission));
   }
 
   public void configureShooterButtons(){
-    // Set the hood and flywheel
-    // m_driverOI.getAutoShootingButton()
-    //     .whileHeld(new ParallelCommandGroup(
-    //       new SetHoodPosition(m_hood, m_turretLimelight),
-    //       new SpinUpFlywheel(m_flywheel, m_turretLimelight))
-    // );
-    String flywheelKey = "Shooter Manager Flywheel Reference";
-    String hoodKey = "Shooter Manager Hood Reference";
-    SmartDashboard.putNumber(hoodKey, 35);
-    SmartDashboard.putNumber(flywheelKey, 4250);
-
-    // m_driverOI.getAutoShootingButton().whileHeld(
-    //   new ParallelCommandGroup(
-    //     new RunCommand(() -> m_flywheel.setVelocity(m_shooterManager.getFlywheelReference()), m_flywheel),
-    //     new RunCommand(() -> m_hood.setHoodDegrees(m_shooterManager.getHoodReference()), m_hood)
-    //   )
-    // );
-    
-    m_driverOI.getAutoShootingButton().whileHeld(
-      new RunCommand(
-        () -> {
-            m_flywheel.setVelocity(m_shooterManager.getFlywheelReference());
-            m_hood.setHoodDegrees(m_shooterManager.getHoodReference());
-        }, 
-        m_flywheel,m_hood));
-
-    m_driverOI.getShooterDebugButton().whenPressed(
-      new ShooterManagerSetReference(
-        m_shooterManager,
-        () -> SmartDashboard.getNumber(hoodKey, 0),
-        () -> SmartDashboard.getNumber(flywheelKey, 0)
-    ));
-
-    m_driverOI.getFenderShotButton().whenPressed(
-      new ShooterManagerSetReference(m_shooterManager,
-      () -> {
-        //Hood
-        if(m_turretLimelight.isTargetFound()){
-          return m_distanceMap.getHoodDegrees(m_turretLimelight.getTargetDistance());
-        }
-        return 0;
-      },
-      () -> {
-        //Flywheel
-        if(m_turretLimelight.isTargetFound()){
-          return m_distanceMap.getFlywheelRPM(m_turretLimelight.getTargetDistance());
-        }
-        return 3000;
-      }
-      ));
-
-    m_driverOI.getInitiationlineShotButton().whenPressed(
-      new ShooterManagerSetReference(m_shooterManager, 35, 4000)); //4000
-    
-
-    m_driverOI.getFeedButton().whileHeld(new RunCommand(m_feeder::startFeeder, m_feeder));
-    m_driverOI.getFeedButton().whenReleased(new StartFeeder(m_feeder));
 
     m_operatorOI.getShootFromWallButton().whenPressed(
       new ShooterManagerSetReference(m_shooterManager, 0, 3500));
@@ -226,7 +159,6 @@ public class RobotContainer {
   }
 
   public void configureFeederButtons() {
-
     m_operatorOI.enableFeederButton().whenPressed(new StartFeeder(m_feeder));
     m_operatorOI.disableFeederButton().whenPressed(new StopFeeder(m_feeder));
     m_operatorOI.reverseFeederButton().whileHeld(new RunCommand(() -> m_feeder.reverseFeeder()));
@@ -244,29 +176,6 @@ public class RobotContainer {
 
   }
 
-  private void configureIntakeButtons() {
-
-    // Pickup balls from the ground
-    m_driverOI.getGroundIntakeButton().whileHeld(new SequentialCommandGroup(
-      //extend intake
-      new InstantCommand(m_intake::groundPickup, m_intake),
-      //wait until intake deploys
-      // new WaitCommand(0.1),
-      // run motors
-      new RunCommand(m_intake::startMotor, m_intake)
-    ));
-
-    // Pickup balls from the Player Station
-    m_driverOI.getStationIntakeButton().whileHeld(new SequentialCommandGroup(
-      //extend intake
-      new InstantCommand(m_intake::stationPickup, m_intake ),
-      //wait until intake deploys
-      // new WaitCommand(0.1),
-      // run motors
-      new RunCommand(m_intake::reverseMotor, m_intake)
-    ));
-  }
-
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -278,10 +187,10 @@ public class RobotContainer {
         return new WaitCommand(15);
 
       case DRIVE:
-        return new Drive(m_drivetrain, 0.35, 0).withTimeout(2);
+        return new Drive(m_subsystemContainer, 0.35, 0).withTimeout(2);
 
       case SHOOT_THEN_DRIVE:
-        return new ShootThreeThenDrive(m_drivetrain, m_flywheel, m_hood, m_turret, m_feeder, m_turretLimelight);
+        return new ShootThreeThenDrive(m_subsystemContainer);
 
       default:
         return new WaitCommand(15);

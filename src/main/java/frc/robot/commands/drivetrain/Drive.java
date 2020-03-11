@@ -1,14 +1,15 @@
 package frc.robot.commands.drivetrain;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.SubsystemContainer;
 import frc.robot.subsystems.drivetrain.DrivetrainSubsystem;
 
 public class Drive extends CommandBase {
   DrivetrainSubsystem m_drivetrain;
   double m_throttle;
   double m_turn;
-  public Drive(DrivetrainSubsystem drivetrain, double throttle, double turn) {
-    m_drivetrain = drivetrain;
+  public Drive(SubsystemContainer subsystems, double throttle, double turn) {
+    m_drivetrain = subsystems.drivetrain;
     m_throttle = throttle;
     m_turn = turn;
 
