@@ -8,9 +8,14 @@
 package frc.robot;
 
 import org.ballardrobotics.types.PIDValues;
+import org.ballardrobotics.types.SetpointTolerance;
 
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.SlewRateLimiter;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.geometry.Translation2d;
+import edu.wpi.first.wpilibj.geometry.Twist2d;
 import edu.wpi.first.wpilibj.util.Units;
 
 /**
@@ -60,6 +65,10 @@ public final class Constants {
 
         public static final double kRotateTimeToFull = 0.05;
         public static final double kMoveTimeToFull = 0.25;
+
+        public static final SetpointTolerance kSetpointTolerance =
+            new SetpointTolerance(new Pose2d(0.01, 0.01, new Rotation2d(0.1)), 
+            new Twist2d(0.1, 0.0, 0.1));
     }
 
     public static final class ArmConstants {
@@ -73,6 +82,9 @@ public final class Constants {
 
         public static final double kAcceptablePositionErrorMeters = 0.02;
         public static final double kAcceptableVelocityErrorMetersPerSecond = 0.01;
+        public static final SetpointTolerance kSetpointTolerance =
+            new SetpointTolerance(new Pose2d(0.01, 0.01, new Rotation2d(0.1)), 
+            new Twist2d(0.1, 0.0, 0.1));
     }
 
     public static final class TransmissionConstants {
@@ -90,6 +102,10 @@ public final class Constants {
         public static final PIDValues kPID = new PIDValues()
             .withP(0.04)
             .withF((1023.0 * 0.75) / 16000.0);
+
+        public static final SetpointTolerance kSetpointTolerance =
+            new SetpointTolerance(new Pose2d(0.01, 0.01, new Rotation2d(0.1)), 
+            new Twist2d(0.1, 0.0, 0.1));    
     }
 
     public static final class HoodConstants {

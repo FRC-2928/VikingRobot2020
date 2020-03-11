@@ -10,7 +10,7 @@ import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import org.ballardrobotics.subsystems.SmartSubsystem;
-
+import org.ballardrobotics.types.Setpoint;
 import edu.wpi.first.wpilibj.SlewRateLimiter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.RamseteController;
@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.geometry.Twist2d;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
@@ -71,9 +70,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements Loggable, Smar
 
   private Pose2d m_pose;
   private Twist2d m_twist;
-  private Pose2d m_poseTolerance;
-  private Pose2d m_poseError;
-  private Pose2d m_setpoint;
+  private Setpoint m_setpoint;
 
   private double m_heading;
   private double m_leftPosition, m_rightPosition;
@@ -117,8 +114,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements Loggable, Smar
     m_moveLimiter = new SlewRateLimiter(1.0 / DrivetrainConstants.kMoveTimeToFull);
     m_rotateLimiter = new SlewRateLimiter(1.0 / DrivetrainConstants.kRotateTimeToFull);
 
-    setTolerance(new Pose2d(new Translation2d(0.01, 0.01), 
-                            new Rotation2d(1.0)));
+    m_setpoint = new Setpoint(DrivetrainConstants.kSetpointTolerance);                     
 
     resetGyro();
     resetEncoders();
@@ -164,11 +160,11 @@ public class DrivetrainSubsystem extends SubsystemBase implements Loggable, Smar
     m_rightCurrent = m_rightController.getMeasuredCurrent();
 
     m_pose = m_odometry.update(Rotation2d.fromDegrees(m_heading), m_leftPosition, m_rightPosition);
-    m_poseError = m_setpoint.relativeTo(m_pose);
-
     m_twist.dx = getLeftVelocity() + getRightVelocity() / 2;
     m_twist.dy = 0;
     m_twist.dtheta = getHeadingVelocity();
+
+    m_setpoint.updateError(m_pose, m_twist);
 
     SmartDashboard.putNumber("drive_heading", m_heading);
     SmartDashboard.putNumber("drive_left_pos", m_leftPosition);
@@ -304,14 +300,16 @@ public class DrivetrainSubsystem extends SubsystemBase implements Loggable, Smar
   // --------- Smart subsystem implementation -----------
 
   public void setPositionReference(Pose2d position){
-    m_setpoint = position;
+
+    m_setpoint.create(position);
+
     m_trajectory = TrajectoryGenerator.generateTrajectory(
       // Start at the current position
       m_pose,
       // Pass through these interior waypoints, leave empty for now
       List.of(),
       // Pass the ending pose
-      m_setpoint,
+      m_setpoint.getPoseSetpoint(),
       // Pass config
       m_config
     );      
@@ -331,8 +329,11 @@ public class DrivetrainSubsystem extends SubsystemBase implements Loggable, Smar
     setLeftRightVelocity(leftVelocityRotations, rightVelocityRotations);
   }
 
-  // In meters/radians per second
   public void setVelocity(Twist2d velocity) {
+
+    m_setpoint.create(velocity);
+
+    // For now we'll only deal with X velocity
     double leftVelocityRotations = metersToMotorRotations(velocity.dx);
     double rightVelocityRotations = metersToMotorRotations(velocity.dx);
 
@@ -348,18 +349,7 @@ public class DrivetrainSubsystem extends SubsystemBase implements Loggable, Smar
   }
 
   public boolean atReference(){
-    final var eTranslate = m_poseError.getTranslation();
-    final var eRotate = m_poseError.getRotation();
-    final var tolTranslate = m_poseTolerance.getTranslation();
-    final var tolRotate = m_poseTolerance.getRotation();
-    return Math.abs(eTranslate.getX()) < tolTranslate.getX()
-           && Math.abs(eTranslate.getY()) < tolTranslate.getY()
-           && Math.abs(eRotate.getRadians()) < tolRotate.getRadians();
-  }
-
-  // Set tolerance for the atReference method
-  public void setTolerance(Pose2d poseTolerance) {
-    m_poseTolerance = poseTolerance;
+    return m_setpoint.atReference();
   }
 
   // Conversions

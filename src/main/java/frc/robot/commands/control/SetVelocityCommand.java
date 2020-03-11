@@ -1,36 +1,31 @@
 package frc.robot.commands.control;
 
-import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import org.ballardrobotics.subsystems.SmartSubsystem;
 
 /*
  * Move the subsystem to the requested position
  */
-public class SetPositionCommand extends CommandBase {
+public class SetVelocityCommand extends CommandBase {
     private SmartSubsystem m_subsystem;
-    private Pose2d m_pose;
+    private Twist2d m_twist;
     private Boolean m_stopIfFinished;
 
-    public SetPositionCommand(SmartSubsystem subsystem, Pose2d position) {
-        this(subsystem, position, false);
+    public SetVelocityCommand(SmartSubsystem subsystem, Twist2d velocity) {
+        this(subsystem, velocity, false);
     }
 
-    public SetPositionCommand(SmartSubsystem subsystem, Pose2d position, Boolean stopIfFinished) {
+    public SetVelocityCommand(SmartSubsystem subsystem, Twist2d velocity, Boolean stopIfFinished) {
         addRequirements(subsystem);
         m_subsystem = subsystem;
-        m_pose = position;
+        m_twist = velocity;
         m_stopIfFinished = stopIfFinished;
     }
 
     @Override
-    public void initialize() {
-        m_subsystem.setPositionReference(m_pose);
-    }
-
-    @Override
     public void execute() {
-        m_subsystem.setPosition();
+        m_subsystem.setVelocity(m_twist);
     }
 
     public boolean isFinished() {

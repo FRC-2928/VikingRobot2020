@@ -9,8 +9,12 @@ import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import org.ballardrobotics.types.PIDValues;
+import org.ballardrobotics.types.Setpoint;
 
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Twist2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Robot;
 
@@ -20,6 +24,10 @@ public class FlywheelSubsystem extends SubsystemBase {
   private double m_targetVoltage, m_measuredVoltage;
   private double m_targetVelocity, m_measuredVelocity;
   private boolean m_onTarget;
+
+  private Pose2d m_pose;
+  private Twist2d m_twist;
+  private Setpoint m_setpoint;
 
   private enum ControlMode {
     Stopped, OpenLoop, Velocity
@@ -58,7 +66,7 @@ public class FlywheelSubsystem extends SubsystemBase {
       controller.config_kD(SmartTalonFX.kVelocitySlotIdx, FlywheelConstants.kPID.getD());
       controller.config_kF(SmartTalonFX.kVelocitySlotIdx, FlywheelConstants.kPID.getF());
     });
-
+    
     return new FlywheelSubsystem(controller);
   }
 
@@ -69,6 +77,9 @@ public class FlywheelSubsystem extends SubsystemBase {
 
   public FlywheelSubsystem(SmartSpeedController controller) {
     m_controller = controller;
+
+    m_setpoint = new Setpoint(ElevatorConstants.kSetpointTolerance); 
+    m_twist = new Twist2d(0,0,0); 
   }
 
   @Override
@@ -78,6 +89,10 @@ public class FlywheelSubsystem extends SubsystemBase {
     m_targetVelocity = m_controller.getTargetVelocity();
     m_measuredVelocity = m_controller.getMeasuredVelocity();
     m_onTarget = Math.abs(m_targetVelocity - m_measuredVelocity) < FlywheelConstants.kAcceptableVelocityErrorRPM;
+
+    m_twist.dx = m_measuredVelocity;
+
+    m_setpoint.updateError(m_pose, m_twist);     
   }
 
   public void stop() {
@@ -113,5 +128,33 @@ public class FlywheelSubsystem extends SubsystemBase {
 
   public boolean atTargetVelocity() {
     return m_onTarget && m_mode == ControlMode.Velocity;
+  }
+
+  // --------- Smart subsystem implementation -----------
+
+  public void setPositionReference(Pose2d position) {
+    m_setpoint.create(position);
+  }
+
+  public void setPosition() {
+    double xPosition = m_setpoint.getPoseSetpoint().getTranslation().getX();
+    m_controller.setProfiledPosition(xPosition);
+  }
+
+  public void setVelocity(Twist2d velocity) {
+    m_setpoint.create(velocity);
+    double xVelocity = m_setpoint.getTwistSetpoint().dx;
+    m_controller.setVelocity(xVelocity);
+  }
+    
+  public boolean atReference(){
+    return m_setpoint.atReference();
+  }
+
+  public Pose2d getPosition(){
+    return m_pose;
+  }
+  public Twist2d getVelocity(){
+    return m_twist;
   }
 }

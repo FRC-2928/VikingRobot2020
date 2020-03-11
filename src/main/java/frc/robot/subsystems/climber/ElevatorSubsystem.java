@@ -4,6 +4,7 @@ import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
 import org.ballardrobotics.subsystems.SmartSubsystem;
+import org.ballardrobotics.types.Setpoint;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
@@ -23,11 +24,11 @@ public class ElevatorSubsystem extends SubsystemBase implements SmartSubsystem{
   private double m_targetPosition, m_measuredPosition;
   private double m_measuredVelocity;
   private boolean m_onTarget;
+
+  // SmartSubsystem parameters
   private Pose2d m_pose;
   private Twist2d m_twist;
-  private Pose2d m_poseTolerance;
-  private Pose2d m_poseError;
-  private Pose2d m_setpoint;
+  private Setpoint m_setpoint;
 
   public static ElevatorSubsystem create() {
     if (Robot.isReal()) {
@@ -52,8 +53,8 @@ public class ElevatorSubsystem extends SubsystemBase implements SmartSubsystem{
     m_controller = controller;
     m_solenoid = solenoid;
 
-    setTolerance(new Pose2d(new Translation2d(0.01, 0.01), 
-                            new Rotation2d(1.0)));
+    m_setpoint = new Setpoint(ElevatorConstants.kSetpointTolerance); 
+    m_twist = new Twist2d(0,0,0); 
   }
 
   @Override
@@ -63,12 +64,14 @@ public class ElevatorSubsystem extends SubsystemBase implements SmartSubsystem{
     m_targetPosition = m_controller.getTargetPostion();
     m_measuredPosition = m_controller.getMeasuredPosition();
     m_measuredVelocity = m_controller.getMeasuredVelocity();
-    m_poseError = m_setpoint.relativeTo(m_pose);
 
     m_onTarget = Math.abs(m_targetPosition - m_measuredPosition) < ElevatorConstants.kAcceptablePositionErrorMeters &&
                  Math.abs(m_measuredVelocity) < ElevatorConstants.kAcceptableVelocityErrorMetersPerSecond;
     
-                 
+    m_pose = new Pose2d(new Translation2d(m_measuredPosition, 0.0), new Rotation2d(0.0));
+    m_twist.dx = m_measuredVelocity;
+
+    m_setpoint.updateError(m_pose, m_twist);             
 
     SmartDashboard.putNumber("elevator_target_voltage", m_targetVoltage);
     SmartDashboard.putNumber("elevator_measured_voltage", m_measuredVoltage);
@@ -110,28 +113,24 @@ public class ElevatorSubsystem extends SubsystemBase implements SmartSubsystem{
 
   // --------- Smart subsystem implementation -----------
 
-  public void setPositionReference(Pose2d reference) {
-    m_setpoint = reference;
+  public void setPositionReference(Pose2d position) {
+    m_setpoint.create(position);
     disengateBrake();
   }
 
   public void setPosition() {
-    m_controller.setProfiledPosition(m_setpoint.getTranslation().getX());
+    double xPosition = m_setpoint.getPoseSetpoint().getTranslation().getX();
+    m_controller.setProfiledPosition(xPosition);
   }
 
-  // In meters/radians per second
   public void setVelocity(Twist2d velocity) {
+    m_setpoint.create(velocity);
+    double xVelocity = m_setpoint.getTwistSetpoint().dx;
+    m_controller.setVelocity(xVelocity);
   }
     
   public boolean atReference(){
-    final var eTranslate = m_poseError.getTranslation();
-    final var tolTranslate = m_poseTolerance.getTranslation();
-    return Math.abs(eTranslate.getX()) < tolTranslate.getX();
-  }
-
-  // Set tolerance for the atReference method
-  public void setTolerance(Pose2d poseTolerance) {
-    m_poseTolerance = poseTolerance;
+    return m_setpoint.atReference();
   }
 
   public Pose2d getPosition(){
