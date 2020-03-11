@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import org.ballardrobotics.speedcontrollers.SmartSpeedController;
 import org.ballardrobotics.speedcontrollers.ctre.SmartTalonFX;
 import org.ballardrobotics.speedcontrollers.fakes.FakeSmartSpeedController;
+import org.ballardrobotics.subsystems.SmartSubsystem;
 import org.ballardrobotics.types.PIDValues;
 import org.ballardrobotics.types.Setpoint;
 
@@ -18,7 +19,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Robot;
 
-public class FlywheelSubsystem extends SubsystemBase {
+public class FlywheelSubsystem extends SubsystemBase implements SmartSubsystem {
   private SmartSpeedController m_controller;
 
   private double m_targetVoltage, m_measuredVoltage;
