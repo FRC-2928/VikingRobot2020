@@ -14,6 +14,7 @@ import frc.robot.commands.intake.OpenIntakeCommand;
 import frc.robot.commands.intake.StartFeeder;
 import frc.robot.commands.shooter.SetShooter;
 import frc.robot.commands.shooter.ShooterManagerSetReference;
+import frc.robot.oi.DriverOI;
 import frc.robot.subsystems.SubsystemContainer;
 import frc.robot.subsystems.drivetrain.TransmissionSubsystem.GearState;
 
@@ -21,6 +22,12 @@ public class JettDriverOI{
 
 
     public static void bindDriverButtons(XboxController controller, SubsystemContainer subsystems) {
+        /*--------------------------------  Smartdashboard ------------------------------------ */
+        String flywheelKey = "Shooter Manager Flywheel Reference";
+        String hoodKey = "Shooter Manager Hood Reference";
+        SmartDashboard.putNumber(hoodKey, 35);
+        SmartDashboard.putNumber(flywheelKey, 4250);
+    
         /*------------------------------------  Buttons  --------------------------------------- */
 
         //Drivetrain buttons
@@ -59,12 +66,6 @@ public class JettDriverOI{
         flipIntakeButton.whileHeld(new OpenIntakeCommand(subsystems.roller, subsystems.arm));
 
         // climbButton.whileHeld()
-
-        //Shooter bindings
-        String flywheelKey = "Shooter Manager Flywheel Reference";
-        String hoodKey = "Shooter Manager Hood Reference";
-        SmartDashboard.putNumber(hoodKey, 35);
-        SmartDashboard.putNumber(flywheelKey, 4250);
 
         autoShootingButton.whileHeld(new SetShooter(subsystems));
 
